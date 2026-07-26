@@ -1,8 +1,8 @@
-"""OntologyAI V5.1 — Workflow registry (PRD §7 / §25).
+"""OntologyAI V5.2 — Workflow registry (PRD §7 / §25).
 
-Default roster is EXACTLY 6 V5.1 canonical workflows:
+Default roster is EXACTLY 6 V5.2 canonical workflows:
     ChiefOfStaffWorkflow, DiscoveryWorkflow, OntologyMappingWorkflow,
-    TruthAnalysisWorkflow, WorkflowBuilderWorkflow, GovernanceWorkflow
+    KnowledgeValidationWorkflow, SolutionArchitectWorkflow, GovernanceWorkflow
 
 V6 StrategyWorkflow is gated behind ``ENABLE_V6_WORKFLOWS=on`` and is
 lazily imported (not loaded at module level) to keep the V5.1 contract clean.
@@ -18,23 +18,23 @@ import os
 from src.workflows.chief_of_staff_workflow import ChiefOfStaffWorkflow
 from src.workflows.discovery_workflow import DiscoveryWorkflow
 from src.workflows.ontology_mapping_workflow import OntologyMappingWorkflow
-from src.workflows.truth_analysis_workflow import TruthAnalysisWorkflow
-from src.workflows.workflow_builder_workflow import WorkflowBuilderWorkflow
+from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
+from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
 from src.workflows.governance_workflow import GovernanceWorkflow
 
 
 def _build_active_workflows() -> dict[str, type]:
     """Build the active workflow roster based on env flags.
 
-    Default: exactly 6 V5.1 canonical workflows.
+    Default: exactly 6 V5.2 canonical workflows.
     V6 (StrategyWorkflow) added when ``ENABLE_V6_WORKFLOWS=on``.
     """
     base: dict[str, type] = {
         "ChiefOfStaffWorkflow": ChiefOfStaffWorkflow,
         "DiscoveryWorkflow": DiscoveryWorkflow,
         "OntologyMappingWorkflow": OntologyMappingWorkflow,
-        "TruthAnalysisWorkflow": TruthAnalysisWorkflow,
-        "WorkflowBuilderWorkflow": WorkflowBuilderWorkflow,
+        "KnowledgeValidationWorkflow": KnowledgeValidationWorkflow,
+        "SolutionArchitectWorkflow": SolutionArchitectWorkflow,
         "GovernanceWorkflow": GovernanceWorkflow,
     }
     if os.getenv("ENABLE_V6_WORKFLOWS") == "on":
@@ -56,8 +56,8 @@ AGENT_REGISTRY: dict[str, type] = {
     "ChiefOfStaff": ChiefOfStaffWorkflow,
     "Discovery": DiscoveryWorkflow,
     "OntologyMapper": OntologyMappingWorkflow,
-    "TruthAnalyst": TruthAnalysisWorkflow,
-    "WorkflowBuilder": WorkflowBuilderWorkflow,
+    "KnowledgeValidator": KnowledgeValidationWorkflow,
+    "SolutionArchitect": SolutionArchitectWorkflow,
     "Governance": GovernanceWorkflow,
 }
 
@@ -71,8 +71,8 @@ def _build_route_map() -> dict[str, type]:
         "@chief": ChiefOfStaffWorkflow,
         "@discover": DiscoveryWorkflow,
         "@map": OntologyMappingWorkflow,
-        "@truth": TruthAnalysisWorkflow,
-        "@build": WorkflowBuilderWorkflow,
+        "@truth": KnowledgeValidationWorkflow,
+        "@build": SolutionArchitectWorkflow,
         "@govern": GovernanceWorkflow,
         "@sarthi": ChiefOfStaffWorkflow,
     }
@@ -89,8 +89,8 @@ __all__ = [
     "ChiefOfStaffWorkflow",
     "DiscoveryWorkflow",
     "OntologyMappingWorkflow",
-    "TruthAnalysisWorkflow",
-    "WorkflowBuilderWorkflow",
+    "KnowledgeValidationWorkflow",
+    "SolutionArchitectWorkflow",
     "GovernanceWorkflow",
     "ACTIVE_WORKFLOWS",
     "WORKFLOW_REGISTRY",

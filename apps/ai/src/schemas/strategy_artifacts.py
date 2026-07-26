@@ -6,7 +6,7 @@ Extends the V5.1 pipeline with:
 - RiskAnalysisResults
 - ChangeStrategy / SolutionScope
 
-These are produced by the StrategyWorkflow and consumed by WorkflowBuilder
+These are produced by the StrategyWorkflow and consumed by SolutionArchitect
 and GovernanceGate. They follow the BaseArtifact pattern from ba_artifact.py.
 """
 from __future__ import annotations

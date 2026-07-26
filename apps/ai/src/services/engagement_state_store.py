@@ -56,7 +56,7 @@ class EngagementStateStore:
 
     ``state_data`` holds all list and dict fields (discovery_notes,
     ontology_objects, truth_findings, etc.) as a JSON blob so the schema
-    stays stable as V5.1 evolves.
+    stays stable as V5.2 evolves.
     """
 
     def __init__(self, dsn: str | None = None) -> None:

@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Runtime / Export layer (PRD §17, §19.3, §20.1.5, §12.7).
+"""OntologyAI V5.2 — Runtime / Export layer (PRD §17, §19.3, §20.1.5, §12.7).
 
 This package contains the DETERMINISTIC compilers that turn an
 :class:`ExecutableWorkflowDraft` into a runtime-specific export payload, plus
@@ -30,14 +30,12 @@ from src.runtime.deployers import (
     DeployerResult,
     deploy_custom_agent,
     deploy_to_n8n,
-    deploy_to_windmill,
 )
 from src.runtime.n8n_compiler import compile_n8n
 from src.runtime.n8n import N8NCompiler
 from src.runtime.pydantic_ai_compiler import PydanticAICompiler
 from src.runtime.python_agent_compiler import PythonAgentCompiler
-from src.runtime.experimental.windmill_compiler import WindmillCompiler
-from src.runtime.experimental.windmill_client import WindmillClientError
+
 
 # ── Compiler registry (V5.1 multi-runtime) ───────────────────────────────────
 _COMPILERS: dict[str, Type[RuntimeCompiler]] = {
@@ -45,7 +43,6 @@ _COMPILERS: dict[str, Type[RuntimeCompiler]] = {
     "adk_go": ADKGoCompiler,
     "pydantic_ai": PydanticAICompiler,
     "python_agent": PythonAgentCompiler,
-    "windmill": WindmillCompiler,
 }
 
 
@@ -54,7 +51,7 @@ def get_compiler(runtime: str) -> RuntimeCompiler:
 
     Args:
         runtime: One of ``"n8n"``, ``"adk_go"``, ``"pydantic_ai"``,
-            ``"python_agent"``, ``"windmill"``.
+            ``"python_agent"``.
 
     Returns:
         A ready-to-use :class:`RuntimeCompiler` instance.
@@ -80,7 +77,6 @@ __all__ = [
     "ADKGoCompiler",
     "PydanticAICompiler",
     "PythonAgentCompiler",
-    "WindmillCompiler",
     "get_compiler",
     # V5.1 credentials
     "CredentialBinding",
@@ -88,8 +84,5 @@ __all__ = [
     # V5.1 deployers
     "DeployerResult",
     "deploy_to_n8n",
-    "deploy_to_windmill",
     "deploy_custom_agent",
-    # V5.1 windmill client
-    "WindmillClientError",
 ]

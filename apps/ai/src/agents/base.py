@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Base Agent with agent mesh primitives.
+"""OntologyAI V5.2 — Base Agent with agent mesh primitives.
 
 Provides common agent facilities:
 - AgentResult dataclass (simplified, no legacy copilot fields)

@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — State → Ontology Adapter.
+"""OntologyAI V5.2 — State → Ontology Adapter.
 
 Maps a flat shared-state dict (``MissionState`` legacy bridge OR the new
 ``EngagementState``) into the six canonical typed Object Type lists defined in

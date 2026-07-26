@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — N8NCompiler wrapper (adapter pattern).
+"""OntologyAI V5.2 — N8NCompiler wrapper (adapter pattern).
 
 Thin adapter that makes the existing deterministic ``compile_n8n()`` available
 through the :class:`RuntimeCompiler` ABC interface.

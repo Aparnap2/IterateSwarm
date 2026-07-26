@@ -1,10 +1,15 @@
 """
 Workflow Schemas — Type contracts for Temporal workflows.
 
+V5.1 PRD (§7) mandates exactly 6 canonical workflows. Legacy V4.2 workflow
+schemas remain importable for type-checking but the WORKFLOW_NAMES /
+WORKFLOW_REGISTRY exports are gated behind ``LEGACY_FDE_MODULES=on``.
+
 Defines input/output types for all available workflows.
 """
 from __future__ import annotations
 
+import os
 from typing import Any, Dict, Literal
 from pydantic import BaseModel, Field
 
@@ -162,11 +167,10 @@ class WeightDecayResult(WorkflowResult):
 
 
 # =============================================================================
-# Workflow Registry
+# Workflow Registry — V5.1 PRD gating
 # =============================================================================
 
-
-WORKFLOW_REGISTRY: dict[str, type] = {
+_LEGACY_REGISTRY: dict[str, type] = {
     "pulse": PulseWorkflowInput,
     "investor": InvestorWorkflowInput,
     "qa": QAWorkflowInput,
@@ -177,9 +181,9 @@ WORKFLOW_REGISTRY: dict[str, type] = {
     "weight_decay": WeightDecayInput,
 }
 
-WORKFLOW_NAMES: list[str] = [
+_LEGACY_NAMES: list[str] = [
     "PulseWorkflow",
-    "InvestorWorkflow", 
+    "InvestorWorkflow",
     "QAWorkflow",
     "MemoryMaintenanceWorkflow",
     "SelfAnalysisWorkflow",
@@ -187,3 +191,12 @@ WORKFLOW_NAMES: list[str] = [
     "CompressionWorkflow",
     "WeightDecayWorkflow",
 ]
+
+# Default (V5.1 mode): empty registry — only V5.1 canonical workflows are active.
+# With LEGACY_FDE_MODULES=on: legacy V4.2 workflow names/schemas are exposed.
+if os.getenv("LEGACY_FDE_MODULES") == "on":
+    WORKFLOW_REGISTRY: dict[str, type] = dict(_LEGACY_REGISTRY)
+    WORKFLOW_NAMES: list[str] = list(_LEGACY_NAMES)
+else:
+    WORKFLOW_REGISTRY: dict[str, type] = {}
+    WORKFLOW_NAMES: list[str] = []

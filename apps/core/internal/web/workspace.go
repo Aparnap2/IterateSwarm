@@ -12,26 +12,26 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ── V5.1 Workspace (gated by EngagementState.workspace_mode) ──────────────
+// ── V5.2 Workspace (gated by EngagementState.workspace_mode) ──────────────
 
 // WorkspaceScreen lists the 16 screens available in workspace mode.
 var WorkspaceScreen = map[string]string{
-	"dashboard":         "Dashboard",
-	"conversations":     "Conversations",
-	"data-sources":      "Data Sources",
-	"approvals":         "Approvals",
-	"agent-roster":      "Agent Roster",
-	"notifications":     "Notifications",
-	"analytics":         "Analytics",
-	"settings":          "Settings",
-	"help":              "Help",
-	"mission":           "Mission",
-	"ontology":          "Business Map",
-	"truth-findings":    "Operational Truth",
-	"workflow-builder":  "Pilot Builder",
-	"executable-drafts": "Pilot Draft",
-	"artifacts":         "Artifacts",
-	"credentials":       "Credentials",
+	"dashboard":          "Dashboard",
+	"conversations":      "Conversations",
+	"data-sources":       "Data Sources",
+	"approvals":          "Approvals",
+	"agent-roster":       "Agent Roster",
+	"notifications":      "Notifications",
+	"analytics":          "Analytics",
+	"settings":           "Settings",
+	"help":               "Help",
+	"mission":            "Mission",
+	"ontology":           "Business Map",
+	"truth-findings":     "Operational Truth",
+	"solution-architect": "Pilot Builder",
+	"executable-drafts":  "Pilot Draft",
+	"artifacts":          "Artifacts",
+	"credentials":        "Credentials",
 }
 
 // EngagementState is the machine-readable state returned by /api/workspace/state.
@@ -94,7 +94,7 @@ func (h *Handler) WorkspaceScreenPartial(c *fiber.Ctx) error {
 	if !ok {
 		return c.Status(404).SendString(`<div class="text-red-400 text-sm">Unknown screen</div>`)
 	}
-	// All screens are server-rendered fragments; the workflow-builder is the live canvas.
+	// All screens are server-rendered fragments; the solution-architect is the live canvas.
 	return Render(c, "partials/workspace_"+screen, fiber.Map{
 		"Screen": name,
 		"State":  h.getEngagementState(),
@@ -500,7 +500,7 @@ func (h *Handler) APIWorkspaceEvents(c *fiber.Ctx) error {
 	return nil
 }
 
-// RegisterWorkspaceRoutes registers the V5.1 workspace routes.
+// RegisterWorkspaceRoutes registers the V5.2 workspace routes.
 func (h *Handler) RegisterWorkspaceRoutes(app *fiber.App) {
 	// Shell + screen partials (gated by workspace_mode)
 	app.Get("/workspace", h.Workspace)

@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Link Type registry and resolver (PRD §13).
+"""OntologyAI V5.2 — Link Type registry and resolver (PRD §13).
 
 Defines the 11 canonical semantic links between Object Types and a
 ``resolve_link`` helper that queries an injectable data backend for the

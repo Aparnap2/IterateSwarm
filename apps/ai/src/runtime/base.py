@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Multi-runtime compiler ABC (PRD §17, §12.7).
+"""OntologyAI V5.2 — Multi-runtime compiler ABC (PRD §17, §12.7).
 
 All runtime compilers inherit from :class:`RuntimeCompiler` and implement the
 deterministic ``compile(draft: dict) -> dict`` method.

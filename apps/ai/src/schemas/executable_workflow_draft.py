@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — ExecutableWorkflowDraft re-export (PRD §12.7).
+"""OntologyAI V5.2 — ExecutableWorkflowDraft re-export (PRD §12.7).
 
 This module is a thin re-export shim. The single source of truth for
 :class:`ExecutableWorkflowDraft` lives in

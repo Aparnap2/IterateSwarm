@@ -800,20 +800,40 @@ func TestRouteMap_HasFiveCanonicalSpecialists(t *testing.T) {
 }
 
 func TestRouteMap_AllAliasesResolve(t *testing.T) {
-	app := fiber.New()
-	h := NewHandler(nil, nil)
-	app.Post("/api/command/chat/send", h.APICommandChatSend)
+	t.Run("canonical", func(t *testing.T) {
+		app := fiber.New()
+		h := NewHandler(nil, nil)
+		app.Post("/api/command/chat/send", h.APICommandChatSend)
 
-	aliases := []string{"@sarthi", "@agent", "@qa", "@ask", "@chief", "@discover", "@map", "@truth", "@build", "@govern", "@strategy", "@finance", "@fpa", "@data", "@growth", "@ops", "@comms"}
-	for _, alias := range aliases {
-		req := httptest.NewRequest("POST", "/api/command/chat/send",
-			strings.NewReader(fmt.Sprintf("message=hello&mention=%s", alias)))
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		_, err := app.Test(req)
-		if err != nil {
-			t.Errorf("Alias %s failed: %v", alias, err)
+		aliases := []string{"@sarthi", "@agent", "@qa", "@ask", "@chief", "@ontologyai", "@discover", "@map", "@truth", "@build", "@govern", "@strategy"}
+		for _, alias := range aliases {
+			req := httptest.NewRequest("POST", "/api/command/chat/send",
+				strings.NewReader(fmt.Sprintf("message=hello&mention=%s", alias)))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			_, err := app.Test(req)
+			if err != nil {
+				t.Errorf("Alias %s failed: %v", alias, err)
+			}
 		}
-	}
+	})
+
+	t.Run("legacy_fde_modules", func(t *testing.T) {
+		t.Setenv("LEGACY_FDE_MODULES", "on")
+		app := fiber.New()
+		h := NewHandler(nil, nil)
+		app.Post("/api/command/chat/send", h.APICommandChatSend)
+
+		aliases := []string{"@finance", "@fpa", "@data", "@growth", "@ops", "@comms"}
+		for _, alias := range aliases {
+			req := httptest.NewRequest("POST", "/api/command/chat/send",
+				strings.NewReader(fmt.Sprintf("message=hello&mention=%s", alias)))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			_, err := app.Test(req)
+			if err != nil {
+				t.Errorf("Alias %s failed: %v", alias, err)
+			}
+		}
+	})
 }
 
 func TestRouteMap_HiringRemoved(t *testing.T) {

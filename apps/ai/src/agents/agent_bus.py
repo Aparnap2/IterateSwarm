@@ -1,4 +1,4 @@
-"""AgentBus — typed peer-to-peer message bus for agent mesh (V5.1)."""
+"""AgentBus — typed peer-to-peer message bus for agent mesh (V5.2)."""
 
 from __future__ import annotations
 

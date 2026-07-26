@@ -1,5 +1,5 @@
 """
-SpecialistResponse schema for OntologyAI V5.1 (PRD §15.1).
+SpecialistResponse schema for OntologyAI V5.2 (PRD §15.1).
 
 Defines the output contract for specialist agent responses with the V5.1
 canonical specialist names and workflow names enforced via Literal types.
@@ -31,8 +31,8 @@ class SpecialistResponse(BaseModel, strict=True):
     Output contract for specialist agent responses (PRD §15.1).
 
     Attributes:
-        specialist: One of the 6 canonical V5.1 specialist names.
-        workflow_name: One of the 6 canonical V5.1 Temporal workflow names.
+        specialist: One of the 6 canonical V5.2 specialist names.
+        workflow_name: One of the 6 canonical V5.2 Temporal workflow names.
         summary: Brief summary of the response.
         detailed_response: Full detailed response text.
         objects_read: Ontology object types read by this response.
@@ -47,25 +47,25 @@ class SpecialistResponse(BaseModel, strict=True):
         unresolved_questions: Open questions this response could not resolve.
     """
 
-    # V5.1 canonical: 6 specialists. V6 adds "Strategy" (gated behind
+    # V5.2 canonical: 6 specialists. V6 adds "Strategy" (gated behind
     # ENABLE_V6_WORKFLOWS=on), included here so StrategyWorkflow can
     # construct valid responses at runtime without conditional imports.
     specialist: Literal[
         "Discovery",
         "OntologyMapper",
-        "TruthAnalyst",
-        "WorkflowBuilder",
+        "KnowledgeValidator",
+        "SolutionArchitect",
         "Governance",
         "ChiefOfStaff",
         "Strategy",
     ]
-    # V5.1 canonical: 6 workflow names. V6 adds "StrategyWorkflow".
+    # V5.2 canonical: 6 workflow names. V6 adds "StrategyWorkflow".
     workflow_name: Literal[
         "ChiefOfStaffWorkflow",
         "DiscoveryWorkflow",
         "OntologyMappingWorkflow",
-        "TruthAnalysisWorkflow",
-        "WorkflowBuilderWorkflow",
+        "KnowledgeValidationWorkflow",
+        "SolutionArchitectWorkflow",
         "GovernanceWorkflow",
         "StrategyWorkflow",
     ]

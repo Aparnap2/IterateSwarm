@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Governed Write Enforcement (PRD §10.7, §18).
+"""OntologyAI V5.2 — Governed Write Enforcement (PRD §10.7, §18).
 
 Provides the :func:`governed_write` decorator that enforces human-in-the-loop
 (HITL) approval for consequential writes to ontology Object Type properties.
@@ -219,7 +219,7 @@ def _money_state_change_underlying(event_id: str, status: str) -> dict:
     return {"updated": event_id, "status": status}
 
 
-@governed_write(object_type="MoneyEvent", property_name="status", requested_by="TruthAnalyst")
+@governed_write(object_type="MoneyEvent", property_name="status", requested_by="KnowledgeValidator")
 def governed_money_state_change(event_id: str, status: str, **kwargs: Any) -> Any:
     """Governed money-state change (high blast radius)."""
     return _money_state_change_underlying(event_id, status)
@@ -229,7 +229,7 @@ def _issue_close_underlying(issue_id: str, status: str) -> dict:
     return {"updated": issue_id, "status": status}
 
 
-@governed_write(object_type="Issue", property_name="status", requested_by="TruthAnalyst")
+@governed_write(object_type="Issue", property_name="status", requested_by="KnowledgeValidator")
 def governed_issue_close(issue_id: str, status: str, **kwargs: Any) -> Any:
     """Governed issue close (medium blast radius, requires approval)."""
     return _issue_close_underlying(issue_id, status)

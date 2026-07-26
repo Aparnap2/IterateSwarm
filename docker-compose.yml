@@ -316,46 +316,6 @@ services:
       retries: 3
 
   # ===========================================
-  # Windmill - Managed execution runtime (V5.1, ADR-009)
-  # Reachable internally via REST API (http://windmill:8000/api)
-  # ===========================================
-  windmill:
-    image: ghcr.io/windmill-labs/windmill:latest
-    container_name: iterateswarm-windmill
-    environment:
-      - DATABASE_URL=postgres://iterateswarm:iterateswarm@postgres:5432/iterateswarm?sslmode=disable
-      - MODE=server
-      - WM_DOMAIN=http://localhost:8000
-      - RUST_LOG=info
-    ports:
-      - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - iterateswarm-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  windmill-worker:
-    image: ghcr.io/windmill-labs/windmill:latest
-    container_name: iterateswarm-windmill-worker
-    environment:
-      - DATABASE_URL=postgres://iterateswarm:iterateswarm@postgres:5432/iterateswarm?sslmode=disable
-      - MODE=worker
-      - WM_TOKEN=${WINDMILL_WORKER_TOKEN:-}
-      - NUM_WORKERS=2
-    depends_on:
-      windmill:
-        condition: service_healthy
-    networks:
-      - iterateswarm-net
-    restart: unless-stopped
-
-  # ===========================================
   # n8n - Legacy execution runtime (backward compat, ADR-007)
   # DEPRECATED — will be removed in V6 (see ADR-009)
   # NOT exposed to host. Reachable only via internal REST API

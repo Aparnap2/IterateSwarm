@@ -1,5 +1,5 @@
 """
-Scheduled workflow triggers for OntologyAI V5.1.
+Scheduled workflow triggers for OntologyAI V5.2.
 
 Registers scheduled Temporal workflow executions (cron-driven) against the
 canonical ``ONTOLOGYAI-MAIN-QUEUE`` with defensive fallback. Kept
@@ -43,12 +43,12 @@ class ScheduledWorkflow:
 
 
 # Engagement-phase cadence (V5.1 PLAN §3.7). Each entry compiles to a Temporal
-# cron schedule. Workflow names are the canonical V5.1 roster.
+# cron schedule. Workflow names are the canonical V5.2 roster.
 SCHEDULED_WORKFLOWS: list[ScheduledWorkflow] = [
     ScheduledWorkflow("discovery-sweep", "DiscoveryWorkflow", "0 */6 * * *"),
     ScheduledWorkflow("ontology-mapping", "OntologyMappingWorkflow", "0 */6 * * *"),
-    ScheduledWorkflow("truth-analysis", "TruthAnalysisWorkflow", "30 8 * * *"),
-    ScheduledWorkflow("workflow-builder", "WorkflowBuilderWorkflow", "0 */4 * * *"),
+    ScheduledWorkflow("knowledge-validation", "KnowledgeValidationWorkflow", "30 8 * * *"),
+    ScheduledWorkflow("solution-architect", "SolutionArchitectWorkflow", "0 */4 * * *"),
     ScheduledWorkflow("governance-review", "GovernanceWorkflow", "0 7 * * 1"),
     ScheduledWorkflow("chief-of-staff-digest", "ChiefOfStaffWorkflow", "5 7 * * 1"),
 ]

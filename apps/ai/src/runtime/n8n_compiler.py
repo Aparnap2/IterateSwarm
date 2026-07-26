@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — n8n runtime compiler (PRD §17.1, §17.3, §12.7).
+"""OntologyAI V5.2 — n8n runtime compiler (PRD §17.1, §17.3, §12.7).
 
 Deterministically transforms an :class:`ExecutableWorkflowDraft` into an n8n
 workflow JSON document (``nodes`` + ``connections``). The payload is written

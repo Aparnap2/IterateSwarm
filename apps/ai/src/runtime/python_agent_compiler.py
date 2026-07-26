@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — PythonAgent (smolagents) compiler.
+"""OntologyAI V5.2 — PythonAgent (smolagents) compiler.
 
 Generates valid Python source code using the ``smolagents`` library to define
 a ``CodeAgent`` with ``@tool`` decorated functions. Produces a single file:

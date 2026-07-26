@@ -23,8 +23,8 @@ class TestRouteMap:
     def test_specialist_aliases(self):
         assert ROUTE_MAP["@discover"] is _class("DiscoveryWorkflow")
         assert ROUTE_MAP["@map"] is _class("OntologyMappingWorkflow")
-        assert ROUTE_MAP["@truth"] is _class("TruthAnalysisWorkflow")
-        assert ROUTE_MAP["@build"] is _class("WorkflowBuilderWorkflow")
+        assert ROUTE_MAP["@truth"] is _class("KnowledgeValidationWorkflow")
+        assert ROUTE_MAP["@build"] is _class("SolutionArchitectWorkflow")
         assert ROUTE_MAP["@govern"] is _class("GovernanceWorkflow")
 
     def test_sarthi_backward_compat(self):

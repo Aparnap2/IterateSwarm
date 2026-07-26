@@ -26,6 +26,9 @@ CONSUMER_GROUP = "ontology_ai-python-worker"
 TIMEOUT_SECONDS = 10
 
 
+DLQ_TOPIC = "ontology_ai.dlq.events"
+
+
 class RedpandaConsumer:
     """Async Redpanda consumer for Go→Python events."""
 
@@ -33,7 +36,56 @@ class RedpandaConsumer:
         self.brokers = brokers or [REDPANDA_URL]
         self.group = group
         self._consumer: AIOKafkaConsumer | None = None
+        self._dlq_producer: AIOKafkaProducer | None = None
         self._running = False
+
+    async def _ensure_dlq_producer(self) -> AIOKafkaProducer | None:
+        """Lazy-init the DLQ producer. Returns None if unavailable."""
+        if self._dlq_producer is not None:
+            return self._dlq_producer
+        try:
+            self._dlq_producer = AIOKafkaProducer(
+                bootstrap_servers=self.brokers,
+                client_id="ontology_ai_dlq",
+            )
+            await self._dlq_producer.start()
+            log.info("DLQ producer connected to %s", self.brokers)
+            return self._dlq_producer
+        except Exception as e:
+            log.warning("DLQ producer unavailable: %s", e)
+            self._dlq_producer = None
+            return None
+
+    async def _publish_dlq(
+        self,
+        original_topic: str,
+        original_key: bytes | None,
+        error: str,
+        payload: dict,
+    ) -> None:
+        """Publish a failed message envelope to the DLQ topic."""
+        producer = await self._ensure_dlq_producer()
+        if producer is None:
+            log.warning("Cannot publish to DLQ — no producer available")
+            return
+
+        dlq_envelope = {
+            "original_topic": original_topic,
+            "original_key": original_key.decode() if original_key else None,
+            "error": error,
+            "failed_at": datetime.utcnow().isoformat() + "Z",
+            "payload": payload,
+        }
+
+        try:
+            await producer.send_and_wait(
+                DLQ_TOPIC,
+                json.dumps(dlq_envelope).encode(),
+                key=original_key,
+            )
+            log.info("Published failed message to DLQ topic %s", DLQ_TOPIC)
+        except Exception as dlq_err:
+            log.error("Failed to publish to DLQ topic: %s", dlq_err)
 
     async def connect(self) -> bool:
         """Connect to Redpanda. Returns False if unavailable."""
@@ -51,7 +103,7 @@ class RedpandaConsumer:
             log.info(f"Connected to Redpanda at {self.brokers}")
             return True
         except Exception as e:
-            log.warning(f"Redpanda unavailable: {e}. Using Redis Streams fallback.")
+            log.warning(f"Redpanda unavailable: {e}. Events will not be published.")
             return False
 
     async def consume(self, handler: Callable[[dict], Awaitable[None]]) -> None:
@@ -67,14 +119,31 @@ class RedpandaConsumer:
                 envelope = json.loads(msg.value.decode())
                 await handler(envelope)
             except Exception as e:
-                log.error(f"Error processing message: {e}")
+                error_msg = f"{type(e).__name__}: {e}"
+                log.error(f"Error processing message: {error_msg}")
+
+                # Publish to DLQ so the message is not lost
+                try:
+                    raw_payload = json.loads(msg.value.decode())
+                except Exception:
+                    raw_payload = {"raw": msg.value.decode(errors="replace")}
+
+                await self._publish_dlq(
+                    original_topic=msg.topic,
+                    original_key=msg.key,
+                    error=error_msg,
+                    payload=raw_payload,
+                )
 
     async def stop(self) -> None:
-        """Stop consumer."""
+        """Stop consumer and DLQ producer."""
         self._running = False
         if self._consumer:
             await self._consumer.stop()
             self._consumer = None
+        if self._dlq_producer:
+            await self._dlq_producer.stop()
+            self._dlq_producer = None
 
 
 class RedpandaPublisher:

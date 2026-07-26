@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — ChiefOfStaffWorkflow (PRD §8.1 / §16.1).
+"""OntologyAI V5.2 — ChiefOfStaffWorkflow (PRD §8.1 / §16.1).
 
 Control-plane orchestrator. Loads ``EngagementState`` (init phase="discovery"
 if none), classifies intent (deterministic), routes to one or more specialist
@@ -42,10 +42,10 @@ _INTENT_KEYWORDS: dict[str, str] = {
     "map": "ontology_mapping",
     "ontology": "ontology_mapping",
     "canonical": "ontology_mapping",
-    "truth": "truth_analysis",
-    "stuck": "truth_analysis",
-    "overdue": "truth_analysis",
-    "risk": "truth_analysis",
+    "truth": "knowledge_validation",
+    "stuck": "knowledge_validation",
+    "overdue": "knowledge_validation",
+    "risk": "knowledge_validation",
     "build": "workflow_design",
     "workflow": "workflow_design",
     "sop": "workflow_design",
@@ -83,7 +83,7 @@ class ChiefOfStaffCore:
             "@setup": "setup_ontology",
             "@discover": "discovery",
             "@map": "ontology_mapping",
-            "@truth": "truth_analysis",
+            "@truth": "knowledge_validation",
             "@build": "workflow_design",
             "@govern": "governance_review",
             "@strategy": "strategy",
@@ -103,8 +103,8 @@ class ChiefOfStaffCore:
     def route(self, intent: str) -> list[type]:
         from src.workflows.discovery_workflow import DiscoveryWorkflow
         from src.workflows.ontology_mapping_workflow import OntologyMappingWorkflow
-        from src.workflows.truth_analysis_workflow import TruthAnalysisWorkflow
-        from src.workflows.workflow_builder_workflow import WorkflowBuilderWorkflow
+        from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
+        from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
         from src.workflows.governance_workflow import GovernanceWorkflow
         from src.workflows.strategy_workflow import StrategyWorkflow
 
@@ -112,11 +112,11 @@ class ChiefOfStaffCore:
             "setup_ontology": [DiscoveryWorkflow],
             "discovery": [DiscoveryWorkflow],
             "ontology_mapping": [OntologyMappingWorkflow],
-            "truth_analysis": [TruthAnalysisWorkflow],
-            "workflow_design": [WorkflowBuilderWorkflow],
+            "knowledge_validation": [KnowledgeValidationWorkflow],
+            "workflow_design": [SolutionArchitectWorkflow],
             "governance_review": [GovernanceWorkflow],
             "strategy": [StrategyWorkflow],
-            "handoff": [WorkflowBuilderWorkflow, GovernanceWorkflow],
+            "handoff": [SolutionArchitectWorkflow, GovernanceWorkflow],
         }
         return mapping.get(intent, [DiscoveryWorkflow])
 
@@ -257,13 +257,13 @@ class ChiefOfStaffCore:
                     tenant_id=tenant_id, engagement_id=engagement_id,
                     discovery_notes=eng_state.discovery_notes,
                 )
-            if name == "TruthAnalysisWorkflow":
+            if name == "KnowledgeValidationWorkflow":
                 return wf.run(
                     tenant_id=tenant_id, engagement_id=engagement_id,
                     ontology_objects=eng_state.ontology_objects,
                     ontology_links=eng_state.ontology_links,
                 )
-            if name == "WorkflowBuilderWorkflow":
+            if name == "SolutionArchitectWorkflow":
                 return wf.run(
                     tenant_id=tenant_id, engagement_id=engagement_id,
                     truth_findings=eng_state.truth_findings,
@@ -285,14 +285,14 @@ class ChiefOfStaffCore:
     # ------------------------------------------------------------------
     def _next_phase(self, intent: str, current: str) -> str:
         order = [
-            "discovery", "ontology_mapping", "truth_analysis",
+            "discovery", "ontology_mapping", "knowledge_validation",
             "workflow_design", "governance_review", "deployment_planning", "handoff",
         ]
         target = {
             "setup_ontology": "discovery",
             "discovery": "discovery",
             "ontology_mapping": "ontology_mapping",
-            "truth_analysis": "truth_analysis",
+            "knowledge_validation": "knowledge_validation",
             "workflow_design": "workflow_design",
             "governance_review": "governance_review",
             "handoff": "handoff",

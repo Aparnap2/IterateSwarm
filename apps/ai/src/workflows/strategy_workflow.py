@@ -78,7 +78,7 @@ class StrategyWorkflow:
         Args:
             tenant_id: Tenant identifier.
             engagement_id: Engagement identifier.
-            truth_findings: List of truth finding dicts (from TruthAnalysisWorkflow).
+            truth_findings: List of truth finding dicts (from KnowledgeValidationWorkflow).
             operator_goal: Optional operator goal context.
             discover_refs: Optional discovery source references.
             planned_outcomes: Optional dict of outcome data to produce a

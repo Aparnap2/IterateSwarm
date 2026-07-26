@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Credentials binding model (PRD §17, §20.1.5).
+"""OntologyAI V5.2 — Credentials binding model (PRD §17, §20.1.5).
 
 Defines the :class:`CredentialBinding` Pydantic model and the
 :class:`CredentialStore` for managing runtime credentials across tenants.

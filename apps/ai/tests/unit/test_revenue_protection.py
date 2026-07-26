@@ -2,7 +2,7 @@
 
 Tests the three parallel implementation tracks:
   1. ``Shipment`` object type + ``order_shipment`` link in the ontology
-  2. ``_check_order_shipment_mismatch`` in ``TruthAnalysisWorkflow``
+  2. ``_check_order_shipment_mismatch`` in ``KnowledgeValidationWorkflow``
   3. ``explain_mismatch`` in the semantic layer (+ LLM fallback)
 
 Run FIRST (RED phase) — then implement to make them GREEN.
@@ -102,8 +102,8 @@ from src.ontology.link_types import LINK_TYPES
 # ===========================================================================
 
 def _make_workflow(llm=None):
-    from src.workflows.truth_analysis_workflow import TruthAnalysisWorkflow
-    return TruthAnalysisWorkflow(llm_client=llm)
+    from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
+    return KnowledgeValidationWorkflow(llm_client=llm)
 
 
 def _get_explain_mismatch():
@@ -211,10 +211,10 @@ class TestShipmentObjectType:
 # ===========================================================================
 
 class TestOrderShipmentMismatchCheck:
-    """Deterministic truth-analysis check for Order <-> Shipment value mismatches.
+    """Deterministic knowledge-validation check for Order <-> Shipment value mismatches.
 
     These tests call ``_check_order_shipment_mismatch`` directly (the private
-    method on ``TruthAnalysisWorkflow``).  The method is expected to accept
+    method on ``KnowledgeValidationWorkflow``).  The method is expected to accept
     ``(ontology_objects: dict, ontology_links: list[dict])`` and return a list
     of finding dicts.
     """
@@ -613,7 +613,7 @@ class TestCandidateActionMapping:
         pa = PlannedAction(**action)
         assert pa.type is not None
         assert pa.target_id == "e1"
-        assert pa.requested_by == "TruthAnalyst"
+        assert pa.requested_by == "KnowledgeValidator"
         # The kind name appears in source_refs, not rationale
         assert any(
             "order_shipment_mismatch_under_shipped" in ref
@@ -641,7 +641,7 @@ class TestCandidateActionMapping:
         assert action is not None
         pa = PlannedAction(**action)
         assert pa.target_id == "e2"
-        assert pa.requested_by == "TruthAnalyst"
+        assert pa.requested_by == "KnowledgeValidator"
 
     def test_candidate_action_for_unmapped_kind_still_returns_action(self):
         """An unknown kind is handled gracefully (not a crash)."""

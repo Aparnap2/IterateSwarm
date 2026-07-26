@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — OntologySetupState (PRD §14.3 / §25.2).
+"""OntologyAI V5.2 — OntologySetupState (PRD §14.3 / §25.2).
 
 The ontology setup wizard is a guided 5-step HTMX flow that orchestrates
 existing ChiefOfStaff + Discovery + OntologyMapping workflows. This module
@@ -7,7 +7,7 @@ defines the Pydantic state models for the wizard's step-by-step UX.
 Design (UX/orchestration layer, NOT a new workflow):
   * ``OntologySetupState`` tracks the current step, tenant, and engagement.
   * Transition logic is deterministic — forward-only, sequential, validated.
-  * Serialization is JSON-compatible for Windmill persistence (ADR-009).
+    * Serialization is JSON-compatible for persistence.
 """
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ class OntologySetupState(BaseModel):
     """Wizard state for the 5-step ontology setup flow.
 
     The state is immutable — ``transition_to`` returns a new instance.
-    Serializes to JSON for Windmill / Redis persistence.
+    Serializes to JSON for Redis persistence.
     """
     engagement_id: str
     tenant_id: str

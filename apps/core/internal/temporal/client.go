@@ -8,7 +8,7 @@ import (
 	"go.temporal.io/sdk/client"
 )
 
-// ONTOLOGYAI_MAIN_QUEUE is the canonical V5.1 task queue for OntologyAI workflows.
+// ONTOLOGYAI_MAIN_QUEUE is the canonical V5.2 task queue for OntologyAI workflows.
 // It is env-overridable via TEMPORAL_TASK_QUEUE and falls back to the legacy
 // TRACKGUARD-MAIN-QUEUE name so the pilot never hard-fails on queue misconfiguration.
 const ONTOLOGYAI_MAIN_QUEUE = "ONTOLOGYAI-MAIN-QUEUE"

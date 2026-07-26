@@ -1,15 +1,15 @@
-"""Agent Authority Manifest — V5.1 canonical agent roster.
+"""Agent Authority Manifest — V5.2 canonical agent roster.
 
 Defines each agent's domain, tool permissions, escalation tier, triggers,
 and EngagementState fields it is allowed to write. Used by HITL routing,
 tool execution guards, and EngagementState write-path validation.
 
-V5.1: Six canonical agents replacing the legacy V4.1 roster.
+V5.2: Six canonical agents replacing the legacy V4.1 roster.
 - ChiefOfStaff (control_plane) — orchestrator / intent classifier
 - Discovery (discovery) — evidence gathering
 - OntologyMapper (ontology_mapping) — typed object materialization
-- TruthAnalyst (truth_analysis) — blockers, contradictions, risks
-- WorkflowBuilder (workflow_building) — governed draft generation
+- KnowledgeValidator (knowledge_validation) — blockers, contradictions, risks
+- SolutionArchitect (workflow_building) — governed draft generation
 - Governance (governance) — approval routing, external action exclusivity
 """
 
@@ -25,7 +25,7 @@ class AgentAuthority(BaseModel):
         "control_plane",
         "discovery",
         "ontology_mapping",
-        "truth_analysis",
+        "knowledge_validation",
         "workflow_building",
         "governance",
     ]
@@ -95,10 +95,10 @@ AUTHORITY_MANIFEST: list[AgentAuthority] = [
         data_classification="internal",
     ),
     AgentAuthority(
-        agent_name="TruthAnalyst",
+        agent_name="KnowledgeValidator",
         role="Truth analysis, contradiction detection, and risk assessment",
         voice="Devil's advocate",
-        domain="truth_analysis",
+        domain="knowledge_validation",
         can_emit_alerts=True,
         can_execute_tools=True,
         allowed_tool_ids=["flag_contradiction", "assess_risk", "flag_blocker"],
@@ -114,7 +114,7 @@ AUTHORITY_MANIFEST: list[AgentAuthority] = [
         data_classification="internal",
     ),
     AgentAuthority(
-        agent_name="WorkflowBuilder",
+        agent_name="SolutionArchitect",
         role="Governed workflow draft generation",
         voice="Solution architect",
         domain="workflow_building",
@@ -126,7 +126,7 @@ AUTHORITY_MANIFEST: list[AgentAuthority] = [
             "propose_change_strategy",
         ],
         escalation_tier="review",
-        triggers=["truth_analysis_complete", "workflow_requested"],
+        triggers=["knowledge_validation_complete", "workflow_requested"],
         writes_mission_fields=[
             "workflow_specs",
             "executable_workflow_drafts",

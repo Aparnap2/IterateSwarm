@@ -119,15 +119,26 @@ func main() {
 	w.RegisterActivity(workflow.PersistInternalOpsResult)
 	w.RegisterActivity(workflow.CreateHITLRecord)
 
-	// Register WorkflowRouter and child workflows (Phase 5)
-	w.RegisterWorkflow(workflow.WorkflowRouter)
-	// Legacy compat aliases for in-flight workflows
-	w.RegisterWorkflow(workflow.RevenueWorkflow)
-	w.RegisterWorkflow(workflow.CSWorkflow)
-	w.RegisterWorkflow(workflow.PeopleWorkflow)
-	w.RegisterWorkflow(workflow.FinanceWorkflow)
-	w.RegisterWorkflow(workflow.ChiefOfStaffWorkflow)
-	w.RegisterActivity(workflow.SendToDLQActivity)
+	// Gate legacy FDE modules behind env flag
+	// on the shared ONTOLOGYAI-MAIN-QUEUE task queue.
+	if os.Getenv("LEGACY_FDE_MODULES") == "on" {
+		log.Println("LEGACY_FDE_MODULES=on: registering legacy WorkflowRouter + compat workflows")
+		w.RegisterWorkflow(workflow.WorkflowRouter)
+		w.RegisterWorkflow(workflow.RevenueWorkflow)
+		w.RegisterWorkflow(workflow.CSWorkflow)
+		w.RegisterWorkflow(workflow.PeopleWorkflow)
+		w.RegisterWorkflow(workflow.FinanceWorkflow)
+		w.RegisterWorkflow(workflow.ChiefOfStaffWorkflow)
+		w.RegisterActivity(workflow.SendToDLQActivity)
+		w.RegisterActivity(workflow.GetRecentAlerts)
+		w.RegisterActivity(workflow.GetRecentDecisions)
+		w.RegisterActivity(workflow.GetCurrentMetricsSnapshot)
+		w.RegisterActivity(workflow.GetInvestorRelationshipHealth)
+		w.RegisterActivity(workflow.SynthesizeWeeklyBrief)
+		w.RegisterActivity(workflow.DeliverWeeklyBrief)
+	} else {
+		log.Println("LEGACY_FDE_MODULES=off (default): legacy WorkflowRouter + compat workflows NOT registered")
+	}
 
 	log.Printf("Worker listening on task queue: %s", *taskQueue)
 

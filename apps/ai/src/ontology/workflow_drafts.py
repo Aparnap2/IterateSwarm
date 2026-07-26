@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Executable Workflow Draft (PRD §12.7).
+"""OntologyAI V5.2 — Executable Workflow Draft (PRD §12.7).
 
 SINGLE SOURCE OF TRUTH for :class:`ExecutableWorkflowDraft`. Re-exported by
 ``src.schemas.executable_workflow_draft``.
@@ -31,7 +31,7 @@ class ExecutableWorkflowDraft(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     id: str
-    runtime: Literal["n8n", "custom_agent", "windmill"]
+    runtime: Literal["n8n", "custom_agent"]
     name: str
     source_workflow_spec_id: str
     status: Literal[

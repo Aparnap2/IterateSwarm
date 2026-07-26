@@ -1,6 +1,6 @@
-"""TDD tests for TruthAnalysisWorkflow (PRD §8.4 / §16.4).
+"""TDD tests for KnowledgeValidationWorkflow (PRD §8.4 / §16.4).
 
-Run FIRST — must FAIL, then implement truth_analysis_workflow.py to pass.
+Run FIRST — must FAIL, then implement knowledge_validation_workflow.py to pass.
 
 Key behaviors asserted:
   * deterministic findings fire (missing owner, overdue money event, blocked
@@ -8,7 +8,7 @@ Key behaviors asserted:
   * LLM synthesis is mocked (not called in deterministic path),
   * candidate PlannedAction drafts produced for action-worthy items,
   * returns patches to truth_findings (+ optional planned_actions),
-  * specialist="TruthAnalyst".
+  * specialist="KnowledgeValidator".
 """
 import pytest
 
@@ -16,8 +16,8 @@ from src.schemas.specialist_response import SpecialistResponse
 
 
 def _make_workflow(llm=None):
-    from src.workflows.truth_analysis_workflow import TruthAnalysisWorkflow
-    return TruthAnalysisWorkflow(llm_client=llm)
+    from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
+    return KnowledgeValidationWorkflow(llm_client=llm)
 
 
 def _snapshot(**overrides):
@@ -137,11 +137,11 @@ class TestTruthCandidateActions:
 
 
 class TestTruthResponse:
-    def test_returns_truth_analyst_response(self):
+    def test_returns_knowledge_validator_response(self):
         wf = _make_workflow()
         resp = wf.run(tenant_id="t1", engagement_id="e1",
                       ontology_objects=_snapshot())
         assert isinstance(resp, SpecialistResponse)
-        assert resp.specialist == "TruthAnalyst"
-        assert resp.workflow_name == "TruthAnalysisWorkflow"
+        assert resp.specialist == "KnowledgeValidator"
+        assert resp.workflow_name == "KnowledgeValidationWorkflow"
         assert "truth_findings" in resp.engagement_state_patch

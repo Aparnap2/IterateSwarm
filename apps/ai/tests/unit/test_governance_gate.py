@@ -419,7 +419,7 @@ class TestGovernedWriteDecorator:
         existing = PlannedAction(
             id="pa-existing", type="write:MoneyEvent.status",
             title="x", blast_radius="high", status="draft",
-            requested_by="TruthAnalyst",
+            requested_by="KnowledgeValidator",
             target_object_type="MoneyEvent", target_id="m-1",
             rationale="x", requires_approval=True, source_refs=[],
         )

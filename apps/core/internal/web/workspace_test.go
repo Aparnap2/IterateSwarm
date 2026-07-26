@@ -132,12 +132,12 @@ func TestWorkspaceScreenPartial_ReturnsDashboard(t *testing.T) {
 	}
 }
 
-func TestWorkspaceScreenPartial_ReturnsWorkflowBuilder(t *testing.T) {
+func TestWorkspaceScreenPartial_ReturnsSolutionArchitect(t *testing.T) {
 	app := fiber.New()
 	h := NewHandler(nil, nil)
 	app.Get("/workspace/:screen", h.WorkspaceScreenPartial)
 
-	req := httptest.NewRequest("GET", "/workspace/workflow-builder", nil)
+	req := httptest.NewRequest("GET", "/workspace/solution-architect", nil)
 	resp, err := app.Test(req)
 	if err != nil {
 		t.Fatalf("Failed: %v", err)
@@ -156,7 +156,7 @@ func TestWorkspaceScreenPartial_ReturnsAll16Screens(t *testing.T) {
 	h := NewHandler(nil, nil)
 	app.Get("/workspace/:screen", h.WorkspaceScreenPartial)
 
-	screens := []string{"dashboard", "conversations", "workflow-builder", "data-sources",
+	screens := []string{"dashboard", "conversations", "solution-architect", "data-sources",
 		"approvals", "agent-roster", "notifications", "analytics", "settings", "help",
 		"mission", "credentials", "ontology", "truth-findings", "executable-drafts", "artifacts"}
 	for _, s := range screens {
@@ -290,7 +290,7 @@ func TestWorkspaceDataSourcesList_ReturnsJSON(t *testing.T) {
 	}
 }
 
-// ── New V5.1 Workspace Screens ────────────────────────────────────────────
+// ── V5.2 Workspace Screens ────────────────────────────────────────────
 
 func TestWorkspaceScreenPartial_ReturnsOntology(t *testing.T) {
 	app := fiber.New()

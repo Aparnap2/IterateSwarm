@@ -17,8 +17,13 @@ def get_database_url(default_db: str = "iterateswarm") -> str:
     Returns:
         Database URL from env or a safe localhost default with no hardcoded credentials
     """
-    return os.environ.get(
-        "DATABASE_URL",
-        f"postgresql://{os.environ.get('DB_USER', 'iterateswarm')}:{os.environ.get('DB_PASSWORD', 'iterateswarm')}@localhost:{os.environ.get('DB_PORT', '5432')}/{default_db}",
-    )
+    url = os.environ.get("DATABASE_URL")
+    if url:
+        return url
+    user = os.environ.get("DB_USER", "iterateswarm")
+    password = os.environ.get("DB_PASSWORD", "")  # require explicit env
+    port = os.environ.get("DB_PORT", "5432")
+    if not password:
+        return f"postgresql://{user}@localhost:{port}/{default_db}?sslmode=disable"
+    return f"postgresql://{user}:{password}@localhost:{port}/{default_db}"
 

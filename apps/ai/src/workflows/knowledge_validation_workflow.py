@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — TruthAnalysisWorkflow (PRD §8.4 / §16.4).
+"""OntologyAI V5.2 — KnowledgeValidationWorkflow (PRD §8.4 / §16.4).
 
 Loads the ontology snapshot and computes DETERMINISTIC findings first
 (missing owners, overdue money events, blocked engagements, unresolved
@@ -21,8 +21,8 @@ from src.ontology.action_types import ActionRegistry
 from src.ontology.object_types import PlannedAction
 
 
-class TruthAnalysisWorkflow:
-    """Truth Analyst specialist workflow (PRD §8.4 / §16.4)."""
+class KnowledgeValidationWorkflow:
+    """Knowledge Validation specialist workflow (PRD §8.4 / §16.4)."""
 
     def __init__(self, llm_client: Optional[Any] = None) -> None:
         self.llm_client = llm_client
@@ -46,7 +46,7 @@ class TruthAnalysisWorkflow:
                 narrative report across findings.
 
         Returns:
-            SpecialistResponse with specialist="TruthAnalyst" and a patch to
+            SpecialistResponse with specialist="KnowledgeValidator" and a patch to
             ``truth_findings`` (+ optional ``planned_actions``).
         """
         ontology_objects = ontology_objects or {}
@@ -94,8 +94,8 @@ class TruthAnalysisWorkflow:
         )
 
         return SpecialistResponse(
-            specialist="TruthAnalyst",
-            workflow_name="TruthAnalysisWorkflow",
+            specialist="KnowledgeValidator",
+            workflow_name="KnowledgeValidationWorkflow",
             summary=summary,
             detailed_response=report,
             objects_read=["ontology_objects", "ontology_links"],
@@ -320,7 +320,7 @@ class TruthAnalysisWorkflow:
             action_type=action_type,
             target_object_type=target_type,
             target_id=target_id,
-            requested_by="TruthAnalyst",
+            requested_by="KnowledgeValidator",
             rationale=finding["summary"],
             status="draft",
             source_refs=[f"truth:{kind}:{target_id}"],

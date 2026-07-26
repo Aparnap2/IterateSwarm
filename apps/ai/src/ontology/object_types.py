@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Canonical Object Type schema definitions.
+"""OntologyAI V5.2 — Canonical Object Type schema definitions.
 
 Strict Pydantic v2 models for the six canonical business Object Types that
 specialists read/write through governed actions. Every model uses

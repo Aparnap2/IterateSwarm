@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — DiscoveryWorkflow (PRD §8.2 / §16.2).
+"""OntologyAI V5.2 — DiscoveryWorkflow (PRD §8.2 / §16.2).
 
 Ingests evidence sources (chat, uploads, transcripts, spreadsheets, connector
 records, notes), validates that at least one source exists, and extracts

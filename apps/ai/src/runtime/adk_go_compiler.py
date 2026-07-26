@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — ADK (Agent Development Kit) Go compiler.
+"""OntologyAI V5.2 — ADK (Agent Development Kit) Go compiler.
 
 Generates syntactically valid Go source code for executing workflow drafts
 as Go agents. Produces two files:

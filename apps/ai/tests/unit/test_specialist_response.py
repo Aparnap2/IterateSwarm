@@ -11,12 +11,12 @@ from pydantic import ValidationError
 
 
 SPECIALISTS = [
-    "Discovery", "OntologyMapper", "TruthAnalyst",
-    "WorkflowBuilder", "Governance", "ChiefOfStaff",
+    "Discovery", "OntologyMapper", "KnowledgeValidator",
+    "SolutionArchitect", "Governance", "ChiefOfStaff",
 ]
 WORKFLOWS = [
     "ChiefOfStaffWorkflow", "DiscoveryWorkflow", "OntologyMappingWorkflow",
-    "TruthAnalysisWorkflow", "WorkflowBuilderWorkflow", "GovernanceWorkflow",
+    "KnowledgeValidationWorkflow", "SolutionArchitectWorkflow", "GovernanceWorkflow",
 ]
 
 
@@ -96,7 +96,7 @@ class TestSpecialistResponse:
     def test_citations_followups_kept(self):
         from src.schemas.specialist_response import SpecialistResponse
         resp = SpecialistResponse(
-            specialist="TruthAnalyst", workflow_name="TruthAnalysisWorkflow",
+            specialist="KnowledgeValidator", workflow_name="KnowledgeValidationWorkflow",
             summary="s", detailed_response="d",
             citations=["src1"], followups=["q?"],
         )
@@ -106,7 +106,7 @@ class TestSpecialistResponse:
     def test_serialization_round_trip(self):
         from src.schemas.specialist_response import SpecialistResponse
         resp = SpecialistResponse(
-            specialist="WorkflowBuilder", workflow_name="WorkflowBuilderWorkflow",
+            specialist="SolutionArchitect", workflow_name="SolutionArchitectWorkflow",
             summary="s", detailed_response="d",
             objects_read=["Invoice"], objects_written=["WorkflowSpec"],
             actions_proposed=["ApproveInvoice"],
@@ -115,7 +115,7 @@ class TestSpecialistResponse:
         )
         d = resp.model_dump()
         resp2 = SpecialistResponse.model_validate(d)
-        assert resp2.specialist == "WorkflowBuilder"
+        assert resp2.specialist == "SolutionArchitect"
         assert resp2.objects_written == ["WorkflowSpec"]
         assert resp2.engagement_state_patch == {"phase": "workflow_design"}
         assert resp2.confidence == 0.9

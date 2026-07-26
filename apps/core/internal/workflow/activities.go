@@ -864,16 +864,7 @@ func (a *Activities) ProcessFinanceOps(ctx context.Context, input ProcessFinance
 	)
 
 	// TODO: Call Python Finance Desk agent via gRPC when proto is updated
-	// For now, return stub result
-	return &ProcessFinanceOpsOutput{
-		Result: map[string]interface{}{
-			"status":  "processed",
-			"desk":    "finance",
-			"message": "Finance desk processing complete",
-		},
-		TasksCreated: []string{},
-		AlertsSent:   []string{},
-	}, nil
+	return nil, fmt.Errorf("ProcessFinanceOps not implemented: awaiting Python gRPC Finance Desk agent")
 }
 
 // ProcessPeopleOpsInput is input for People Desk processing.
@@ -898,15 +889,7 @@ func (a *Activities) ProcessPeopleOps(ctx context.Context, input ProcessPeopleOp
 	)
 
 	// TODO: Call Python People Desk agent via gRPC when proto is updated
-	return &ProcessPeopleOpsOutput{
-		Result: map[string]interface{}{
-			"status":  "processed",
-			"desk":    "people",
-			"message": "People desk processing complete",
-		},
-		TasksCreated: []string{},
-		AlertsSent:   []string{},
-	}, nil
+	return nil, fmt.Errorf("ProcessPeopleOps not implemented: awaiting Python gRPC People Desk agent")
 }
 
 // ProcessLegalOps processes events through Legal Desk (gRPC to Python).
@@ -917,15 +900,7 @@ func (a *Activities) ProcessLegalOps(ctx context.Context, input ProcessLegalOpsI
 	)
 
 	// TODO: Call Python Legal Desk agent via gRPC when proto is updated
-	return &ProcessLegalOpsOutput{
-		Result: map[string]interface{}{
-			"status":  "processed",
-			"desk":    "legal",
-			"message": "Legal desk processing complete",
-		},
-		TasksCreated: []string{},
-		AlertsSent:   []string{},
-	}, nil
+	return nil, fmt.Errorf("ProcessLegalOps not implemented: awaiting Python gRPC Legal Desk agent")
 }
 
 // ProcessLegalOpsInput is input for Legal Desk processing.
@@ -950,15 +925,7 @@ func (a *Activities) ProcessIntelligenceOps(ctx context.Context, input ProcessIn
 	)
 
 	// TODO: Call Python Intelligence Desk agent via gRPC when proto is updated
-	return &ProcessIntelligenceOpsOutput{
-		Result: map[string]interface{}{
-			"status":  "processed",
-			"desk":    "intelligence",
-			"message": "Intelligence desk processing complete",
-		},
-		TasksCreated: []string{},
-		AlertsSent:   []string{},
-	}, nil
+	return nil, fmt.Errorf("ProcessIntelligenceOps not implemented: awaiting Python gRPC Intelligence Desk agent")
 }
 
 // ProcessIntelligenceOpsInput is input for Intelligence Desk processing.
@@ -983,15 +950,7 @@ func (a *Activities) ProcessITOps(ctx context.Context, input ProcessITOpsInput) 
 	)
 
 	// TODO: Call Python IT Desk agent via gRPC when proto is updated
-	return &ProcessITOpsOutput{
-		Result: map[string]interface{}{
-			"status":  "processed",
-			"desk":    "it",
-			"message": "IT desk processing complete",
-		},
-		TasksCreated: []string{},
-		AlertsSent:   []string{},
-	}, nil
+	return nil, fmt.Errorf("ProcessITOps not implemented: awaiting Python gRPC IT Desk agent")
 }
 
 // ProcessITOpsInput is input for IT Desk processing.
@@ -1016,15 +975,7 @@ func (a *Activities) ProcessAdminOps(ctx context.Context, input ProcessAdminOpsI
 	)
 
 	// TODO: Call Python Admin Desk agent via gRPC when proto is updated
-	return &ProcessAdminOpsOutput{
-		Result: map[string]interface{}{
-			"status":  "processed",
-			"desk":    "admin",
-			"message": "Admin desk processing complete",
-		},
-		TasksCreated: []string{},
-		AlertsSent:   []string{},
-	}, nil
+	return nil, fmt.Errorf("ProcessAdminOps not implemented: awaiting Python gRPC Admin Desk agent")
 }
 
 // ProcessAdminOpsInput is input for Admin Desk processing.
@@ -1046,18 +997,13 @@ type ProcessAdminOpsOutput struct {
 // Use a.aiClient to create the typed client (aiv1.NewDeskServiceClient(a.aiClient))
 // instead of creating a new connection per call.
 func (a *Activities) callPythonDeskAgent(ctx context.Context, deskType string, input interface{}) (map[string]interface{}, error) {
-	// Stub implementation - returns mock result
 	// When implemented, use:
 	//   if a.aiClient == nil {
 	//       return nil, fmt.Errorf("AI gRPC client not configured")
 	//   }
 	//   deskClient := aiv1.NewDeskServiceClient(a.aiClient)
 	//   resp, err := deskClient.ProcessDeskEvent(ctx, req)
-	return map[string]interface{}{
-		"status":  "processed",
-		"desk":    deskType,
-		"message": "Desk processing complete (stub)",
-	}, nil
+	return nil, fmt.Errorf("callPythonDeskAgent not implemented: awaiting Python gRPC %s Desk agent", deskType)
 }
 
 // PersistInternalOpsResultInput is input for persisting internal ops results.
@@ -1077,10 +1023,13 @@ func (a *Activities) PersistInternalOpsResult(ctx context.Context, input Persist
 		"desk_type", input.DeskType,
 	)
 
-	// TODO: Implement database persistence
+	if a.db == nil {
+		return fmt.Errorf("PersistInternalOpsResult: database not configured")
+	}
+
+	// TODO: implement DB persistence
 	// This would insert into appropriate desk table based on desk_type
 	// - finance_ops, people_ops, legal_ops, it_assets, admin_events
-
 	return nil
 }
 
@@ -1102,7 +1051,11 @@ func (a *Activities) CreateHITLRecord(ctx context.Context, input CreateHITLRecor
 		"hitl_level", input.HITLLevel,
 	)
 
-	// TODO: Implement database insert for HITL record
+	if a.db == nil {
+		return fmt.Errorf("CreateHITLRecord: database not configured")
+	}
+
+	// TODO: implement DB persistence
 	return nil
 }
 
@@ -1162,12 +1115,12 @@ type GetRecentAlertsOutput struct {
 func (a *Activities) GetRecentAlerts(ctx context.Context, input GetRecentAlertsInput) (*GetRecentAlertsOutput, error) {
 	a.logger.Info("getting recent alerts", "tenant_id", input.TenantID, "days", input.Days)
 
-	// TODO: Implement database query for recent alerts
-	// This would query the alerts table for the last N days
+	if a.db == nil {
+		return nil, fmt.Errorf("GetRecentAlerts: database not configured")
+	}
 
-	return &GetRecentAlertsOutput{
-		Alerts: []map[string]interface{}{}, // Stub: return empty for now
-	}, nil
+	// TODO: implement database query
+	return &GetRecentAlertsOutput{Alerts: []map[string]interface{}{}}, nil
 }
 
 // GetRecentDecisionsInput is input for getting recent decisions.
@@ -1185,12 +1138,12 @@ type GetRecentDecisionsOutput struct {
 func (a *Activities) GetRecentDecisions(ctx context.Context, input GetRecentDecisionsInput) (*GetRecentDecisionsOutput, error) {
 	a.logger.Info("getting recent decisions", "tenant_id", input.TenantID, "days", input.Days)
 
-	// TODO: Implement database query for recent decisions
-	// This would query the decisions table for the last N days
+	if a.db == nil {
+		return nil, fmt.Errorf("GetRecentDecisions: database not configured")
+	}
 
-	return &GetRecentDecisionsOutput{
-		Decisions: []map[string]interface{}{}, // Stub: return empty for now
-	}, nil
+	// TODO: implement database query
+	return &GetRecentDecisionsOutput{Decisions: []map[string]interface{}{}}, nil
 }
 
 // GetCurrentMetricsSnapshotInput is input for getting current metrics.
@@ -1207,18 +1160,12 @@ type GetCurrentMetricsSnapshotOutput struct {
 func (a *Activities) GetCurrentMetricsSnapshot(ctx context.Context, input GetCurrentMetricsSnapshotInput) (*GetCurrentMetricsSnapshotOutput, error) {
 	a.logger.Info("getting current metrics snapshot", "tenant_id", input.TenantID)
 
-	// TODO: Implement metrics aggregation from various sources
-	// This would aggregate MRR, churn, active customers, etc.
+	if a.db == nil {
+		return nil, fmt.Errorf("GetCurrentMetricsSnapshot: database not configured")
+	}
 
-	return &GetCurrentMetricsSnapshotOutput{
-		Metrics: map[string]interface{}{
-			"mrr":              0.0,
-			"arr":              0.0,
-			"active_customers": 0,
-			"churn_rate":       0.0,
-			"growth_rate":      0.0,
-		},
-	}, nil
+	// TODO: implement database query
+	return &GetCurrentMetricsSnapshotOutput{Metrics: map[string]interface{}{}}, nil
 }
 
 // GetInvestorRelationshipHealthInput is input for getting investor relationship health.
@@ -1235,17 +1182,7 @@ type GetInvestorRelationshipHealthOutput struct {
 func (a *Activities) GetInvestorRelationshipHealth(ctx context.Context, input GetInvestorRelationshipHealthInput) (*GetInvestorRelationshipHealthOutput, error) {
 	a.logger.Info("getting investor relationship health", "tenant_id", input.TenantID)
 
-	// TODO: Implement investor relationship analysis
-	// This would check last contact dates, raise priorities, etc.
-
-	return &GetInvestorRelationshipHealthOutput{
-		Health: map[string]interface{}{
-			"total_investors":      0,
-			"warm_relationships":   0,
-			"cold_relationships":   0,
-			"high_priority_raises": 0,
-		},
-	}, nil
+	return nil, fmt.Errorf("GetInvestorRelationshipHealth not implemented: awaiting Python gRPC investor analysis agent")
 }
 
 // SynthesizeWeeklyBriefInput is input for synthesizing weekly brief.
@@ -1268,12 +1205,7 @@ type SynthesizeWeeklyBriefOutput struct {
 func (a *Activities) SynthesizeWeeklyBrief(ctx context.Context, input SynthesizeWeeklyBriefInput) (*SynthesizeWeeklyBriefOutput, error) {
 	a.logger.Info("synthesizing weekly brief", "tenant_id", input.TenantID)
 
-	// TODO: Implement LLM call to synthesize brief
-	// This would use the WEEKLY_SYNTHESIS_PROMPT from the task
-
-	return &SynthesizeWeeklyBriefOutput{
-		Brief: "🎯 ONE THING: Focus on customer acquisition\n\nWeekly Brief for " + input.FounderName + " at " + input.CompanyName + "...", // Stub
-	}, nil
+	return nil, fmt.Errorf("SynthesizeWeeklyBrief not implemented: awaiting Python gRPC brief synthesis agent")
 }
 
 // DeliverWeeklyBriefInput is input for delivering weekly brief.
@@ -1291,12 +1223,7 @@ type DeliverWeeklyBriefOutput struct {
 func (a *Activities) DeliverWeeklyBrief(ctx context.Context, input DeliverWeeklyBriefInput) (*DeliverWeeklyBriefOutput, error) {
 	a.logger.Info("delivering weekly brief", "tenant_id", input.TenantID)
 
-	// TODO: Implement Slack delivery
-	// This would send the brief to Slack
-
-	return &DeliverWeeklyBriefOutput{
-		Delivered: true, // Stub: assume success
-	}, nil
+	return nil, fmt.Errorf("DeliverWeeklyBrief not implemented: awaiting Slack delivery integration")
 }
 
 // Standalone activity functions for Chief of Staff workflow

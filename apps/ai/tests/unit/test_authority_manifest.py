@@ -9,8 +9,8 @@ class TestAuthorityManifest:
         "ChiefOfStaff",
         "Discovery",
         "OntologyMapper",
-        "TruthAnalyst",
-        "WorkflowBuilder",
+        "KnowledgeValidator",
+        "SolutionArchitect",
         "Governance",
     ]
 
@@ -81,7 +81,7 @@ class TestAuthorityManifest:
     def test_get_authority_all_domains_valid(self):
         """Each canonical agent must have a domain in the V5.1 set."""
         from src.agents.authority_manifest import AUTHORITY_MANIFEST
-        valid_domains = {"control_plane", "discovery", "ontology_mapping", "truth_analysis", "workflow_building", "governance"}
+        valid_domains = {"control_plane", "discovery", "ontology_mapping", "knowledge_validation", "workflow_building", "governance"}
         for agent in AUTHORITY_MANIFEST:
             assert agent.domain in valid_domains, (
                 f"Agent '{agent.agent_name}' has invalid domain '{agent.domain}'"

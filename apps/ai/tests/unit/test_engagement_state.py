@@ -150,7 +150,7 @@ class TestEngagementStateFieldValidation:
 
     def test_all_phases_accepted(self):
         for phase in [
-            "discovery", "ontology_mapping", "truth_analysis",
+            "discovery", "ontology_mapping", "knowledge_validation",
             "workflow_design", "governance_review", "deployment_planning", "handoff",
         ]:
             state = EngagementState(
@@ -436,6 +436,6 @@ class TestEdgeCases:
     def test_freshness_provenance_multiple_merges(self):
         state = _make_minimal()
         state = state.merge_patch({"phase": "ontology_mapping"}, provenance="Discovery")
-        state = state.merge_patch({"phase": "truth_analysis"}, provenance="ChiefOfStaff")
+        state = state.merge_patch({"phase": "knowledge_validation"}, provenance="ChiefOfStaff")
         assert "Discovery" in state.freshness
         assert "ChiefOfStaff" in state.freshness

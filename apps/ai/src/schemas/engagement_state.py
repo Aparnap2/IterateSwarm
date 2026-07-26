@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Canonical EngagementState (PRD §14.1 / §14.2).
+"""OntologyAI V5.2 — Canonical EngagementState (PRD §14.1 / §14.2).
 
 ``EngagementState`` is the single shared state shape that every specialist
 workflow reads and writes back to via typed patches (never arbitrary freeform
@@ -63,7 +63,7 @@ _ARTIFACT_STATUS_RANK = {
 PHASES = Literal[
     "discovery",
     "ontology_mapping",
-    "truth_analysis",
+    "knowledge_validation",
     "workflow_design",
     "governance_review",
     "deployment_planning",

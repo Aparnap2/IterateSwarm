@@ -52,9 +52,9 @@ class TestClassifyIntentByAlias:
         core = _make_core()
         assert core.classify_intent("@map existing ontology") == "ontology_mapping"
 
-    def test_at_truth_routes_to_truth_analysis(self):
+    def test_at_truth_routes_to_knowledge_validation(self):
         core = _make_core()
-        assert core.classify_intent("@truth check overdue invoices") == "truth_analysis"
+        assert core.classify_intent("@truth check overdue invoices") == "knowledge_validation"
 
     def test_at_build_routes_to_workflow_design(self):
         core = _make_core()
@@ -98,12 +98,12 @@ class TestClassifyIntentByKeyword:
                 f"Keyword '{kw}' expected ontology_mapping, got {result}"
             )
 
-    def test_truth_analysis_keywords(self):
+    def test_knowledge_validation_keywords(self):
         core = _make_core()
         for kw in ["truth", "stuck", "overdue", "risk"]:
             result = core.classify_intent(f"Check {kw} items")
-            assert result == "truth_analysis", (
-                f"Keyword '{kw}' expected truth_analysis, got {result}"
+            assert result == "knowledge_validation", (
+                f"Keyword '{kw}' expected knowledge_validation, got {result}"
             )
 
     def test_workflow_design_keywords(self):
@@ -159,7 +159,7 @@ class TestClassifyIntentEdgeCases:
     def test_case_insensitivity(self):
         """Keywords are matched case-insensitively."""
         core = _make_core()
-        assert core.classify_intent("TRUTH check") == "truth_analysis"
+        assert core.classify_intent("TRUTH check") == "knowledge_validation"
         assert core.classify_intent("Build Automation") == "workflow_design"
         assert core.classify_intent("GOVERN Approval") == "governance_review"
 
@@ -173,7 +173,7 @@ class TestClassifyIntentEdgeCases:
     def test_mixed_case_alias(self):
         """@-aliases are matched case-insensitively."""
         core = _make_core()
-        assert core.classify_intent("@TRUTH check") == "truth_analysis"
+        assert core.classify_intent("@TRUTH check") == "knowledge_validation"
 
 
 # ---------------------------------------------------------------------------
@@ -195,17 +195,17 @@ class TestRouting:
         classes = core.route("ontology_mapping")
         assert OntologyMappingWorkflow in classes
 
-    def test_truth_analysis_routes_to_truth_analysis_workflow(self):
-        from src.workflows.truth_analysis_workflow import TruthAnalysisWorkflow
+    def test_knowledge_validation_routes_to_knowledge_validation_workflow(self):
+        from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
         core = _make_core()
-        classes = core.route("truth_analysis")
-        assert TruthAnalysisWorkflow in classes
+        classes = core.route("knowledge_validation")
+        assert KnowledgeValidationWorkflow in classes
 
-    def test_workflow_design_routes_to_workflow_builder_workflow(self):
-        from src.workflows.workflow_builder_workflow import WorkflowBuilderWorkflow
+    def test_workflow_design_routes_to_solution_architect_workflow(self):
+        from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
         core = _make_core()
         classes = core.route("workflow_design")
-        assert WorkflowBuilderWorkflow in classes
+        assert SolutionArchitectWorkflow in classes
 
     def test_governance_review_routes_to_governance_workflow(self):
         from src.workflows.governance_workflow import GovernanceWorkflow
@@ -220,11 +220,11 @@ class TestRouting:
         assert StrategyWorkflow in classes
 
     def test_handoff_routes_to_multiple_workflows(self):
-        from src.workflows.workflow_builder_workflow import WorkflowBuilderWorkflow
+        from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
         from src.workflows.governance_workflow import GovernanceWorkflow
         core = _make_core()
         classes = core.route("handoff")
-        assert WorkflowBuilderWorkflow in classes
+        assert SolutionArchitectWorkflow in classes
         assert GovernanceWorkflow in classes
 
     def test_unknown_intent_falls_back_to_discovery(self):

@@ -11,7 +11,7 @@ import logging
 from typing import Any
 from uuid import uuid4
 
-from src.events.bus import emit
+from src.events import emit
 from src.notifications.slack_alert_forwarder import SlackAlertForwarder
 from src.guardian.assemblers import (
     assemble_execution_state,

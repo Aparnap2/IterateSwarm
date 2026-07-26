@@ -166,11 +166,11 @@ func TestWorkspaceOntology_CanonicalContractCounts(t *testing.T) {
 	json.Unmarshal(result["link_types"], &linkTypes)
 
 	if len(objectTypes) != 6 {
-		t.Errorf("FAIL: V5.1 contract requires exactly 6 canonical object types, got %d: %v",
+		t.Errorf("FAIL: V5.2 contract requires exactly 6 canonical object types, got %d: %v",
 			len(objectTypes), objectTypes)
 	}
 	if len(linkTypes) != 9 {
-		t.Errorf("FAIL: V5.1 contract requires exactly 9 canonical link types, got %d: %v",
+		t.Errorf("FAIL: V5.2 contract requires exactly 9 canonical link types, got %d: %v",
 			len(linkTypes), linkTypes)
 	}
 }

@@ -70,13 +70,13 @@ class TestAgentMessageConstruction:
     def test_constructor_sets_all_fields(self):
         msg = AgentMessage(
             sender="ChiefOfStaff",
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={"claim": "Revenue is up 20%"},
             thread_id="thread-abc",
         )
         assert msg.sender == "ChiefOfStaff"
-        assert msg.recipient == "TruthAnalyst"
+        assert msg.recipient == "KnowledgeValidator"
         assert msg.message_type == "request_fact_check"
         assert msg.payload == {"claim": "Revenue is up 20%"}
         assert msg.thread_id == "thread-abc"
@@ -134,14 +134,14 @@ class TestAgentMessageToDict:
     def test_to_dict_contains_all_fields(self):
         msg = AgentMessage(
             sender="ChiefOfStaff",
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={"claim": "Revenue is up 20%"},
             thread_id="thread-abc",
         )
         d = msg.to_dict()
         assert d["from"] == "ChiefOfStaff"
-        assert d["to"] == "TruthAnalyst"
+        assert d["to"] == "KnowledgeValidator"
         assert d["type"] == "request_fact_check"
         assert d["payload"] == {"claim": "Revenue is up 20%"}
         assert d["thread_id"] == "thread-abc"
@@ -167,7 +167,7 @@ class TestAgentMessageFromDict:
     def test_from_dict_round_trip(self):
         original = AgentMessage(
             sender="ChiefOfStaff",
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={"claim": "Revenue is up 20%"},
             thread_id="thread-abc",
@@ -234,13 +234,13 @@ class TestAgentBusPublish:
         bus = AgentBus()
         msg = bus.publish(
             sender="ChiefOfStaff",
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={"claim": "Revenue is up 20%"},
         )
         assert isinstance(msg, AgentMessage)
         assert msg.sender == "ChiefOfStaff"
-        assert msg.recipient == "TruthAnalyst"
+        assert msg.recipient == "KnowledgeValidator"
         assert msg.message_type == "request_fact_check"
         assert msg.payload == {"claim": "Revenue is up 20%"}
 
@@ -378,7 +378,7 @@ class TestAgentBusDrain:
         inbox = [
             {
                 "from": "ChiefOfStaff",
-                "to": "TruthAnalyst",
+                "to": "KnowledgeValidator",
                 "type": "request_fact_check",
                 "payload": {"claim": "Revenue up"},
                 "thread_id": "t-1",
@@ -391,7 +391,7 @@ class TestAgentBusDrain:
         assert len(unread) == 1
         m = unread[0]
         assert m.sender == "ChiefOfStaff"
-        assert m.recipient == "TruthAnalyst"
+        assert m.recipient == "KnowledgeValidator"
         assert m.message_type == "request_fact_check"
         assert m.payload == {"claim": "Revenue up"}
         assert m.thread_id == "t-1"
@@ -439,7 +439,7 @@ class TestBaseAgentSend:
         agent = BaseAgent()
         agent.agent_name = "ChiefOfStaff"
         result = agent.send(
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={"claim": "Revenue is up 20%"},
         )
@@ -449,12 +449,12 @@ class TestBaseAgentSend:
         agent = BaseAgent()
         agent.agent_name = "ChiefOfStaff"
         result = agent.send(
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={"claim": "Revenue is up 20%"},
         )
         assert result["from"] == "ChiefOfStaff"
-        assert result["to"] == "TruthAnalyst"
+        assert result["to"] == "KnowledgeValidator"
         assert result["type"] == "request_fact_check"
         assert result["payload"] == {"claim": "Revenue is up 20%"}
         assert "id" in result
@@ -466,7 +466,7 @@ class TestBaseAgentSend:
         agent = BaseAgent()
         agent.agent_name = "ChiefOfStaff"
         result = agent.send(
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={},
             thread_id="custom-thread",
@@ -488,7 +488,7 @@ class TestBaseAgentSend:
         agent = BaseAgent()
         agent.agent_name = "ChiefOfStaff"
         msg_dict = agent.send(
-            recipient="TruthAnalyst",
+            recipient="KnowledgeValidator",
             message_type="request_fact_check",
             payload={"claim": "test"},
         )
@@ -497,7 +497,7 @@ class TestBaseAgentSend:
         unread = AgentBus.drain(inbox)
         assert len(unread) == 1
         assert unread[0].sender == "ChiefOfStaff"
-        assert unread[0].recipient == "TruthAnalyst"
+        assert unread[0].recipient == "KnowledgeValidator"
 
 
 class TestBaseAgentReceive:
@@ -541,7 +541,7 @@ class TestBaseAgentReceive:
         inbox = [
             {
                 "from": "ChiefOfStaff",
-                "to": "TruthAnalyst",
+                "to": "KnowledgeValidator",
                 "type": "request_fact_check",
                 "payload": {"claim": "Revenue up"},
                 "thread_id": "t-1",
@@ -554,7 +554,7 @@ class TestBaseAgentReceive:
         assert len(messages) == 1
         m = messages[0]
         assert m["from"] == "ChiefOfStaff"
-        assert m["to"] == "TruthAnalyst"
+        assert m["to"] == "KnowledgeValidator"
         assert m["type"] == "request_fact_check"
         assert m["payload"] == {"claim": "Revenue up"}
         assert m["thread_id"] == "t-1"
@@ -598,14 +598,14 @@ class TestAgentResult:
     def test_full_agent_result(self):
         r = AgentResult(
             tenant_id="t1",
-            agent_name="TruthAnalyst",
+            agent_name="KnowledgeValidator",
             summary="Found 3 anomalies",
             output_json={"anomalies": [1, 2, 3]},
             agent_output_id="ao-1",
             qdrant_point_id="qp-1",
         )
         assert r.tenant_id == "t1"
-        assert r.agent_name == "TruthAnalyst"
+        assert r.agent_name == "KnowledgeValidator"
         assert r.summary == "Found 3 anomalies"
         assert r.output_json == {"anomalies": [1, 2, 3]}
         assert r.agent_output_id == "ao-1"
@@ -678,8 +678,8 @@ class TestAgentRegistry:
             "ChiefOfStaff",
             "Discovery",
             "OntologyMapper",
-            "TruthAnalyst",
-            "WorkflowBuilder",
+            "KnowledgeValidator",
+            "SolutionArchitect",
             "Governance",
         }
         assert set(AGENT_REGISTRY.keys()) == expected
@@ -689,15 +689,15 @@ class TestAgentRegistry:
         from src.workflows.chief_of_staff_workflow import ChiefOfStaffWorkflow
         from src.workflows.discovery_workflow import DiscoveryWorkflow
         from src.workflows.ontology_mapping_workflow import OntologyMappingWorkflow
-        from src.workflows.truth_analysis_workflow import TruthAnalysisWorkflow
-        from src.workflows.workflow_builder_workflow import WorkflowBuilderWorkflow
+        from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
+        from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
         from src.workflows.governance_workflow import GovernanceWorkflow
 
         assert AGENT_REGISTRY["ChiefOfStaff"] is ChiefOfStaffWorkflow
         assert AGENT_REGISTRY["Discovery"] is DiscoveryWorkflow
         assert AGENT_REGISTRY["OntologyMapper"] is OntologyMappingWorkflow
-        assert AGENT_REGISTRY["TruthAnalyst"] is TruthAnalysisWorkflow
-        assert AGENT_REGISTRY["WorkflowBuilder"] is WorkflowBuilderWorkflow
+        assert AGENT_REGISTRY["KnowledgeValidator"] is KnowledgeValidationWorkflow
+        assert AGENT_REGISTRY["SolutionArchitect"] is SolutionArchitectWorkflow
         assert AGENT_REGISTRY["Governance"] is GovernanceWorkflow
 
     def test_agent_registry_each_has_run_or_orchestrate_method(self):

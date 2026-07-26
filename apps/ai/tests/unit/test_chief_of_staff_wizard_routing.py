@@ -73,12 +73,12 @@ class TestExistingIntentsBackwardCompat:
         ("map these entities", "ontology_mapping"),
         ("ontology mapping needed", "ontology_mapping"),
         ("canonical objects", "ontology_mapping"),
-        # Truth analysis
-        ("truth analysis needed", "truth_analysis"),
-        ("stuck on this analysis", "truth_analysis"),
-        ("overdue items", "truth_analysis"),
-        ("risk assessment", "truth_analysis"),
-        # Note: "risk" is truth_analysis, "risk.analysis" is strategy — first match wins
+        # Knowledge validation
+        ("truth analysis needed", "knowledge_validation"),
+        ("stuck on this analysis", "knowledge_validation"),
+        ("overdue items", "knowledge_validation"),
+        ("risk assessment", "knowledge_validation"),
+        # Note: "risk" is knowledge_validation, "risk.analysis" is strategy — first match wins
         # Workflow design
         ("build workflow", "workflow_design"),
         ("workflow automation", "workflow_design"),
@@ -98,7 +98,7 @@ class TestExistingIntentsBackwardCompat:
         ("change strategy", "strategy"),
         ("evaluate solution", "strategy"),
         # Note: "current state analysis" has space, not dot — falls to default
-        # Note: "risk analysis" matches "risk" first → truth_analysis
+        # Note: "risk analysis" matches "risk" first → knowledge_validation
     ]
 
     @pytest.mark.parametrize("message,expected_intent", EXISTING_TESTS)
@@ -111,7 +111,7 @@ class TestExistingIntentsBackwardCompat:
     @pytest.mark.parametrize("alias,expected_intent", [
         ("@discover translate this", "discovery"),
         ("@map these entities", "ontology_mapping"),
-        ("@truth find patterns", "truth_analysis"),
+        ("@truth find patterns", "knowledge_validation"),
         ("@build a workflow", "workflow_design"),
         ("@govern my system", "governance_review"),
         ("@strategy overview please", "strategy"),
@@ -138,15 +138,15 @@ class TestWizardRouteResolution:
     def test_existing_routes_unchanged(self, core: ChiefOfStaffCore):
         from src.workflows.discovery_workflow import DiscoveryWorkflow
         from src.workflows.ontology_mapping_workflow import OntologyMappingWorkflow
-        from src.workflows.truth_analysis_workflow import TruthAnalysisWorkflow
-        from src.workflows.workflow_builder_workflow import WorkflowBuilderWorkflow
+        from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
+        from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
         from src.workflows.governance_workflow import GovernanceWorkflow
         from src.workflows.strategy_workflow import StrategyWorkflow
 
         assert core.route("discovery") == [DiscoveryWorkflow]
         assert core.route("ontology_mapping") == [OntologyMappingWorkflow]
-        assert core.route("truth_analysis") == [TruthAnalysisWorkflow]
-        assert core.route("workflow_design") == [WorkflowBuilderWorkflow]
+        assert core.route("knowledge_validation") == [KnowledgeValidationWorkflow]
+        assert core.route("workflow_design") == [SolutionArchitectWorkflow]
         assert core.route("governance_review") == [GovernanceWorkflow]
         assert core.route("strategy") == [StrategyWorkflow]
 

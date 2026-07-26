@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Canonical 12-node workflow vocabulary.
+"""OntologyAI V5.2 — Canonical 12-node workflow vocabulary.
 
 The platform authors workflows in its own vendor-neutral vocabulary of 12 node
 kinds, then compiles them to n8n (a managed, invisible runtime — clients never

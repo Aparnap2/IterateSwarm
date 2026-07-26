@@ -183,25 +183,6 @@ class TestGovernanceDeployerExclusivity:
         assert result.runtime == "n8n"
         assert result.workflow_id == "wf-dep-2"
 
-    def test_deploy_draft_windmill_when_activated(self):
-        """deploy_draft routes to deploy_to_windmill for windmill runtime."""
-        import httpx
-        wf = _make_workflow()
-        draft = ExecutableWorkflowDraft(
-            id="dep-windmill", runtime="windmill", name="WindmillDeploy",
-            source_workflow_spec_id="ws-windmill",
-        )
-        wf.activate_draft(draft)
-        transport = httpx.MockTransport(
-            lambda req: httpx.Response(200, json={"path": "f/iterateswarm/dep-windmill"}),
-        )
-        client = httpx.Client(transport=transport, verify=False)
-        creds = {"workspace": "test", "token": "test-token", "client": client}
-        result = wf.deploy_draft(draft, creds)
-        assert result.success is True
-        assert result.runtime == "windmill"
-        assert result.workflow_id == "f/iterateswarm/dep-windmill"
-
     def test_deploy_draft_custom_agent_when_activated(self):
         """deploy_draft routes to deploy_custom_agent for custom_agent runtime."""
         wf = _make_workflow()
@@ -243,12 +224,11 @@ class TestGovernanceDeployerExclusivity:
         governance path. This test verifies the module structure ensures
         governance exclusivity."""
         from src.runtime import deployers
-        # deploy_to_n8n, deploy_custom_agent, and deploy_to_windmill exist in
-        # the deployers module but the governance workflow is the only consumer.
+        # deploy_to_n8n and deploy_custom_agent exist in the deployers module
+        # but the governance workflow is the only consumer.
         # Verify the governance workflow is a consumer of these functions.
         assert hasattr(deployers, "deploy_to_n8n")
         assert hasattr(deployers, "deploy_custom_agent")
-        assert hasattr(deployers, "deploy_to_windmill")
 
 
 class TestGovernanceResponse:

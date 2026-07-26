@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — OntologyMappingWorkflow (PRD §8.3 / §16.3).
+"""OntologyAI V5.2 — OntologyMappingWorkflow (PRD §8.3 / §16.3).
 
 Converts discovery findings (candidate entities) into canonical ontology objects
 using the ``object_types`` models, creates ``LINK_TYPES`` links where evidence

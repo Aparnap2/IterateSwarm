@@ -3,7 +3,7 @@ package web
 import "github.com/gofiber/fiber/v2"
 
 // V5_1_CANONICAL_OBJECT_TYPES lists the 6 canonical ontology entity types
-// defined in the V5.1 product contract (PRD §14). Artifact / Decision / Metric
+// defined in the V5.2 product contract (PRD §14). Artifact / Decision / Metric
 // are V6 BABOK view-model categories, not canonical ontology types.
 var V5_1_CANONICAL_OBJECT_TYPES = []string{
 	"Party",
@@ -34,7 +34,7 @@ var V5_1_CANONICAL_LINK_TYPES = []string{
 // APIWorkspaceOntology returns the V5.1 canonical ontology schema (PRD §14).
 //
 // The return type was increased from 6/5 to 9/11 briefly during implementation
-// but was corrected back to the locked V5.1 contract of exactly 6 object types
+// but was corrected back to the locked V5.2 contract of exactly 6 object types
 // and 9 link types. The extra 3 object types (Artifact, Decision, Metric) are
 // V6 BABOK view-model categories, not V5.1 canonical ontology types.
 func (h *Handler) APIWorkspaceOntology(c *fiber.Ctx) error {

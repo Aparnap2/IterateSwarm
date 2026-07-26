@@ -16,8 +16,8 @@ CANONICAL_V5_WORKFLOWS = {
     "ChiefOfStaffWorkflow",
     "DiscoveryWorkflow",
     "OntologyMappingWorkflow",
-    "TruthAnalysisWorkflow",
-    "WorkflowBuilderWorkflow",
+    "KnowledgeValidationWorkflow",
+    "SolutionArchitectWorkflow",
     "GovernanceWorkflow",
 }
 

@@ -1,12 +1,10 @@
-"""OntologyAI V5.1 — Runtime deployers (PRD §17, §20.4).
+"""OntologyAI V5.2 — Runtime deployers (PRD §17, §20.4).
 
 Provides deployers that push compiled workflow artifacts to their target
 runtimes:
 
 * ``deploy_to_n8n`` — POSTs compiled n8n workflows to a running n8n instance
   via the existing :mod:`src.runtime.n8n_client` module.
-* ``deploy_to_windmill`` — POSTs compiled Windmill scripts/flows to a running
-  Windmill instance via the :mod:`src.runtime.windmill_client` module.
 * ``deploy_custom_agent`` — Packages compiled custom-agent artifacts into a
   file bundle for export.
 """
@@ -21,12 +19,6 @@ from typing import Any
 import httpx
 
 from src.runtime.n8n_client import N8nClientError, create_workflow
-from src.runtime.experimental.windmill_client import (
-    WindmillClientError,
-    create_flow,
-    create_script,
-    set_variable,
-)
 
 log = logging.getLogger(__name__)
 
@@ -167,111 +159,4 @@ def deploy_custom_agent(
     )
 
 
-def deploy_to_windmill(
-    draft: dict[str, Any],
-    credentials: dict[str, Any],
-) -> DeployerResult:
-    """Deploy a compiled Windmill artifact to a running Windmill instance.
 
-    Args:
-        draft: The compiled Windmill payload dict (from ``WindmillCompiler``).
-            Must contain keys ``target_type``, ``path``, and ``summary``.
-            For ``target_type="script"`` also requires ``content``, ``language``,
-            ``schema``. For ``target_type="flow"`` also requires ``flow_value``.
-            Optionally may contain ``secrets`` (dict of name → value) to set
-            as Windmill variables.
-        credentials: Dict containing:
-            - ``workspace``: Windmill workspace name.
-            - ``token``: Windmill Bearer token for authentication.
-            - ``base_url`` (optional): Windmill API base URL override.
-            - ``client`` (optional): An ``httpx.Client`` instance for testing.
-
-    Returns:
-        A :class:`DeployerResult` with the outcome.
-
-    Raises:
-        ValueError: If required credentials (``workspace`` or ``token``) are
-            missing.
-    """
-    if not credentials:
-        raise ValueError(
-            "Windmill credentials are required: "
-            "{'workspace': ..., 'token': ...}"
-        )
-
-    workspace = credentials.get("workspace")
-    token = credentials.get("token")
-
-    if not workspace:
-        raise ValueError("Windmill 'workspace' is required in credentials")
-    if not token:
-        raise ValueError("Windmill 'token' is required in credentials")
-
-    # Optional test injection: httpx.Client and API base URL override.
-    client: httpx.Client | None = credentials.get("client")
-    api_base: str | None = credentials.get("base_url")
-
-    target_type = draft.get("target_type", "script")
-    path = draft.get("path", "f/iterateswarm/unknown")
-
-    try:
-        if target_type == "flow":
-            response = create_flow(
-                workspace,
-                token,
-                draft,
-                client=client,
-                api_base=api_base,
-            )
-        else:
-            response = create_script(
-                workspace,
-                token,
-                draft,
-                client=client,
-                api_base=api_base,
-            )
-
-        workflow_id = response.get("id") or response.get("path", path)
-
-        # Set secrets as Windmill variables if present.
-        secrets: dict[str, str] = draft.get("secrets", {})
-        if isinstance(secrets, dict):
-            for var_name, var_value in secrets.items():
-                try:
-                    set_variable(
-                        workspace,
-                        token,
-                        var_name,
-                        str(var_value),
-                        client=client,
-                        api_base=api_base,
-                    )
-                except (WindmillClientError, httpx.HTTPError) as sec_exc:
-                    log.warning(
-                        "Failed to set Windmill variable",
-                        extra={"name": var_name, "error": str(sec_exc)},
-                    )
-
-        log.info(
-            "Deployed Windmill artifact",
-            extra={
-                "target_type": target_type,
-                "path": path,
-                "workspace": workspace,
-            },
-        )
-        return DeployerResult(
-            success=True,
-            runtime="windmill",
-            workflow_id=str(workflow_id) if workflow_id else None,
-        )
-
-    except (WindmillClientError, httpx.HTTPError) as exc:
-        error_msg = f"Windmill deploy failed: {exc}"
-        log.warning(error_msg)
-        return DeployerResult(
-            success=False,
-            runtime="windmill",
-            error=error_msg,
-        )

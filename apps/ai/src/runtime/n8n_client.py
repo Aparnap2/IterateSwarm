@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — n8n REST runtime client (PRD §17.3, §20.4, ADR-007).
+"""OntologyAI V5.2 — n8n REST runtime client (PRD §17.3, §20.4, ADR-007).
 
 This is the real bridge to the managed, INVISIBLE n8n runtime. The Go core /
 Python AI worker call this client over the internal Docker network only

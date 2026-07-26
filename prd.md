@@ -1,31 +1,29 @@
-# OntologyAI V5.1 — PRD + Workflow + SOP + Business Logic + Technical Specification
+# OntologyAI V5.2 — Enterprise Discovery + Solution Design Platform
 
-Version: 5.1  
+Version: 5.2  
 Status: Final implementation spec  
-Purpose: Portfolio-grade self-serve FDE companion + multi-agent FDE operating system  
+Purpose: AI-powered Enterprise Discovery and Solution Design Platform for Forward Deployed Engineers  
 Audience: Coding agent, engineering reviewer, portfolio reviewer
 
 ---
 
 # 1. Product truth
 
-OntologyAI V5.1 is a **self-serve FDE companion** and **multi-agent Forward Deployed Engineer system**.
+OntologyAI V5.2 is an **AI Discovery and Solution Design Platform** that helps Forward Deployed Engineers transform fragmented enterprise knowledge into a canonical operational model and implementation-ready architecture package.
 
 It operates in two modes:
-1. **FDE-assisted workspace** — a real FDE/operator uses the system to compress discovery, ontology mapping, truth analysis, workflow design, governance, and pilot deployment.
-2. **Client self-serve workspace** — a client receives a workspace link, converses with the system, uploads files, connects tools, answers targeted follow-up questions, and the agents perform the same discovery-to-workflow loop.
+1. **FDE-assisted workspace** — a real FDE/operator uses the system to compress discovery, evidence normalization, ontology mapping, knowledge validation, business process modelling, solution design, and artifact generation.
+2. **Client self-serve workspace** — a client receives a workspace link, converses with the system, uploads files, connects tools, answers targeted follow-up questions, and the agents perform the same discovery-to-solution loop.
 
-OntologyAI is not just a reporting system.
-Its job is to convert messy business inputs into shared operational truth, generate governed workflow designs, and where viable, produce executable automation drafts for n8n or custom agent runtimes.
+OntologyAI is not a deployment engine.
+Its primary responsibility is **discovering reality** — not deploying automations.
 
 The software demonstrates the FDE method as a reusable product layer:
 - conversational discovery from ambiguous business inputs,
-- ontology construction from uploads, transcripts, exports, and connected systems,
-- multi-agent reasoning over shared state,
-- governed workflow generation,
-- executable workflow draft generation,
-- governed deployment planning,
-- and exportable handoff artifacts.
+- evidence extraction and normalization from uploads, transcripts, exports, and connected systems,
+- multi-agent reasoning over a canonical enterprise knowledge model,
+- governed solution design with artifact generation,
+- and exportable architecture packages (ontology, process models, SOPs, workflow specs, recommendations).
 
 ---
 
@@ -33,26 +31,29 @@ The software demonstrates the FDE method as a reusable product layer:
 
 ## 2.1 One-line pitch
 
-OntologyAI is a self-serve FDE companion that turns messy business operations into a shared ontology, diagnoses truth across people, money, work, messages, and decisions, and generates governed workflow specs plus executable automation drafts.
+OntologyAI is an **AI Discovery and Solution Design Platform** that helps Forward Deployed Engineers transform fragmented enterprise knowledge into a canonical operational model and implementation-ready architecture package.
 
 ## 2.2 What this is not
 
 It is not:
-- a founder alert bot,
-- a finance-only assistant,
-- a general chatbot,
-- a passive dashboard,
-- a generic no-code builder,
-- or an autonomous action engine with unlimited write access.
+- a deployment engine,
+- a workflow activation platform,
+- a scheduling or cron system,
+- a continuous monitoring tool,
+- an agent runtime manager,
+- an autonomous action engine with unlimited write access,
+- or a generic no-code builder.
 
 ## 2.3 What this is
 
 It is:
 - a portfolio-grade simulation of how an FDE actually works,
-- a shared agentic workspace for discovery and pilot building,
-- an ontology-first AI operating layer,
-- a governed multi-agent architecture,
-- and a reusable discovery-to-deployment implementation framework.
+- a shared agentic workspace for enterprise discovery and solution design,
+- an ontology-first AI operating layer with deterministic validation and governance,
+- a governed multi-agent architecture for evidence-backed enterprise modelling,
+- and a reusable discovery-to-artifact implementation framework.
+
+**Product success is defined by successful enterprise modelling — not workflow deployment.**
 
 ---
 
@@ -83,14 +84,16 @@ The only difference is who drives the interaction.
 ## 3.3 Engagement phases
 
 1. Discovery
-2. Ontology Mapping
-3. Truth Analysis
-4. Workflow Design
-5. Governance Review
-6. Deployment Planning
-7. Handoff
+2. Evidence Normalization
+3. Ontology Mapping
+4. Knowledge Validation
+5. Business Process Modelling
+6. Solution Design
+7. Artifact Generation
 
 These phases are first-class workflow states in the product.
+
+Deployment is not a product phase. The system produces implementation-ready artifacts; actual deployment is the client's responsibility.
 
 ---
 
@@ -106,8 +109,13 @@ These phases are first-class workflow states in the product.
 8. No external side-effect execution is finalized outside the governance path.
 9. Outputs must be typed and validated.
 10. Every workflow must degrade gracefully on missing data.
-11. The system must generate deployable outputs, not just chat responses.
+11. The system must generate enterprise architecture artifacts, not just chat responses.
 12. Reuse existing code aggressively before writing new infrastructure.
+13. Every ontology object, relationship, and business rule must have provenance — source, confidence, evidence ID, timestamp, extraction method.
+14. The Enterprise Knowledge Model is the single source of truth. All artifacts are projections.
+15. Unknown concepts become unresolved questions — never hallucinated structure.
+16. The runtime compiler is optional export infrastructure, not core product. The product ends at artifact generation.
+17. Human review is required for ontology schema changes, workflow state changes, and deployment of any artifact to a live system.
 
 ---
 
@@ -119,24 +127,43 @@ The final loop is:
 
 1. User opens a workspace.
 2. User chats, uploads files, or connects systems.
-3. Discovery Agent extracts business facts and missing questions.
-4. Ontology Mapper converts evidence into canonical objects and links.
-5. Truth Analyst identifies what is stuck, missing, risky, contradictory, or action-worthy.
-6. Workflow Builder produces workflow specs, SOPs, and executable workflow drafts.
-7. Governance validates planned actions and executable drafts.
-8. Approved drafts are exported or activated.
-9. The system generates truth maps, workflow packs, SOP packs, and action registers.
+3. Discovery Agent extracts business facts, evidence, and unresolved questions.
+4. Evidence is normalized into typed fact records with provenance (source, confidence, evidence ID, timestamp, extraction method).
+5. Ontology Mapper converts evidence into the **Enterprise Knowledge Model** — entities, relationships, processes, business rules, capabilities.
+6. Knowledge Validation cross-references, identifies contradictions, and flags gaps.
+7. Solution Architect generates process models, workflow specifications, SOPs, integration recommendations, and opportunity assessments.
+8. Governance validates planned actions and gates artifact generation.
+9. The system produces the **Enterprise Architecture Pack** — a structured, downloadable package of all artifacts.
 
-## 5.2 Final product outputs
+## 5.2 Final product outputs — The Enterprise Architecture Pack
 
-The system must produce one or more of:
-- Truth Map
-- Ontology Snapshot
-- Workflow Pack
-- SOP Pack
-- Action Register
-- Executable Workflow Draft
-- Governed pilot-ready deployment package
+The canonical output of a successful engagement is the **Enterprise Architecture Pack**:
+
+```
+Enterprise Architecture Pack
+├── Ontology.json            — Canonical enterprise knowledge model
+├── Evidence.json            — All evidence with provenance
+├── Entity Dictionary.md     — Human-readable entity definitions
+├── Relationship Graph.mmd   — Mermaid relationship diagram
+├── Business Rules.md        — Extracted business rules
+├── Process Flow.mmd         — Mermaid process flow diagram
+├── SOP.md                   — Standard operating procedures
+├── Workflow Spec.json       — Machine-readable workflow specifications
+├── AI Opportunity Report.md — Automation opportunities with ROI estimates
+├── Integration Recommendations.md — System integration proposals
+├── Validation Report.md     — Cross-reference and contradiction report
+└── Open Questions.md        — Unresolved questions needing human input
+```
+
+MVP is successful when it produces:
+- Evidence-backed ontology
+- Business process model
+- Validated relationships
+- Business rules
+- Architecture recommendations
+- SOPs
+- Workflow specifications
+- Implementation backlog
 
 ---
 
@@ -174,11 +201,13 @@ Purpose:
 Purpose:
 - reason over the ontology to identify what is true, stuck, missing, risky, contradictory, or action-worthy.
 
-### 4. Workflow Builder Agent
+### 4. Solution Architect Agent
 Purpose:
-- translate ontology truth into workflow specs, responsibilities, approvals, SOPs, and implementation proposals,
-- generate executable workflow drafts for supported runtimes,
-- emit governed `PlannedAction` records for any deployable change.
+- identify automation opportunities across the validated enterprise model,
+- translate ontology truth into implementation proposals, workflow specs, responsibilities, approvals, SOPs, and integration recommendations,
+- estimate implementation complexity and business impact,
+- generate workflow specifications and architecture recommendations,
+- emit governed `PlannedAction` records for any proposed change.
 
 ### 5. Governance Agent
 Purpose:
@@ -194,16 +223,16 @@ Purpose:
 
 # 7. Workflow roster
 
-The final active workflow set is exactly:
+The final active workflow set is:
 
-1. `ChiefOfStaffWorkflow`
-2. `DiscoveryWorkflow`
-3. `OntologyMappingWorkflow`
-4. `TruthAnalysisWorkflow`
-5. `WorkflowBuilderWorkflow`
-6. `GovernanceWorkflow`
+1. `ChiefOfStaffWorkflow` — control-plane orchestrator
+2. `DiscoveryWorkflow` — evidence extraction and normalization
+3. `OntologyMappingWorkflow` — enterprise model population
+4. `KnowledgeValidationWorkflow` — cross-reference, contradiction detection, gap analysis
+5. `SolutionArchitectWorkflow` — process models, specs, recommendations, opportunity assessment
+6. `GovernanceWorkflow` — validation, approval gating, artifact release
 
-Exactly 6 workflows total.
+Exactly 6 workflows total. Each maps to one engagement phase; the ChiefOfStaff routes across all phases.
 
 ---
 
@@ -239,16 +268,17 @@ Responsibilities:
 - flag ambiguities,
 - produce ontology patch for shared state.
 
-## 8.4 TruthAnalysisWorkflow
+## 8.4 KnowledgeValidationWorkflow
 
 Responsibilities:
-- analyze ontology snapshot,
-- compute stuck/risk/contradiction/missing-state findings,
-- generate truth report,
+- analyze ontology snapshot and evidence graph,
+- compute stuck/risk/contradiction/gap findings,
+- generate validation report,
+- flag unresolved questions for human input,
 - propose candidate actions,
 - never execute external actions.
 
-## 8.5 WorkflowBuilderWorkflow
+## 8.5 SolutionArchitectWorkflow
 
 Responsibilities:
 - take truth findings and generate workflow recommendations,
@@ -282,7 +312,7 @@ Responsibilities:
 4. Discovery builds evidence queue.
 5. Ontology Mapper builds shared process map.
 6. Truth Analyst surfaces bottlenecks and contradictions.
-7. Workflow Builder proposes fix and draft automation.
+7. Solution Architect generates process models, workflow specs, SOPs, and integration recommendations.
 8. Governance requests approvals where required.
 9. Approved workflow is exported or activated.
 10. Handoff artifacts are generated.
@@ -295,7 +325,7 @@ Responsibilities:
 4. Discovery extracts facts and asks only missing questions.
 5. Ontology and process map appear progressively.
 6. Truth Analyst identifies operational problems.
-7. Workflow Builder proposes pilot workflow and SOP.
+7. Solution Architect proposes pilot workflow, SOP, and integration recommendations.
 8. Governance blocks risky actions until approved.
 9. User exports draft or activates allowed automation.
 
@@ -592,7 +622,68 @@ Every link must declare:
 
 ---
 
-# 14. Shared state model
+# 14. Evidence Layer
+
+Every piece of evidence in the system must carry full provenance metadata. No object, relationship, or rule may exist without an evidence trail.
+
+## 14.1 Evidence Record
+
+```python
+class EvidenceRecord(BaseModel):
+    evidence_id: str
+    source: str                    # upload, chat, transcript, export, connector, manual
+    confidence: float              # 0.0–1.0
+    timestamp: str                 # ISO 8601
+    extraction_method: str         # "llm_extraction", "deterministic_parse", "user_provided", "connector_import"
+    extractor: str                 # agent or module name
+    original_content: str | None   # snippet or reference
+    source_refs: list[str]
+```
+
+## 14.2 Evidence rules
+
+- Every ontology object, link, business rule, and capability must reference at least one `EvidenceRecord`.
+- Evidence with `confidence < 0.6` must be flagged as tentative in all derived artifacts.
+- `extraction_method="llm_extraction"` evidence must be validated by a deterministic check or human review before use in business rules.
+- Deleted evidence cascades: all derived objects must be flagged for re-validation.
+
+## 14.3 Evidence pipeline
+
+```
+Raw Input  →  Extraction  →  EvidenceRecord[]  →  Fact Candidates  →  Canonical Objects
+                ↑                                      ↑
+          extraction_method                       evidence_id linkage
+```
+
+---
+
+# 15. Enterprise Knowledge Model
+
+The Enterprise Knowledge Model (EKM) is the **canonical intermediate representation** of a business engagement. It supersedes the narrower "ontology objects" framing. Everything else in the system is a projection of the EKM.
+
+## 15.1 EKM components
+
+| Component | Description | Source |
+|-----------|-------------|--------|
+| **Evidence** | Raw and extracted fact records with provenance | §14 Evidence Layer |
+| **Entities** | Canonical object types (Party, Engagement, MoneyEvent, Issue, Message, PlannedAction) | §12 Ontology model |
+| **Relationships** | Typed links between entities with evidence-backed cardinality | §13 Link types |
+| **Processes** | Business process flows, SOPs, decision trees | Derived from evidence + analysis |
+| **Business Rules** | Invariants, thresholds, policies extracted or inferred from evidence | Deterministic + LLM synthesis |
+| **Capabilities** | Reusable operational capabilities composable into workflows | §17 Capability Catalogue |
+| **Problems** | Stuck states, contradictions, risks, gaps identified by Knowledge Validation | Knowledge Validation phase |
+| **Opportunities** | Automation opportunities with ROI/complexity estimates | §18 Solution Recommendation Engine |
+
+## 15.2 EKM rules
+
+- The EKM is the single source of truth. No agent owns a private model.
+- All artifacts (reports, diagrams, specs) are generated from EKM projections.
+- EKM is immutable after phase finalization unless a new evidence batch triggers re-validation.
+- EKM schema changes require human approval.
+
+---
+
+# 16. Shared state model
 
 ## 14.1 Canonical EngagementState
 
@@ -603,12 +694,12 @@ class EngagementState(BaseModel):
     workspace_mode: Literal["fde_assisted", "client_self_serve"]
     phase: Literal[
         "discovery",
+        "evidence_normalization",
         "ontology_mapping",
-        "truth_analysis",
-        "workflow_design",
-        "governance_review",
-        "deployment_planning",
-        "handoff",
+        "knowledge_validation",
+        "business_process_modelling",
+        "solution_design",
+        "artifact_generation",
     ]
     operator_goal: str | None
     discovery_notes: list[dict]
@@ -642,7 +733,7 @@ class EngagementState(BaseModel):
 Every workflow must return a typed `SpecialistResponse`.
 
 Required fields:
-- `specialist: Literal["Discovery","OntologyMapper","TruthAnalyst","WorkflowBuilder","Governance","ChiefOfStaff"]`
+- `specialist: Literal["Discovery","OntologyMapper","TruthAnalyst","SolutionArchitect","Governance","ChiefOfStaff"]`
 - `workflow_name: str`
 - `summary: str`
 - `detailed_response: str`
@@ -805,7 +896,7 @@ Steps:
    - unresolved information requests.
 5. Return patch to `truth_findings` and optional draft `planned_actions`.
 
-## 16.5 WorkflowBuilderWorkflow exact behavior
+## 16.5 SolutionArchitectWorkflow exact behavior
 
 Input:
 - truth findings
@@ -913,7 +1004,68 @@ No workflow except `GovernanceWorkflow` may finalize external execution.
 
 ---
 
-# 19. UI/UX specification
+# 19. Capability Catalogue
+
+Instead of generating workflows from scratch, the system models reusable operational capabilities. Workflows become compositions of capabilities from this catalogue.
+
+## 19.1 Canonical capabilities
+
+| # | Capability | Description | Typical Runtime |
+|---|------------|-------------|-----------------|
+| 1 | **Extraction** | Extract structured data from unstructured input (chat, documents, transcripts) | LLM + deterministic parser |
+| 2 | **Classification** | Assign a category or label to an input based on rules or model | LLM / deterministic |
+| 3 | **Approval** | Block or release a flow based on human decision | Temporal signal |
+| 4 | **Notification** | Send an outbound message via Slack, email, or webhook | n8n / custom |
+| 5 | **Routing** | Direct an item to the correct handler or queue based on content | Deterministic map |
+| 6 | **Transformation** | Reshape, map, or convert data from one schema to another | Deterministic code |
+| 7 | **Scheduling** | Trigger an action at a specific time or interval | Temporal / cron |
+| 8 | **Matching** | Find corresponding records across two or more systems | Deterministic join |
+| 9 | **Aggregation** | Summarize or roll up data across multiple records | Deterministic math |
+| 10 | **Validation** | Check an input or state against a schema or business rule | Pydantic / code |
+| 11 | **Human Review** | Present structured information to a person and collect a decision | UI panel |
+| 12 | **Escalation** | Route an unresolved item to a higher authority or fallback path | Deterministic |
+
+## 19.2 Capability composition rules
+
+- A workflow spec must declare which capabilities it composes.
+- Each capability maps to a deterministic implementation path; the LLM may only propose *which* capabilities to compose and *in what order*.
+- New capabilities require a PRD update and human review.
+- Capabilities with side effects (Notification, Approval, Escalation) require governance gating.
+
+---
+
+# 20. Solution Recommendation Engine
+
+After Knowledge Validation completes, the Solution Architect generates structured opportunity assessments for each candidate automation.
+
+## 20.1 Opportunity record
+
+```python
+class SolutionOpportunity(BaseModel):
+    opportunity_id: str
+    title: str
+    description: str
+    priority: Literal["critical", "high", "medium", "low"]
+    roi_score: float        # 0.0–10.0
+    complexity: Literal["low", "medium", "high"]
+    dependencies: list[str]  # capability names or preconditions
+    suggested_runtime: Literal["n8n", "custom_agent", "manual"] | None
+    estimated_impact: str
+    linked_objects: list[str]
+    source_evidence_ids: list[str]
+```
+
+## 20.2 Recommendation rules
+
+- ROI and complexity are computed by deterministic formulas, not LLM freeform.
+- Priority is derived from ROI × business criticality (rules-based).
+- `suggested_runtime` is set by rules: n8n for connector-heavy, custom_agent for reasoning-needed, manual for high-judgment.
+- Every recommendation must link to at least one evidence record.
+- Recommendations with `complexity="high"` or `priority="critical"` require governance review before being included in the Enterprise Architecture Pack.
+
+---
+
+# 21. UI/UX specification
 
 This is a **shared agentic workspace**, not a passive dashboard.
 
@@ -1044,7 +1196,7 @@ Layers:
    - Discovery
    - Ontology Mapping
    - Truth Analysis
-   - Workflow Builder
+   - Solution Architect
    - Governance
 
 4. **Data and memory layer**
@@ -1464,7 +1616,7 @@ Avoid unnecessary rewrites of:
 - `@discover` -> `DiscoveryWorkflow`
 - `@map` -> `OntologyMappingWorkflow`
 - `@truth` -> `TruthAnalysisWorkflow`
-- `@build` -> `WorkflowBuilderWorkflow`
+- `@build` -> `SolutionArchitectWorkflow`
 - `@govern` -> `GovernanceWorkflow`
 
 ## 25.3 Backward compatibility aliases
@@ -1472,8 +1624,8 @@ Avoid unnecessary rewrites of:
 Allowed for one version window:
 - `@sarthi` -> `ChiefOfStaffWorkflow`
 - `@finance`, `@fpa` -> `TruthAnalysisWorkflow` if money-centric
-- `@ops` -> `WorkflowBuilderWorkflow` or `TruthAnalysisWorkflow`
-- `@comms` -> `DiscoveryWorkflow` or `WorkflowBuilderWorkflow`
+- `@ops` -> `SolutionArchitectWorkflow` or `TruthAnalysisWorkflow`
+- `@comms` -> `DiscoveryWorkflow` or `SolutionArchitectWorkflow`
 
 ---
 
@@ -1653,53 +1805,65 @@ Test at minimum:
 4. Add workspace mode and phase transitions.
 
 ## Phase 4 — Specialist behavior
-1. Implement discovery extraction.
-2. Implement ontology mapping.
-3. Implement truth analysis.
-4. Implement workflow builder.
-5. Implement governance restrictions.
+1. Implement discovery extraction and evidence normalization.
+2. Implement ontology mapping into Enterprise Knowledge Model.
+3. Implement knowledge validation (cross-reference, contradiction, gap analysis).
+4. Implement solution architect (capability composition, opportunity assessment, workflow specs).
+5. Implement capability catalogue and solution recommendation engine.
+6. Implement governance restrictions.
 
-## Phase 5 — Runtime compilers
+## Phase 5 — Runtime compilers (optional export)
 1. Implement `RuntimeCompiler` ABC (`runtime/base.py`).
 2. Implement n8n compiler (`N8NCompiler` wrapper in `runtime/n8n.py`).
 3. Implement ADK-Go compiler (`runtime/adk_go_compiler.py`).
 4. Implement PydanticAI compiler (`runtime/pydantic_ai_compiler.py`).
 5. Implement smolagents/python_agent compiler (`runtime/python_agent_compiler.py`).
 6. Implement `get_compiler()` factory (`runtime/__init__.py`).
-7. Write `test_runtime_compilers.py` (15 tests) — TDD: RED (failing imports) → GREEN (all pass).
+7. Write `test_runtime_compilers.py` (15 tests).
 8. Ensure deterministic export payload generation for all 4 targets.
+9. Compilers are optional export infrastructure. Core product ends at artifact generation.
 
-## Phase 6 — UI and artifacts
-1. Update workspace views.
-2. Add artifact exports.
-3. Add executable draft panel.
-4. Add approvals and governance UX.
+## Phase 6 — Artifact generation and UI
+1. Implement Enterprise Architecture Pack generation (12 artifacts).
+2. Implement Evidence.json export with full provenance.
+3. Implement Mermaid diagram generation (relationship graph, process flow).
+4. Implement validation report generation.
+5. Update workspace views for artifact-first workflow.
+6. Add approvals and governance UX.
 
 ## Phase 7 — Final verification
 1. Run Python unit tests.
 2. Run Go build/tests if route/UI changed.
 3. Verify workflow count = 6.
-4. Verify ontology object count = 6.
-5. Verify only Governance can finalize execution.
-6. Verify executable drafts compile/export correctly.
-7. Verify artifacts exist.
+4. Verify Enterprise Knowledge Model is the canonical IR.
+5. Verify every entity has provenance.
+6. Verify Enterprise Architecture Pack can be generated.
+7. Verify only Governance can finalize release of artifacts.
+8. Verify artifact-first principle: no deployment, activation, or scheduling in core product.
 
 ---
 
 # 30. No-hallucination rules for the coding agent
 
-1. Do not invent new agents beyond the 5 operational agents + ChiefOfStaff.
+1. Do not invent new agents beyond the 5 operational + ChiefOfStaff.
 2. Do not invent new ontology object types unless explicitly requested later.
-3. Do not preserve old department naming if it conflicts with V5.1.
+3. Do not preserve old department naming if it conflicts with V5.2.
 4. Do not write directly to engagement state without schema validation.
 5. Do not let non-governance workflows finalize external execution.
 6. Do not add new databases or orchestration engines unless absolutely required.
 7. Do not replace deterministic code with LLM logic where code can handle it.
 8. Do not create duplicate parallel workflow systems.
-9. Do not broaden scope into full production connector coverage for V5.1.
+9. Do not broaden scope into full production connector coverage for V5.2.
 10. Do not describe features as implemented unless code and tests exist.
 11. Do not freehand workflow export payloads in the LLM path.
 12. Do not discard existing tested infrastructure without specific reason.
+13. Do not hallucinate workflow types outside the canonical 6.
+14. Do not invent capabilities outside the Capability Catalogue (§19).
+15. Do not produce artifacts without evidence provenance.
+16. Do not generate deployment, activation, scheduling, or monitoring code — the product ends at artifact generation.
+17. Do not freehand Mermaid diagrams — they must be generated by deterministic template code from the Enterprise Knowledge Model.
+18. Do not create output artifacts that are not listed in the Enterprise Architecture Pack (§5.2).
+19. Do not bypass governance for any artifact release.
 
 ---
 
@@ -1707,65 +1871,55 @@ Test at minimum:
 
 The build is only correct if all of the following are true:
 
-1. The system exposes exactly these workflows:
+1. **Workflow roster** — exactly 6 canonical workflows exist:
    - `ChiefOfStaffWorkflow`
    - `DiscoveryWorkflow`
    - `OntologyMappingWorkflow`
-   - `TruthAnalysisWorkflow`
-   - `WorkflowBuilderWorkflow`
+   - `KnowledgeValidationWorkflow`
+   - `SolutionArchitectWorkflow`
    - `GovernanceWorkflow`
 
-2. The system exposes exactly these ontology object types:
-   - `Party`
-   - `Engagement`
-   - `MoneyEvent`
-   - `Issue`
-   - `Message`
-   - `PlannedAction`
+2. **Enterprise Knowledge Model** — the canonical IR is the EKM (§15), not a flat object list. Entities, relationships, processes, business rules, capabilities, problems, and opportunities are all first-class citizens.
 
-3. `EngagementState` is the canonical shared state shape.
+3. **Evidence provenance** — every entity, relationship, and rule references at least one `EvidenceRecord` with source, confidence, evidence ID, timestamp, and extraction method.
 
-4. `ExecutableWorkflowDraft` exists and is validated.
+4. **EngagementState** is the canonical shared state shape.
 
 5. Every workflow returns a valid `SpecialistResponse`.
 
-6. Only `GovernanceWorkflow` may finalize external execution state.
+6. Only `GovernanceWorkflow` may finalize artifact release or external state change.
 
 7. Medium/high blast-radius actions require approval.
 
-8. Workflow activation is governance-gated.
+8. **Capability Catalogue** (§19) exists with at least the 12 canonical capabilities.
 
-9. Shared workspace views exist for chat, uploads, ontology, truth findings, workflows, executable drafts, approvals, and artifacts.
+9. **Solution Recommendation Engine** (§20) generates `SolutionOpportunity` records with deterministic ROI and complexity scoring.
 
-10. The system can export:
-   - truth map,
-   - ontology snapshot,
-   - workflow pack,
-   - SOP pack,
-   - action register,
-   - executable workflow draft.
+10. **Enterprise Architecture Pack** (§5.2) can be generated containing all 12 artifacts.
 
-11. Tests for schema, workflows, routes, compilers, governance, and exports all pass.
+11. **Artifact-first** — the core product produces architecture artifacts. Deployment, activation, scheduling, and monitoring are out of scope.
 
-12. Existing reusable infrastructure is preserved wherever practical.
+12. Tests for schema, workflows, routes, capability composition, governance, and artifacts all pass.
 
-13. The codebase reads like a self-serve FDE companion and FDE operating system, not a founder alert bot.
+13. Existing reusable infrastructure is preserved wherever practical.
+
+14. The codebase reads like an AI Discovery and Solution Design Platform, not a founder alert bot or deployment engine.
 
 ---
 
 # 32. Final build summary
 
-Build OntologyAI V5.1 as a **self-serve FDE companion and multi-agent FDE operating system**.
+Build OntologyAI V5.2 as an **AI Discovery and Solution Design Platform for Forward Deployed Engineers**.
 
 Keep the reusable infrastructure.  
 Refactor the semantics.  
-Implement the shared workspace lifecycle.  
-Center the ontology.  
+Implement the discovery-to-artifact pipeline.  
+Center the Enterprise Knowledge Model.  
+Prove every fact with evidence.  
 Type every output.  
-Govern every action.  
-Generate reusable handoff artifacts.  
-Generate executable workflow drafts.  
-Compile deterministically.  
-Activate only through governance.
+Govern every release.  
+Generate the Enterprise Architecture Pack.  
+Compile deterministically when export is needed.  
+Deployment is the client's responsibility.
 
 That is the final spec.

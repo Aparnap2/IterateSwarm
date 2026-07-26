@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — Artifact export generators + persistence (PRD §19.3, §22.6).
+"""OntologyAI V5.2 — Artifact export generators + persistence (PRD §19.3, §22.6).
 
 Generates the 6 PRD §19.3 handoff artifacts as JSON-able dicts:
 

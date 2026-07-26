@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — PydanticAI compiler.
+"""OntologyAI V5.2 — PydanticAI compiler.
 
 Generates valid Python source code that uses ``pydantic`` and ``pydantic_ai``
 to define a typed agent with tool decorators. Produces a single file:

@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — GovernanceWorkflow (PRD §8.6 / §16.6).
+"""OntologyAI V5.2 — GovernanceWorkflow (PRD §8.6 / §16.6).
 
 Validates ``PlannedAction``s + ``ExecutableWorkflowDraft``s, enforces blast
 radius via ``OBJECT_WRITE_POLICY`` / governance helpers, creates approval tasks,
@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from src.runtime.deployers import DeployerResult, deploy_custom_agent, deploy_to_n8n, deploy_to_windmill
+from src.runtime.deployers import DeployerResult, deploy_custom_agent, deploy_to_n8n
 from src.schemas.specialist_response import SpecialistResponse
 from src.ontology.object_types import PlannedAction
 from src.ontology.workflow_drafts import ExecutableWorkflowDraft
@@ -189,8 +189,6 @@ class GovernanceWorkflow:
 
         if runtime == "n8n":
             return deploy_to_n8n(payload, credentials)
-        if runtime == "windmill":
-            return deploy_to_windmill(payload, credentials)
         if runtime in ("custom_agent", "adk_go", "pydantic_ai", "python_agent"):
             return deploy_custom_agent(payload, credentials)
         raise ValueError(f"Unknown runtime: {runtime}")

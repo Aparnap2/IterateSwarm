@@ -1,11 +1,11 @@
-"""OntologyAI V5.1 — Action types and registry (PRD §12.6).
+"""OntologyAI V5.2 — Action types and registry (PRD §12.6).
 
 ``PlannedAction`` is the canonical governed-action model. It is defined in
 ``src.ontology.object_types`` (the single source of truth for object types)
 and re-exported here so callers may import it from either location.
 
 This module also provides a small ``ActionRegistry`` helper used by the
-WorkflowBuilder and Governance workflows to mint deterministic ``PlannedAction``
+SolutionArchitect and Governance workflows to mint deterministic ``PlannedAction``
 records without an LLM in the loop.
 """
 from __future__ import annotations

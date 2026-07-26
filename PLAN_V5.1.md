@@ -1,17 +1,17 @@
-# OntologyAI V5.1 — Implementation Plan
+# OntologyAI V5.2 — Implementation Plan
 
-**Status:** APPROVED — decisions locked (see §8.1)
+**Status:** APPROVED (V5.2) — decisions locked (see §8.1); see §0.1 for V5.1→V5.2 migration delta
 **Author:** Solution Architect (agent)
-**Date:** 2026-07-16
-**Branch target:** `feature/ontologyai-v5.1` (see Open Questions §8)
-**Inputs:** `prd.md` (V5.1, 1638 lines) + codebase audit summary
+**Date:** 2026-07-26
+**Branch target:** `feature/ontologyai-v5.2` (see Open Questions §8)
+**Inputs:** `prd.md` (V5.2, reframed) + codebase audit summary
 **Repo:** `/home/aparna/Desktop/iterate_swarm` (Go core + Python AI, rebranded TrackGuard/Sarthi → OntologyAI)
 
 ---
 
 ## 0. How to read this plan
 
-This plan is the contract for the V5.1 build. It is organized as:
+This plan is the contract for the V5.2 build. It is organized as:
 
 1. Scope & principles
 2. Phased roadmap (PRD §29 enriched with audit reality)
@@ -24,19 +24,43 @@ This plan is the contract for the V5.1 build. It is organized as:
 
 **Hard rule for all agents:** TDD-first. Write the failing test (PRD §28.1 list) *before* the implementation. Reuse over rewrite (PRD §24, §30.12). Thin-LLM / fat-deterministic-core (PRD §11). No code or file edits happen until this plan is approved.
 
+### 0.1 V5.1 → V5.2 Migration Delta
+
+This section summarizes the product reframing from V5.1 to V5.2. Every change below is reflected in the remainder of this plan.
+
+| Dimension | V5.1 | V5.2 |
+|---|---|---|
+| **Product framing** | FDE companion + multi-agent OS | AI Discovery and Solution Design Platform |
+| **Workflow rename** | `TruthAnalysisWorkflow` | `KnowledgeValidationWorkflow` |
+| **Workflow rename** | `WorkflowBuilderWorkflow` | `SolutionArchitectWorkflow` |
+| **New phases** | — | Evidence Normalization, Knowledge Validation, Business Process Modelling, Solution Design, Artifact Generation |
+| **Removed as product phase** | Deployment | — (moved to optional export) |
+| **New model** | — | Enterprise Knowledge Model (canonical IR) |
+| **New layer** | — | Evidence Layer (provenance-tracked ingestion) |
+| **New component** | — | Capability Catalogue |
+| **New component** | — | Solution Recommendation Engine |
+| **Artifacts** | 6 export types | Enterprise Architecture Pack (12 artifacts) |
+| **Runtime compilers** | Core product scope | Optional export |
+
+**Impact summary:** The product is reframed from an "FDE companion + multi-agent OS" to an **AI Discovery and Solution Design Platform**. The emphasis shifts from deployment execution to knowledge discovery, validation, and solution architecture. All V5.2 changes are backward-compatible at the data layer; `mission_state_to_ontology` and `@sarthi` aliases remain unchanged.
+
 ---
 
 ## 1. Scope & Principles
 
 ### 1.1 In scope
-- Exactly **6 workflows**: `ChiefOfStaffWorkflow`, `DiscoveryWorkflow`, `OntologyMappingWorkflow`, `TruthAnalysisWorkflow`, `WorkflowBuilderWorkflow`, `GovernanceWorkflow` (PRD §7).
+- Exactly **6 workflows**: `ChiefOfStaffWorkflow`, `DiscoveryWorkflow`, `OntologyMappingWorkflow`, `KnowledgeValidationWorkflow`, `SolutionArchitectWorkflow`, `GovernanceWorkflow` (PRD §7 V5.2).
 - Exactly **6 ontology object types**: `Party`, `Engagement`, `MoneyEvent`, `Issue`, `Message`, `PlannedAction` (PRD §12).
 - Canonical `EngagementState` shared state (PRD §14).
-- `ExecutableWorkflowDraft` + deterministic runtime compilers (`n8n`, `custom_agent`) (PRD §12.7, §17, §23.1).
+- **Enterprise Knowledge Model** as canonical intermediate representation — all workflows read/write via the EKM, not direct DB (PRD §14 V5.2).
+- `ExecutableWorkflowDraft` + **optional** deterministic runtime compilers (`n8n`, `custom_agent`) (PRD §12.7, §17, §23.1).
 - 11 canonical link types (PRD §13).
-- 7 persistence tables (PRD §22).
+- **Evidence Layer** for provenance-tracked ingestion with full lineage (PRD §10 V5.2).
+- **Capability Catalogue** — searchable registry of reusable business capabilities mapped to solution patterns (PRD §20 V5.2).
+- **Solution Recommendation Engine** — matches discovered requirements to capabilities and generates ranked solution designs (PRD §21 V5.2).
+- 9 persistence tables (PRD §22 V5.2).
 - 11 shared workspace UI screens (PRD §19.2).
-- Artifact export service (truth map, ontology snapshot, workflow pack, SOP pack, action register, executable draft) (PRD §5.2, §10).
+- **Enterprise Architecture Pack** (12 artifacts) export service (PRD §5.2, §10 V5.2).
 - `@sarthi` backward-compat alias preserved (PRD §25.3, audit constraint).
 
 ### 1.2 Principles (non-negotiable, from PRD §4, §11, §30)
@@ -47,8 +71,10 @@ This plan is the contract for the V5.1 build. It is organized as:
 - **P5 — `@sarthi` backward-compat.** Go route map entry, 2 HTML templates, and Go tests referencing `@sarthi` must keep working (audit constraint).
 - **P6 — No private models.** No agent owns a private model of the business; all read/write `EngagementState` via typed patches (PRD §4.2, §14.2).
 - **P7 — Graceful degradation.** Every workflow degrades on missing data (PRD §4.10, §28.2).
+- **P8 — Evidence provenance.** Every finding, recommendation, and artifact must be traceable to its source evidence; no assertion without supporting data (PRD §10 V5.2).
+- **P9 — EKM canonical.** The Enterprise Knowledge Model is the single source of truth for all cross-workflow state; no agent bypasses the EKM for cross-domain reads (PRD §14 V5.2).
 
-### 1.3 Explicitly out of scope (V5.1)
+### 1.3 Explicitly out of scope (V5.2)
 - Full production connector coverage (PRD §30.9).
 - New databases or orchestration engines (PRD §30.6).
 - New agents beyond the 5 operational + ChiefOfStaff (PRD §30.1).
@@ -56,12 +82,15 @@ This plan is the contract for the V5.1 build. It is organized as:
 
 ---
 
-## 2. Phased Roadmap (PRD §29 enriched with audit reality)
+## 2. Phased Roadmap (PRD §29 V5.2 enriched with audit reality)
 
 Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, **Done-criteria**.
 
-### Phase 0 — Surface cleanup
+**V5.2 phase mapping:** The new V5.2 phases (Evidence Normalization, Knowledge Validation, Business Process Modelling, Solution Design, Artifact Generation) map to the implementation phases below as: Evidence Normalization → Phases 1+3; Knowledge Validation → Phase 4; Business Process Modelling → Phase 4; Solution Design → Phase 4; Artifact Generation → Phase 5.
+
+### Phase 0 — Surface cleanup ✅ COMPLETED
 - **Goal:** Normalize naming to OntologyAI; keep compat aliases; update docs/route names. No behavior change.
+- **Note:** Completed as part of V5.1 surface rename. V5.2 adds `KnowledgeValidationWorkflow` and `SolutionArchitectWorkflow` aliases to the route map.
 - **Files touched:**
   - `apps/ai/src/worker.py` — rename task queue constant `TRACKGUARD-MAIN-QUEUE` → `ONTOLOGYAI-MAIN-QUEUE` (env-overridable; see OQ §8). Keep old name as fallback default for one version.
   - `apps/core/internal/web/handler.go` — add `@ontologyai`, `@chief` aliases → `ChiefOfStaffWorkflow`; keep `@sarthi`, `@agent`, `@qa`, `@ask` (P5).
@@ -76,9 +105,9 @@ Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, *
 - **Tests first (PRD §28.1):** `test_ontology_schema.py`, `test_link_and_action_registry.py`, `test_engagement_state.py`, `test_specialist_response.py`, `test_workflow_spec_schema.py`, `test_sop_schema.py`, `test_executable_workflow_draft.py`. Assertions: strict validation, unknown-field rejection (`extra="forbid"`), workflow-name exactness.
 - **Done-criteria:** All 7 schema test files fail first, then pass; `OBJECT_TYPES` registry contains exactly the 6 canonical types; `PlannedAction`/`ExecutableWorkflowDraft` validate per PRD §12.6–12.7.
 
-### Phase 2 — Workflow shells
-- **Goal:** Register exactly 6 workflows without changing runtime model.
-- **Files touched:** `apps/ai/src/workflows/__init__.py` (refactor), `discovery_workflow.py`, `ontology_mapping_workflow.py`, `truth_analysis_workflow.py`, `workflow_builder_workflow.py`, `governance_workflow.py` (new); `chief_of_staff_workflow.py` (refactor into control-plane orchestrator). `worker.py` registers the 6 (drop `PulseWorkflow`/`InvestorWorkflow`/etc. from active roster — see OQ §8 on legacy retention).
+### Phase 2 — Workflow shells (V5.2 rename: KnowledgeValidation + SolutionArchitect)
+- **Goal:** Register exactly 6 workflows (2 renamed from V5.1) without changing runtime model.
+- **Files touched:** `apps/ai/src/workflows/__init__.py` (refactor), `discovery_workflow.py`, `ontology_mapping_workflow.py`, `knowledge_validation_workflow.py` (renamed from `truth_analysis_workflow.py`), `solution_architect_workflow.py` (renamed from `workflow_builder_workflow.py`), `governance_workflow.py` (new); `chief_of_staff_workflow.py` (refactor into control-plane orchestrator). `worker.py` registers the 6.
 - **Tests first:** `test_workflow_names.py` (assert exactly 6 registered with exact names), `test_workspace_mode.py`.
 - **Done-criteria:** `test_workflow_names.py` passes; `worker.py` imports only the 6; legacy workflows isolated behind a flag or removed per OQ.
 
@@ -88,29 +117,29 @@ Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, *
 - **Tests first:** `test_engagement_state.py` (merge-safe patching, unknown-key rejection, phase transitions), `test_workspace_mode.py`.
 - **Done-criteria:** Workflows read/write only typed patches; `mission_state_to_ontology` still importable & callable; `engagement_states` table written via new store.
 
-### Phase 4 — Specialist behavior
-- **Goal:** Implement the 5 operational workflows' logic (ChiefOfStaff already shelled in P2).
+### Phase 4 — Specialist behavior (V5.2: KnowledgeValidation + SolutionArchitect)
+- **Goal:** Implement the 5 operational workflows' logic (ChiefOfStaff already shelled in P2), with V5.2 naming.
 - **Files touched:** the 5 workflow modules from P2; `apps/ai/src/ontology/governance.py` (rewrite `OBJECT_WRITE_POLICY` to new 6 types; keep `@governed_write` decorator); `apps/ai/src/agents/cofounder/router.py` → `apps/ai/src/agents/chief_of_staff/intent_classifier.py` (refactor, not duplicate).
-- **Tests first:** `test_discovery_workflow.py`, `test_ontology_mapping_workflow.py`, `test_truth_analysis_workflow.py`, `test_workflow_builder_workflow.py`, `test_governance_workflow.py`, `test_hitl_governance.py`. Assertions: deterministic findings run before LLM synthesis; governance exclusivity; approval-required behavior; graceful missing-data.
-- **Done-criteria:** All 5 workflow tests pass; truth analysis runs deterministic checks first (PRD §10.4); governance blocks medium/high blast radius (PRD §18.1).
+- **Tests first:** `test_discovery_workflow.py`, `test_ontology_mapping_workflow.py`, `test_knowledge_validation_workflow.py`, `test_solution_architect_workflow.py`, `test_governance_workflow.py`, `test_hitl_governance.py`. Assertions: deterministic findings run before LLM synthesis; governance exclusivity; approval-required behavior; graceful missing-data.
+- **Done-criteria:** All 5 workflow tests pass; knowledge validation runs deterministic checks first; governance blocks medium/high blast radius.
 
-### Phase 5 — Runtime compilers
-- **Goal:** Deterministic export payload generation for n8n + custom_agent.
-- **Files touched (new):** `apps/ai/src/runtime/__init__.py`, `n8n_compiler.py`, `custom_agent_compiler.py`; artifact export service `apps/ai/src/runtime/artifact_export.py` (or `apps/ai/src/services/artifact_export.py`).
-- **Tests first:** `test_n8n_compiler.py`, `test_custom_agent_compiler.py`, `test_artifact_exports.py`. Assertions: deterministic compiler output (same input → same payload), `export_payload` only populated by compiler (never LLM), artifact shape correct.
-- **Done-criteria:** Compilers produce valid n8n JSON / custom_agent config from `ExecutableWorkflowDraft`; artifacts exportable (PRD §10.6, §31.10).
+### Phase 5 — Enterprise Architecture Pack export (OPTIONAL — replaces V5.1 Runtime compilers)
+- **Goal:** Deterministic export of the Enterprise Architecture Pack (12 artifacts). Runtime compilers moved to optional export layer.
+- **Files touched (new):** `apps/ai/src/export/__init__.py`, `artifact_export_service.py` (EAPack generator); `apps/ai/src/export/compilers/` (optional: `n8n_compiler.py`, `custom_agent_compiler.py`).
+- **Tests first:** `test_eapack_export.py`, `test_artifact_exports.py`. Assertions: deterministic export output, artifact completeness (12 types), `export_payload` only populated by export layer.
+- **Done-criteria:** EAPack produces all 12 artifact types; runtime compilers available as optional add-on; individual artifact shapes conform to PRD §10 V5.2.
 
-### Phase 6 — UI and artifacts
-- **Goal:** 11 shared workspace screens; artifact exports; executable draft panel; approvals/governance UX.
-- **Files touched:** `apps/core/internal/web/handler.go` (route map → engagement routes; add workspace endpoints), `sse_hub.go` (reuse), HTMX templates in `apps/core/internal/web/templates/` (re-skin dashboard → workspace views; guardian cards → truth cards; decision journal → action register). Go `planned_actions` HITL path reused.
-- **Tests first:** Go HTMX handler tests for new workspace routes; `test_artifact_exports.py` (integration). UI test checklist (PRD §28.4): workspace creation, mode selection, upload flow, follow-up rendering, ontology graph, draft review, approval buttons, export buttons.
-- **Done-criteria:** 11 screens present; approvals obvious & safe (PRD §19.5); `@sarthi` templates still render.
+### Phase 6 — UI and EAPack artifacts
+- **Goal:** 11 shared workspace screens; Enterprise Architecture Pack (12 artifacts) export; solution design panel; capability catalogue browser; approvals/governance UX.
+- **Files touched:** `apps/core/internal/web/handler.go` (route map → engagement routes; add workspace endpoints), `sse_hub.go` (reuse), HTMX templates in `apps/core/internal/web/templates/` (re-skin dashboard → workspace views; guardian cards → evidence cards; decision journal → action register). Go `planned_actions` HITL path reused.
+- **Tests first:** Go HTMX handler tests for new workspace routes; `test_eapack_export.py` (integration). UI test checklist: workspace creation, mode selection, upload flow, evidence browser, ontology graph, capability catalogue, solution design view, draft review, approval buttons, EAPack export buttons.
+- **Done-criteria:** 11 screens present; EAPack exports 12 artifact types; capability catalogue searchable; approvals obvious & safe; `@sarthi` templates still render.
 
 ### Phase 7 — Final verification
 - **Goal:** Full regression + acceptance gate.
 - **Files touched:** none (verification only).
-- **Tests:** Run full Python suite (target ≥901 + new V5.1), Go build + `go test ./...`, integration tests (PRD §28.3).
-- **Done-criteria:** All acceptance criteria §7 met; workflow count = 6; object type count = 6; only Governance finalizes execution; artifacts export; zero regression on reusable infra.
+- **Tests:** Run full Python suite (target ≥901 + new V5.2), Go build + `go test ./...`, integration tests.
+- **Done-criteria:** All acceptance criteria §7 met; workflow count = 6; object type count = 6; EAPack exports 12 artifact types; evidence provenance verifiable; zero regression on reusable infra.
 
 ---
 
@@ -158,7 +187,39 @@ Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, *
 - **Phase 4 change:** replace `RevenueMetric` derivation with `MoneyEvent` mapping; remove `_REVENUE_SCALAR_KEYS` / `_derive_revenue_metric` (audit: RevenueMetric→MoneyEvent is breaking).
 - **Must NOT break:** any caller importing `mission_state_to_ontology` during Phases 0–3.
 
-### 3.2 Schemas — `apps/ai/src/schemas/`
+#### `capability_catalogue.py` (NEW)
+- **Responsibility:** 12 canonical capabilities for solution design (PRD §20 V5.2).
+- **Key types:** `Capability(BaseModel)` with `id, name, description, input_schema, output_schema, complexity_score, typical_cost`; registry via `register_capability()`, `get_capability()`, `list_capabilities()`.
+- **Canonical 12:** Extraction, Classification, Approval, Notification, Routing, Transformation, Scheduling, Matching, Aggregation, Validation, Human Review, Escalation.
+- **Reuses:** Pydantic `extra="forbid"`, registry pattern from `object_types.py`.
+
+#### `solution_recommendation.py` (NEW)
+- **Responsibility:** Match discovered requirements to capabilities → scored solution designs (PRD §21 V5.2).
+- **Key types:** `SolutionOpportunity(BaseModel)` with `business_value (0-100), implementation_complexity (0-100), confidence (0-1), time_to_value (weeks)`; deterministic ROI scoring `ROI = business_value / implementation_complexity`.
+- **Reuses:** `capability_catalogue.py` registry; `engagement_state.py` for requirements input.
+- **Deterministic rule:** All scoring is code, not LLM — LLM may propose candidate capabilities but scoring is computed deterministically.
+
+### 3.2 Evidence Layer — `apps/ai/src/evidence/`
+
+#### `evidence_record.py` (NEW)
+- **Responsibility:** Provenance-tracked evidence model (PRD §10 V5.2).
+- **Key types:** `EvidenceRecord(BaseModel)` with `evidence_id, source, confidence (0-1), timestamp, extraction_method, structured_data: dict, connector_name: str | None, raw_payload: dict | None`.
+- **Reuses:** Pydantic convention.
+
+#### `normalizer_registry.py` (NEW)
+- **Responsibility:** Registry of evidence normalizers per connector type.
+- **Key types:** `NormalizerRegistry` with `register_normalizer(connector_type, normalizer_fn)`, `get_normalizer(connector_type)`.
+- **Reuses:** registry pattern.
+
+#### Normalizers per connector (NEW in `apps/ai/src/evidence/normalizers/`)
+- **Stripe normalizer:** Normalizes charge/dispute/invoice events into canonical EvidenceRecord.
+- **HubSpot normalizer:** Normalizes deal/contact/engagement events.
+- **QuickBooks normalizer:** Normalizes invoice/bill/payment events.
+- **ERPNext normalizer:** Normalizes Sales Order/Purchase Invoice events.
+- **Slack/email normalizer:** Normalizes message events.
+- **Must NOT break:** existing connector clients in `apps/ai/src/integrations/`.
+
+### 3.3 Schemas — `apps/ai/src/schemas/`
 
 #### `engagement_state.py` (NEW)
 - **Responsibility:** Canonical `EngagementState` (PRD §14.1).
@@ -181,19 +242,19 @@ Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, *
 #### `executable_workflow_draft.py` (NEW)
 - **Responsibility:** Re-export / canonical `ExecutableWorkflowDraft` (may alias `ontology/workflow_drafts.py` or define here and import there). Decide single source of truth (recommend `ontology/workflow_drafts.py` is canonical; this re-exports).
 
-### 3.3 Workflows — `apps/ai/src/workflows/`
+### 3.4 Workflows — `apps/ai/src/workflows/`
 
 #### `chief_of_staff_workflow.py` (REFACTOR → control plane)
 - **Responsibility:** PRD §8.1, §16.1 — intent classify, route, merge patches, summarize.
 - **Reuses:** Temporal `@workflow.defn(name="ChiefOfStaffWorkflow")`; `mission_state_to_ontology` (Phase 3); new `engagement_state_store`.
 - **Must NOT break:** Go dispatch still starts `ChiefOfStaffWorkflow` by name; `@sarthi` alias resolves to it.
 
-#### `discovery_workflow.py`, `ontology_mapping_workflow.py`, `truth_analysis_workflow.py`, `workflow_builder_workflow.py`, `governance_workflow.py` (NEW)
+#### `discovery_workflow.py`, `ontology_mapping_workflow.py`, `knowledge_validation_workflow.py`, `solution_architect_workflow.py`, `governance_workflow.py` (NEW)
 - **Responsibility:** PRD §8.2–8.6, §16.2–16.6.
 - **Reuses:** `worker.py` bootstrap pattern; `governance.py` for Governance; `engagement_state_store` for read/write; `specialist_response.py` return type.
 - **Must NOT break:** each returns valid `SpecialistResponse`; only Governance sets activation status.
 
-### 3.4 Runtime/export — `apps/ai/src/runtime/` (GREENFIELD — highest risk)
+### 3.5 Runtime/export — `apps/ai/src/runtime/` (GREENFIELD — highest risk)
 
 #### `n8n_compiler.py`, `custom_agent_compiler.py` (NEW)
 - **Responsibility:** Deterministic compilation of `ExecutableWorkflowDraft` → runtime payload (PRD §17.3).
@@ -205,7 +266,7 @@ Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, *
 - **Responsibility:** Build exportable artifacts (truth map, ontology snapshot, workflow pack, SOP pack, action register, executable draft) as JSONB into `artifact_exports` (PRD §5.2, §22.6).
 - **Reuses:** `engagement_state_store` read; compilers for draft payload.
 
-### 3.5 Session/state — `apps/ai/src/session/`
+### 3.6 Session/state — `apps/ai/src/session/`
 
 #### `mission_state.py` (KEEP as compat read)
 - **Responsibility:** unchanged read path; deprecated write path.
@@ -215,7 +276,7 @@ Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, *
 - **Responsibility:** Postgres `engagement_states` CRUD + deterministic patch merge (PRD §14.2).
 - **Reuses:** `src.config.database` client; `engagement_state.py` model.
 
-### 3.6 Go gateway — `apps/core/internal/web/`
+### 3.7 Go gateway — `apps/core/internal/web/`
 
 #### `handler.go` (EDIT route map + workspace endpoints)
 - **Edit:** `specialistRoutes` map → engagement routes (PRD §25): add `@ontologyai`,`@chief`,`@discover`,`@map`,`@truth`,`@build`,`@govern`; keep `@sarthi`,`@agent`,`@qa`,`@ask` (P5); remap `@finance`/`@fpa`→`TruthAnalysisWorkflow` (money), `@ops`→`WorkflowBuilderWorkflow`/`TruthAnalysisWorkflow`, `@comms`→`DiscoveryWorkflow`/`WorkflowBuilderWorkflow` (PRD §25.3).
@@ -229,18 +290,44 @@ Each phase lists: **Goal**, **Files touched**, **Tests to write first (TDD)**, *
 - **Edit:** dashboard → 11 workspace screens (PRD §19.2); guardian cards → truth cards; decision journal → action register; keep 2 `@sarthi`-referencing templates.
 - **Reuses:** existing HTMX partials structure.
 
-### 3.7 Scheduler — `apps/ai/src/scheduler/ontology_ai_scheduler.py` (KEEP semantics)
+### 3.8 Scheduler — `apps/ai/src/scheduler/ontology_ai_scheduler.py` (KEEP semantics)
 - **Responsibility:** APScheduler jobs; change job *semantics* to engagement-phase cadence, keep infra (PRD §24.3).
 - **Must NOT break:** scheduler bootstrap; CI job definitions (devops-agent scope).
 
-### 3.8 Authority manifest — `apps/ai/src/agents/authority_manifest.py` (REFACTOR)
-- **Edit:** relabel 5 agents → `Discovery, OntologyMapper, TruthAnalyst, WorkflowBuilder, Governance` + `ChiefOfStaff`; update `domain` enum + `writes_mission_fields` → `writes_engagement_fields`; keep `get_authority`/`can_execute_tool` API.
+### 3.9 Authority manifest — `apps/ai/src/agents/authority_manifest.py` (REFACTOR)
+- **Edit:** relabel 5 agents → `Discovery, OntologyMapper, KnowledgeValidator, SolutionArchitect, Governance` + `ChiefOfStaff`; update `domain` enum + `writes_mission_fields` → `writes_engagement_fields`; keep `get_authority`/`can_execute_tool` API.
 - **Must NOT break:** any importer of `get_authority`/`can_execute_tool`.
 
-### 3.9 Router — `apps/ai/src/agents/cofounder/router.py` (REFACTOR → intent classifier)
+### 3.10 Router — `apps/ai/src/agents/cofounder/router.py` (REFACTOR → intent classifier)
 - **Edit:** `Router.route` → `ChiefOfStaffIntentClassifier.classify(message) -> IntentCategory` (PRD §16.1 step 3 categories). Keep `route_message` convenience fn.
 - **Reuses:** `relevance_gate`, `trust_battery` if still relevant; drop investor-escalation keywords (deprecate, PRD §24.4).
 - **Must NOT break:** `worker.py` / handler import path (update import in ChiefOfStaffWorkflow).
+
+---
+
+### 3.11 Connector SDK — `apps/ai/src/connectors/`
+
+#### `base.py` (NEW)
+- **Responsibility:** Abstract base class for all connectors (PRD §10 V5.2).
+- **Key types:** `Connector(ABC)` with `connect(), disconnect(), health_check(), fetch_evidence() -> list[EvidenceRecord]`, fields `name, version, capabilities: list[str]`.
+
+#### Capability-specific ABCs (NEW in `apps/ai/src/connectors/capabilities/`)
+- `CRMConnector(Connector)` — deals, contacts, pipeline stages.
+- `ERPConnector(Connector)` — orders, invoices, inventory.
+- `AccountingConnector(Connector)` — ledgers, P&L, balance sheet.
+- `MessagingConnector(Connector)` — messages, channels, threads.
+
+#### Concrete implementations (NEW in `apps/ai/src/connectors/implementations/`)
+- `StripeConnector(AccountingConnector)`, `QuickBooksConnector(AccountingConnector)`, `HubSpotConnector(CRMConnector)`, `ERPNextConnector(ERPConnector)`, `SlackConnector(MessagingConnector)`, `EmailConnector(MessagingConnector)`.
+
+#### `mock_connectors.py` (NEW)
+- **Responsibility:** Deterministic mock implementations for testing.
+- **Key types:** `MockStripeConnector`, `MockHubSpotConnector`, etc. Return canned `EvidenceRecord` lists.
+
+#### `registry.py` (NEW)
+- **Responsibility:** Connector registry and factory.
+- **Key types:** `register_connector(name, connector_class)`, `get_connector(name) -> Connector`, `list_connectors()`, `create_connector(name, config) -> Connector`.
+- **Reuses:** registry pattern.
 
 ---
 

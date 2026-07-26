@@ -1,4 +1,4 @@
-"""OntologyAI V5.1 — custom_agent runtime compiler (PRD §17.2, §17.3, §12.7).
+"""OntologyAI V5.2 — custom_agent runtime compiler (PRD §17.2, §17.3, §12.7).
 
 Deterministically transforms an :class:`ExecutableWorkflowDraft` into a
 config-driven ``custom_agent`` runtime config (instructions / tool list /

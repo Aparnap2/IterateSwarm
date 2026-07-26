@@ -481,8 +481,8 @@ class TestWorkerModuleRegistration:
         assert hasattr(worker, "ChiefOfStaffWorkflow")
         assert hasattr(worker, "DiscoveryWorkflow")
         assert hasattr(worker, "OntologyMappingWorkflow")
-        assert hasattr(worker, "TruthAnalysisWorkflow")
-        assert hasattr(worker, "WorkflowBuilderWorkflow")
+        assert hasattr(worker, "KnowledgeValidationWorkflow")
+        assert hasattr(worker, "SolutionArchitectWorkflow")
         assert hasattr(worker, "GovernanceWorkflow")
 
     def test_worker_does_not_import_legacy_workflows_by_default(self):

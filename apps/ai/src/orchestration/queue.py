@@ -1,5 +1,5 @@
 """
-Centralized Temporal task queue configuration for OntologyAI V5.1.
+Centralized Temporal task queue configuration for OntologyAI V5.2.
 
 The canonical queue is ``ONTOLOGYAI-MAIN-QUEUE``. It is env-overridable via
 ``TEMPORAL_TASK_QUEUE`` and falls back to the legacy ``TRACKGUARD-MAIN-QUEUE``

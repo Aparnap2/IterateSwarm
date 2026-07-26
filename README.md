@@ -11,10 +11,10 @@
 > **An enterprise AI operations workspace.** OntologyAI Workspace turns messy business evidence into a shared business map, surfaces operational truth, and drafts governed workflow pilots for review and deployment planning. It is designed as a self-serve FDE companion and a multi-agent FDE operating system — not a small-business dashboard, generic chatbot, or no-code automation builder.
 
 [![Build](https://img.shields.io/badge/build-clean-brightgreen)](#getting-started)
-[![Tests](https://img.shields.io/badge/tests-1286%20passing%20%2F%2032%20skipped-brightgreen)](#test-coverage)
+[![Tests](https://img.shields.io/badge/tests-V5.2%20Enterprise%20Discovery-blue)](#test-coverage)
 [![Go](https://img.shields.io/badge/Go-1.24-blue?logo=go&logoColor=white)](https://go.dev)
 [![Python](https://img.shields.io/badge/Python-3.13-green?logo=python&logoColor=white)](https://www.python.org)
-[![Version](https://img.shields.io/badge/version-5.1-blue)](#v51-active-roster-vs-legacyv6-compatibility)
+[![Version](https://img.shields.io/badge/version-5.2-blue)](#v52-active-roster-vs-legacy-compatibility)
 
 ---
 
@@ -29,7 +29,7 @@
 - [Why enterprise focus](#why-enterprise-focus)
 - [UI language remaster](#ui-language-remaster)
 - [Navigation](#navigation)
-- [Current V5.1 scope](#current-v51-scope)
+- [Current V5.2 scope](#current-v52-scope)
 - [Build principle](#build-principle)
 - [Architecture](#architecture)
 - [Request / Response Flow](#request--response-flow)
@@ -37,7 +37,7 @@
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Architecture Decision Records](#architecture-decision-records)
-- [V5.1 Active Roster vs Legacy/V6 Compatibility](#v51-active-roster-vs-legacyv6-compatibility)
+- [V5.2 Active Roster vs Legacy Compatibility](#v52-active-roster-vs-legacy-compatibility)
 - [Contributing & Conventions](#contributing--conventions)
 - [Test Coverage](#test-coverage)
 
@@ -45,7 +45,7 @@
 
 ## What changed
 
-This update shifts the product story away from small-business utility framing and toward enterprise operational complexity. The locked V5.1 product already defines OntologyAI as a shared workspace for discovery, ontology mapping, truth analysis, workflow design, governance, and deployment planning, so this README clarifies that the real value appears when organizations have fragmented systems, cross-functional processes, approval gates, and high-cost coordination problems.
+V5.2 reframes the product as an AI Discovery and Solution Design Platform. OntologyAI is no longer positioned as an "FDE companion + multi-agent OS" — it is now a discovery-first platform that ingests messy business evidence, builds a validated Enterprise Knowledge Model, maps capabilities to solution patterns, and generates an Enterprise Architecture Pack (12 artifacts) for handoff. The core value appears when organizations have fragmented systems, cross-functional processes, approval gates, and high-cost coordination problems.
 
 ## Product position
 
@@ -111,9 +111,11 @@ This aligns with the existing engagement phases of Discovery, Ontology Mapping, 
 
 ## Core architecture
 
-The locked V5.1 architecture remains unchanged:
-- Exactly 6 workflows: ChiefOfStaffWorkflow, DiscoveryWorkflow, OntologyMappingWorkflow, TruthAnalysisWorkflow, WorkflowBuilderWorkflow, GovernanceWorkflow.
+The V5.2 architecture is built on the following foundations:
+- Exactly 6 workflows: ChiefOfStaffWorkflow, DiscoveryWorkflow, OntologyMappingWorkflow, KnowledgeValidationWorkflow, SolutionArchitectWorkflow, GovernanceWorkflow.
 - Exactly 6 ontology object types: Party, Engagement, MoneyEvent, Issue, Message, PlannedAction.
+- Enterprise Knowledge Model is the canonical intermediate representation — entities, relationships, processes, business rules, capabilities, problems, opportunities.
+- Evidence layer: every entity carries full provenance (source, confidence, evidence ID, timestamp, extraction method).
 - Canonical EngagementState as the shared state for all workflow collaboration.
 - ExecutableWorkflowDraft as the typed deployable workflow artifact.
 - Governance exclusivity for external execution and approval-gated side effects.
@@ -133,7 +135,7 @@ Recommended user-facing labels:
 | ChiefOfStaff | Workspace Guide |
 | Ontology | Business Map |
 | Truth Analysis | Operational Truth |
-| Workflow Builder | Pilot Builder |
+| Solution Architect | Pilot Builder |
 | Governance | Approvals & Safety |
 | ExecutableWorkflowDraft | Pilot Draft |
 
@@ -151,17 +153,20 @@ Recommended primary workspace navigation:
 
 This is cleaner than exposing internal workflow names directly and still satisfies the required shared workspace views for chat, uploads, ontology, truth findings, workflows, drafts, approvals, and artifacts.
 
-## Current V5.1 scope
+## Current V5.2 scope
 
-V5.1 is an enterprise pilot workspace, not a full enterprise platform rollout. It includes:
+V5.2 is an AI Discovery and Solution Design Platform. It includes:
 - Shared workspace intake and streaming interaction.
+- Enterprise Knowledge Model as the canonical intermediate representation.
+- Evidence layer: provenance-tracked ingestion with full lineage.
 - Guided ontology construction from evidence.
-- Truth diagnosis over shared state.
-- Workflow specs, SOPs, and executable workflow drafts.
+- Knowledge validation: cross-source truth diagnosis with provenance verification.
+- Capability Catalogue: searchable registry of enterprise capabilities.
+- Solution Recommendation Engine: matches requirements to capabilities.
+- Enterprise Architecture Pack (12 artifacts): truth map, ontology snapshot, EKM snapshot, evidence index, capability catalogue, solution recommendation, workflow specs, SOP packs, action registers, business rules, process models, and executable draft artifacts.
 - Approval-gated governance.
-- Exportable truth maps, ontology snapshots, workflow packs, SOP packs, action registers, and executable draft artifacts.
 
-It explicitly does not include full connector breadth or unconstrained autonomous execution.
+It explicitly does not include deployment, activation, scheduling, or unconstrained autonomous execution. Runtime compilation is an optional export target only.
 
 ## Build principle
 
@@ -171,89 +176,71 @@ Keep the backend contract strict and the frontend experience simple: typed state
 
 ## Architecture
 
-Users reach OntologyAI through a shared agentic workspace (web). The Go Core accepts the message, routes the `@mention` in O(1) to the `ChiefOfStaffWorkflow` control plane, which dispatches specialist Temporal workflows. A Python AI worker runs the LangGraph/DSPy agents against an LLM provider, streams answers back over SSE, and — for consequential writes — proposes a `PlannedAction` that `GovernanceWorkflow` approves. Approved `ExecutableWorkflowDraft`s are compiled deterministically (Windmill / n8n / ADK-Go / PydanticAI / smolagents) and exported behind the governance gate. **V6 BABOK** adds a `StrategyWorkflow` that produces 5 versioned BA artifacts from discovery + truth outputs, a `GovernanceGate` for pre-execution policy checks, and a `SolutionEvaluationReport` to close the evaluation loop.
-
-**V5.1 Ontology Setup Wizard** adds a guided onboarding path: a 5-step HTMX wizard (Problem Framing → Evidence Intake → Candidate Review → Relationship Review → Approval) with dedicated Go handler and partials. The wizard is orchestration-only — it fires the existing DiscoveryWorkflow on completion rather than adding a new workflow type.
+Users reach OntologyAI through the workspace landing page (web). The Go Core accepts the message, routes the `@mention` in O(1) to the `ChiefOfStaffWorkflow` control plane, which dispatches specialist Temporal workflows. A Python AI worker runs the LangGraph/DSPy agents against an LLM provider, streams answers back over SSE, and — for consequential writes — proposes a `PlannedAction` that `GovernanceWorkflow` approves. Every ontology entity carries full provenance (source, confidence, evidence ID, timestamp, extraction method), enforced by the **Evidence Layer**. The `SolutionArchitectWorkflow` consults the **Capability Catalogue** and **Solution Recommendation Engine** to map validated knowledge to solution architectures. The `GovernanceWorkflow` produces the **Enterprise Architecture Pack** (12 artifacts) for download — not deployment.
 
 ```mermaid
 flowchart TD
-    U["Founder / Client (2 modes: fde_assisted, client_self_serve)"] --> CORE["Go Core (Fiber HTTP + HTMX + SSE)"]
-    U --> WIZARD["Ontology Setup Wizard <br/> <i>5-step HTMX (V5.1)</i>"]
-    WIZARD --> CORE
+    U["Enterprise User"] --> CORE["Go Core (Fiber HTTP + HTMX + SSE)"]
     CORE --> ROUTER["@mention Router — O(1) map lookup → ChiefOfStaff control plane"]
     ROUTER --> COS["ChiefOfStaffWorkflow  (@ontologyai / @chief / @sarthi)"]
     COS --> DISC["DiscoveryWorkflow  (@discover)"]
     COS --> MAP["OntologyMappingWorkflow  (@map)"]
-    COS --> TRUTH["TruthAnalysisWorkflow  (@truth)"]
-    COS --> BUILD["WorkflowBuilderWorkflow  (@build)"]
-    COS --> STRAT["StrategyWorkflow  (@strategy) <br/> <i>V6 BABOK</i>"]
+    COS --> KV["KnowledgeValidationWorkflow  (@validate)"]
+    COS --> SA["SolutionArchitectWorkflow  (@architect)"]
     COS --> GOV["GovernanceWorkflow  (@govern)"]
     DISC --> PY["Python AI Worker (LangGraph / DSPy)"]
     MAP --> PY
-    TRUTH --> PY
-    STRAT --> PY
-    BUILD --> PY
+    KV --> PY
+    SA --> PY
     GOV --> PY
     PY --> LLM["LLM Providers (Azure AI Foundry / Groq / Ollama / OpenAI)"]
-    PY --> ONTO["Ontology Layer (adapter + governance + EngagementState)"]
-    ONTO --> PG[("PostgreSQL (engagement_states)")]
-    ONTO -->|"read-only bridge"| MS[("mission_states")]
-    ONTO --> REDIS[("Redis")]
-    ONTO --> QDRANT[("Qdrant")]
-    ONTO --> GRAPH[("Neo4j + Graphiti)"]
+    PY --> EKM["Enterprise Knowledge Model"]
+    EKM --> PG[("PostgreSQL (engagement_states)")]
+    EKM --> REDIS[("Redis")]
+    EKM --> QDRANT[("Qdrant")]
+    EKM --> GRAPH[("Neo4j + Graphiti)"]
 
-    STRAT -->|"CurrentStateDescription"| ARTIFACTS["V6 BA Artifacts"]
-    STRAT -->|"BusinessObjectives"| ARTIFACTS
-    STRAT -->|"RiskAnalysisResults"| ARTIFACTS
-    STRAT -->|"ChangeStrategy"| ARTIFACTS
-    STRAT -->|"SolutionEvaluationReport"| ARTIFACTS
+    SA --> CAT["Capability Catalogue"]
+    CAT --> REC["Solution Recommendation Engine"]
+    REC -.-> SA
 
-    BUILD -->|"ExecutableWorkflowDraft"| GOV
-    GOV -->|"approved"| GATE["GovernanceGate <br/> <i>V6 BABOK</i>"]
-    GATE -->|"check: approved + blast-radius + actor"| COMP["Deterministic Compilers <br/> (Windmill / n8n / ADK-Go / PydanticAI / smolagents)"]
-    COMP -->|"export_payload"| EXPORT["Artifact Exports (governance-gated)"]
-    GOV -->|"audit + observability"| OBS["Langfuse / Audit Logs"]
+    GOV --> EAP["Enterprise Architecture Pack <br/> <i>12 artifacts</i>"]
+    EAP -->|"download"| DOWNLOAD["Artifact Download"]
 
-    subgraph OWNED["OntologyAI-owned (built, not bought)"]
-        CANVAS["OntologyAI Workflow Canvas (simplified n8n-like node editor)"]
-        MODEL["Canonical Model: ExecutableWorkflowDraft (12-node vocabulary)"]
-        WS["Shared Client + FDE Workspace (chat, transcript, evidence, governance)"]
+    subgraph EVIDENCE["Evidence Layer"]
+        PROV["Provenance: source, confidence, evidence ID, timestamp, extraction method"]
     end
-    CANVAS --> MODEL
-    WS --> CANVAS
+    PY --> EVIDENCE
+    EKM --> EVIDENCE
 
-    subgraph RUNTIME["Runtime Targets (execution only)"]
-        WM["Windmill <br/> <i>primary (ADR-009)</i>"]
-        N8N["n8n <br/> <i>legacy compat</i>"]
-        ADK["ADK-Go"]
-        PA["PydanticAI"]
-        SA["smolagents"]
+    subgraph OPTIONAL["Optional Export (not required for core product)"]
+        N8N["n8n compiler <br/> <i>canonical optional export</i>"]
+        ADK["ADK-Go compiler"]
+        PA["PydanticAI compiler"]
+        SA2["smolagents compiler"]
     end
-    COMP -->|"Windmill script/flow"| WM
-    COMP -->|"n8n JSON"| N8N
-    COMP -->|"main.go / tools.go"| ADK
-    COMP -->|"agent.py"| PA
-    COMP -->|"worker.py"| SA
-    WM -.->|"run state / errors (read-only)"| WS
-    N8N -.->|"run state / errors (read-only)"| WS
-    PA -.->|"run state (read-only)"| WS
+    GOV -.->|"optional export_payload"| N8N
+    GOV -.->|"optional"| ADK
+    GOV -.->|"optional"| PA
+    GOV -.->|"optional"| SA2
 ```
 
 **Key components**
 
 | Layer | Responsibility |
 |-------|----------------|
-| **Interface** (`apps/core/` HTMX) | Web workspace, chat, uploads, approval UI, exports UI (11 screens). |
-| **OntologyAI Workflow Canvas** (owned) | Simplified n8n-like node editor; every edit persisted to `ExecutableWorkflowDraft`. Native n8n editor is **not** exposed to clients (OEM/Embed license). |
-| **Canonical model** (owned) | `ExecutableWorkflowDraft` + 12-node vocabulary — the AI-authored, governed, versioned source of truth. |
+| **Interface** (`apps/core/` HTMX) | Web workspace, chat, uploads, approval UI, exports UI. |
 | **Go Core** (`apps/core/`) | Fiber HTTP server, HTMX templates, SSE streaming, `@mention` routing, Temporal client. |
 | **Control plane** | `ChiefOfStaffWorkflow` — intent classify, route, deterministically merge `EngagementState` patches, summarize. |
-| **Specialist workflow layer** | 5 V5.1 canonical + ChiefOfStaff control plane (= 6 total). V6 StrategyWorkflow gated behind `ENABLE_V6_WORKFLOWS=on`. |
-| **Python AI Worker** (`apps/ai/`) | LangGraph/DSPy agents per domain; builds the Ontology; proposes governed writes; compiles drafts. Backbone = Temporal + typed Python; ADK optional; smolagents sandboxed-only. Compilers: `RuntimeCompiler` ABC + 4 targets (n8n, ADK-Go, PydanticAI, smolagents). |
+| **Specialist workflow layer** | 5 canonical specialists + ChiefOfStaff control plane (= 6 total). |
+| **Python AI Worker** (`apps/ai/`) | LangGraph/DSPy agents per domain; builds the Ontology; proposes governed writes; compiles drafts. |
 | **LLM providers** | OpenAI-compatible SDK → Azure AI Foundry, Groq, Ollama, OpenAI (auto-detected). |
-| **Data & memory** | PostgreSQL (`engagement_states`), Redis, Qdrant, Neo4j + Graphiti. |
-| **BABOK Strategy (V6)** | `StrategyWorkflow` produces 5 versioned BA artifacts from truth findings + operator goal. Artifacts are immutable after approval; `GovernanceGate` checks approval, blast-radius, and authorization before execution. `SolutionEvaluationReport` closes the evaluation loop. |
-| **Runtime / export** | 5 deterministic compilers (`windmill`, `n8n`, `adk_go`, `pydantic_ai`, `python_agent`) behind a `RuntimeCompiler` ABC + `get_compiler()` factory, all gated by `GovernanceWorkflow` + `GovernanceGate`. **Windmill** (ADR-009) is the primary target; n8n is legacy backward compat. |
+| **Enterprise Knowledge Model** (canonical IR) | PostgreSQL (`engagement_states`), Redis, Qdrant, Neo4j + Graphiti. Typed entities with full provenance: every entity carries `source_refs`, `confidence_score`, `evidence_id`, `extracted_at`, `extraction_method`. |
+| **Capability Catalogue** | Registry of enterprise capabilities mapped to solution patterns. Powered by `SolutionArchitectWorkflow`. |
+| **Solution Recommendation Engine** | Maps validated knowledge to recommended solution architectures. |
+| **Evidence Layer** | Provenance-preserving pipeline: every ontology entity tracks source, confidence, evidence ID, timestamp, and extraction method. Enforced by Pydantic validators across all ontology writes. |
+| **Governance** | `GovernanceWorkflow` enforces approval gating, blast-radius checks, and audit logging. Produces the Enterprise Architecture Pack (12 artifacts). |
+| **Runtime / export** (optional) | Deterministic compilers for n8n (canonical optional target), ADK-Go, PydanticAI, smolagents behind a `RuntimeCompiler` ABC + `get_compiler()` factory. **Windmill** — DEPRECATED (ADR-009 superseded). Compilation is export-only; no deployment or execution. |
 | **Observability** | Langfuse tracing, audit logs, approval history. |
 
 ---
@@ -304,7 +291,7 @@ The dispatch runs in a goroutine with a 5-minute context timeout and a non-block
 
 ## Ontology Layer
 
-The V5.1 Ontology is the **canonical shared model** of a business engagement. It is fully typed (Pydantic v2, `extra="forbid"`, `strict=True`) and TDD-verified. It comprises 6 primary Object Types, the `ExecutableWorkflowDraft` and `EngagementState` shared-state shapes, and 11 semantic link types.
+The V5.2 Ontology is the **canonical shared model** of a business engagement. It is fully typed (Pydantic v2, `extra="forbid"`, `strict=True`) and TDD-verified. It comprises 6 primary Object Types, the `ExecutableWorkflowDraft` and `EngagementState` shared-state shapes, and 11 semantic link types. Every entity carries full provenance (source, confidence, evidence ID, timestamp, extraction method) enforced by the Evidence Layer.
 
 | Component | File | What it does |
 |-----------|------|--------------|
@@ -410,9 +397,7 @@ classDiagram
     EngagementState "1" --> "*" ExecutableWorkflowDraft : holds
 ```
 
-> **Canonical ontology types (6):** The V5.1 product contract specifies exactly 6 canonical ontology object types: Party, Engagement, MoneyEvent, Issue, Message, PlannedAction. These are the entity types that the OntologyAI core populates, links, and reasons over.
->
-> **UI view-model categories (V6 BABOK):** Artifact, Decision, and Metric are V6 BABOK view-model categories used in the StrategyWorkflow UI and artifact system. They are **NOT** V5.1 canonical ontology types and are never populated or linked by the V5.1 Discovery/OntologyMapping pipelines. They appear only in the StrategyWorkflow (V6) context.
+> **Canonical ontology types (6):** The V5.2 product contract specifies exactly 6 canonical ontology object types: Party, Engagement, MoneyEvent, Issue, Message, PlannedAction. These are the entity types that the OntologyAI core populates, links, and reasons over. Each type carries the Evidence Layer provenance envelope (source, confidence, evidence ID, timestamp, extraction method) to ensure traceability.
 
 ### `@governed_write`
 
@@ -440,20 +425,12 @@ apps/
       worker/               # Temporal worker entrypoint
     internal/
       web/                  # HTTP handlers (Fiber + HTMX + SSE)
-        handler.go          # All endpoints, @mention routing (O(1) map → 17 aliases / 6 V5.1 + 1 gated V6)
+        handler.go          # All endpoints, @mention routing (O(1) map → 15+ aliases / 6 V5.2 workflows)
         sse.go              # SSE handler (SetBodyStreamWriter + SSEHub)
         command_center_test.go
         templates/
           command_center.html
-          partials/         # HTMX partials (11 workspace screens + 6 ontology wizard partials)
-            ontology_setup_start.html
-            ontology_setup_problem_framing.html
-            ontology_setup_evidence_intake.html
-            ontology_setup_candidate_review.html
-            ontology_setup_relationship_review.html
-            ontology_setup_approval.html
-        ontology_setup_handler.go  # 5-step HTMX wizard endpoints (V5.1)
-        ontology_setup_test.go     # 17 wizard handler tests
+          partials/         # HTMX partials (workspace screens + ontology setup wizard partials)
       agents/               # Go agent definitions
       config/               # LLM configuration
       db/                   # sqlc generated code
@@ -463,49 +440,42 @@ apps/
     sqlc.yaml               # sqlc configuration
   ai/                       # Python AI Worker
     src/
-      ontology/             # V5.1 — Object Types, Link Types, Action Types, Workflow Drafts, Governance
+      ontology/             # V5.2 — Object Types, Link Types, Action Types, Workflow Drafts, Governance, Evidence
         object_types.py     # 6 canonical types
         link_types.py       # 11 link types
         action_types.py     # PlannedAction + registry
         workflow_drafts.py  # ExecutableWorkflowDraft (source of truth)
         adapter.py          # mission_state_to_ontology (read-only bridge)
         governance.py       # @governed_write + OBJECT_WRITE_POLICY
+        evidence.py         # Evidence provenance model — source, confidence, evidence_id, timestamp, extraction_method
+        capability_catalogue.py # Registry of enterprise capabilities mapped to solution patterns
+        solution_recommendation.py # Solution recommendation engine — maps validated knowledge to architectures
       schemas/              # Pydantic models (engagement_state, specialist_response, workflow_spec, sop, executable_workflow_draft)
-        ontology_setup_state.py # OntologySetupState + SetupStep enum + step data models (V5.1 — 28 state model tests)
-      schemas/              # Pydantic models + V6 BABOK artifacts
-        ba_artifact.py          # BaseArtifact + ArtifactLifecycleStatus (V6)
-        strategy_artifacts.py   # 5 BABOK artifacts: CurrentStateDescription, BusinessObjectives, RiskAnalysisResults, ChangeStrategy, SolutionEvaluationReport (V6)
-        governance_gate.py      # GovernanceGate — approval + blast-radius + actor checks (V6)
-      workflows/            # Temporal workflow definitions (+ V6 StrategyWorkflow)
+        ontology_setup_state.py # OntologySetupState + SetupStep enum + step data models (28 state model tests)
+      workflows/            # Temporal workflow definitions (6 V5.2 canonical)
         chief_of_staff_workflow.py   # @workflow.defn(name="ChiefOfStaffWorkflow")
         discovery_workflow.py        # @workflow.defn(name="DiscoveryWorkflow")
         ontology_mapping_workflow.py # @workflow.defn(name="OntologyMappingWorkflow")
-        truth_analysis_workflow.py   # @workflow.defn(name="TruthAnalysisWorkflow")
-        workflow_builder_workflow.py # @workflow.defn(name="WorkflowBuilderWorkflow")
+        knowledge_validation_workflow.py # @workflow.defn(name="KnowledgeValidationWorkflow")
+        solution_architect_workflow.py   # @workflow.defn(name="SolutionArchitectWorkflow")
         governance_workflow.py       # @workflow.defn(name="GovernanceWorkflow")
-        strategy_workflow.py         # @workflow.defn(name="StrategyWorkflow") (V6)
-      runtime/              # Deterministic compilers (5 targets) + artifact export
+      runtime/              # Deterministic compilers (optional export targets) + artifact export
         base.py                 # RuntimeCompiler ABC
-        windmill_compiler.py    # Windmill script/flow compiler (primary, ADR-009)
-        windmill_client.py      # Windmill REST API client
-        n8n_compiler.py         # n8n JSON compiler (legacy compat)
-        n8n.py                  # N8NCompiler wrapper class
+        n8n_compiler.py         # n8n JSON compiler (canonical optional export)
         n8n_client.py           # n8n REST API client
         adk_go_compiler.py      # ADK-Go: generates main.go + tools.go
         pydantic_ai_compiler.py # PydanticAI: generates agent.py w/ BaseModel
         python_agent_compiler.py# smolagents: generates CodeAgent worker.py
         custom_agent_compiler.py# Legacy agent config compiler
-        deployers.py            # Deployer functions (windmill, n8n, custom_agent)
         artifact_export.py      # Artifact export service
       session/              # EngagementState store (canonical) + mission_state read bridge
       memory/               # Graphiti, Qdrant, spine
       integrations/         # Stripe, Plaid, Slack, ERPNext, HubSpot, QuickBooks
-      services/             # Trust battery, alert gate
-        engagement_state_store.py # Async PostgreSQL CRUD (asyncpg) for EngagementState (V5.1)
+      services/             # Evidence layer, trust battery, provenance validation
+        engagement_state_store.py # Async PostgreSQL CRUD (asyncpg) for EngagementState
       activities/           # Temporal activity definitions
-        compile_windmill_workflow.py  # Compiles + deploys ExecutableWorkflowDraft to Windmill (V5.1)
-      worker.py             # Registers all 18 workflows (6 V5.1 + 4 V6 + 8 legacy V4.1) + activities
-    tests/                  # Pytest suite (1286 passing / 32 skipped + V5.1 suites)
+      worker.py             # Registers all workflows (6 V5.2 canonical + legacy V4.1) + activities
+    tests/                  # Pytest suite (1286 passing / 32 skipped + V5.2 suites)
     pyproject.toml          # Python dependencies
 ```
 
@@ -535,9 +505,10 @@ cd apps/core && go run cmd/worker/main.go
 cd apps/ai && uv sync
 cd apps/ai && uv run python -m src.worker
 
-# 5. Open the workspace
-#    http://localhost:8080/command
-#    Type "@discover Extract the key facts from this upload" → see "🤔 Thinking..." → see the answer
+# 5. Open the workspace landing page
+#    http://localhost:8080
+#    The workspace presents a guided discovery flow: frame a problem, add evidence,
+#    review the business map, validate knowledge, explore solution recommendations.
 ```
 
 ### Run the tests
@@ -549,7 +520,7 @@ cd apps/core && go test ./...
 # Go — web handlers only
 cd apps/core && go test ./internal/web/... -v
 
-# Python — full suite (1286 passing / 32 skipped + V5.1 schema/workflow/compiler/governance/export + multi-runtime suites)
+# Python — full suite (1286 passing / 32 skipped + V5.2 schema/workflow/governance/export suites)
 cd apps/ai && uv run pytest tests/ -v
 
 # Python — ontology TDD suites
@@ -591,7 +562,7 @@ These ADRs capture the load-bearing architectural decisions. Each follows an RFC
   Internal Pydantic `Sarthi*` types were fully renamed to `OntologyAI*` with zero dangling references.
 - **Consequences:**
   - *Positive:* A name that matches the product's actual scope; clean, consistent branding for newcomers.
-  - *Negative:* Two names coexist in the codebase (product = OntologyAI; some infra identifiers retain the legacy name), which must be documented to avoid confusion (see [V5.1 Active Roster vs Legacy/V6 Compatibility](#v51-active-roster-vs-legacyv6-compatibility)).
+  - *Negative:* Two names coexist in the codebase (product = OntologyAI; some infra identifiers retain the legacy name), which must be documented to avoid confusion (see [V5.2 Active Roster vs Legacy Compatibility](#v52-active-roster-vs-legacy-compatibility)).
 
 ### ADR-002: Six frozen canonical workflows with O(1) `@mention` map routing
 
@@ -677,54 +648,29 @@ These ADRs capture the load-bearing architectural decisions. Each follows an RFC
 
 ### ADR-009: Windmill replaces n8n as primary execution runtime
 
-- **Status:** Accepted (transitional — see V5.1 spec note below)
-- **Context:** n8n served as the execution runtime throughout V5.1 development. As the product scaled, Windmill emerged as a better fit: natively supports Python/TypeScript scripts, has a built-in approval/suspend module, supports secret management, webhooks, schedules, and is open-source with a permissive AGPL license. Windmill's script/flow model maps directly to `ExecutableWorkflowDraft` without an intermediate compilation step (scripts are first-class).
-- **Decision:** Replace n8n with **Windmill** as the canonical execution target (ADR-009). n8n is preserved as legacy backward compat but is no longer the primary target. Windmill runs on port 8000 with a dedicated worker container.
+- **Status:** DEPRECATED / Superseded (V5.2 reframing — Windmill was a transitional target; n8n remains canonical optional export)
+- **Context:** n8n served as the execution runtime throughout V5.1 development. Windmill emerged as a better fit for execution (native Python/TypeScript scripts, built-in approvals, AGPL license) and was adopted as a transitional primary target during V5.1.
+- **Decision:** Windmill is **DEPRECATED** as of V5.2. The product reframes from "deployment & execution" to "discovery, knowledge validation, and solution design." Runtime compilation is now an **optional export** target only. n8n remains the canonical optional export target for clients that require deployable workflow artifacts. No runtime is required to use OntologyAI V5.2.
 - **Consequences:**
-  - *Positive:* Native script/flow support, built-in approvals, secrets, webhooks, AGPL license.
-  - *Negative:* Windmill Docker image must be pulled and configured; `WINDMILL_TOKEN` must be set in `.env`.
-
-> **V5.1 spec note:** The locked V5.1 PRD specifies n8n + custom_agent as the canonical deterministic runtime compilers. Windmill (ADR-009) was introduced post-V5.1 as a better execution-runtime fit (native Python/TypeScript scripts, built-in approvals, AGPL license) but is documented here as transitional architecture. It is not part of the locked V5.1 product contract and should be considered a V5.2 or V6 capability. For strict V5.1 deployments, n8n remains the canonical target.
-
-### V5.1/V6 Runtime: Windmill (primary) + n8n (legacy compat)
-
-Windmill runs as the primary execution runtime with its REST API exposed on port `8000`:
-
-```
-http://windmill:8000/api
-```
-
-n8n is preserved for backward compatibility on the internal `iterateswarm-net` network:
-
-```
-http://n8n:5678/api/v1
-```
-
-- Windmill credentials: `WINDMILL_URL`, `WINDMILL_TOKEN`, `WINDMILL_WORKER_TOKEN` in `.env`.
-- n8n credentials: `N8N_API_KEY` (legacy, will be deprecated).
-- The OntologyAI canvas is the only client-facing surface; Windmill/n8n editors are never exposed.
+  - *Positive:* Simplified architecture — no Windmill dependency, no deployment gate, no runtime credential management.
+  - *Negative:* Clients requiring deployable workflow artifacts use n8n compiler export (canonical optional target).
 
 ---
 
-## V5.1 Active Roster vs Legacy/V6 Compatibility
+## V5.2 Active Roster vs Legacy Compatibility
 
-The default active V5.1 Temporal worker registers exactly **6 canonical workflows**:
+The default active V5.2 Temporal worker registers exactly **6 canonical workflows**:
 
 | # | Workflow | Role | Category |
 |---|----------|------|----------|
-| 1 | `ChiefOfStaffWorkflow` | Control-plane orchestrator | V5.1 canonical |
-| 2 | `DiscoveryWorkflow` | Evidence intake & fact extraction | V5.1 canonical |
-| 3 | `OntologyMappingWorkflow` | Object/link type population | V5.1 canonical |
-| 4 | `TruthAnalysisWorkflow` | Cross-source truth diagnosis | V5.1 canonical |
-| 5 | `WorkflowBuilderWorkflow` | Executable workflow draft generation | V5.1 canonical |
-| 6 | `GovernanceWorkflow` | Approval gate & external execution finalization | V5.1 canonical |
+| 1 | `ChiefOfStaffWorkflow` | Control-plane orchestrator | V5.2 canonical |
+| 2 | `DiscoveryWorkflow` | Evidence intake & fact extraction | V5.2 canonical |
+| 3 | `OntologyMappingWorkflow` | Object/link type population | V5.2 canonical |
+| 4 | `KnowledgeValidationWorkflow` | Cross-source truth diagnosis & provenance validation | V5.2 canonical |
+| 5 | `SolutionArchitectWorkflow` | Capability mapping & solution recommendation | V5.2 canonical |
+| 6 | `GovernanceWorkflow` | Approval gate & Enterprise Architecture Pack generation | V5.2 canonical |
 
-**V6 `StrategyWorkflow`** — gated behind `ENABLE_V6_WORKFLOWS=on`. Default: off.
 **Legacy V4.1 workflows** (Pulse, Investor, FPA, GrowthAnalytics, etc.) — gated behind `LEGACY_FDE_MODULES=on`. Default: off.
-
-When `ENABLE_V6_WORKFLOWS=on` is set:
-- `StrategyWorkflow` is added to the active Temporal worker
-- `@strategy` alias is added to the route map (7 total aliases)
 
 When `LEGACY_FDE_MODULES=on` is set:
 - All 11 legacy V4.1 workflows are added alongside the active roster
@@ -746,18 +692,16 @@ When `LEGACY_FDE_MODULES=on` is set:
 
 | Suite | Tests | Status |
 |-------|-------|--------|
-| Python Unit Tests | 1286 passing / 32 skipped (baseline + V6 BABOK + V5.1 wizard/infra suites) | ✅ |
-| V5.1 Schema & State | object_types, link_types, action_types, engagement_state, specialist_response, workflow_spec, sop, executable_workflow_draft | ✅ |
-| V5.1 Workflows (6 workflows) | Discovery, Ontology Mapping, Truth Analysis, Workflow Builder, Governance + workflow_names | ✅ |
-| V5.1 Multi-Runtime Compilers | Windmill (24 tests), n8n, ADK-Go, PydanticAI, smolagents + ABC + factory | ✅ |
-| V5.1 Compilers / Export / Deployers | Windmill, n8n, custom_agent compile + deploy tests | ✅ |
-| V5.1 Governance / HITL | Governance workflow (17 tests), HITL signals | ✅ |
-| **V5.1 Ontology Setup Wizard** | Setup state models (28 tests), Go handler (17 tests), ChiefOfStaff wizard routing (52 tests) — **97 total** | ✅ |
-| **V5.1 Infra & Registration** | Worker registration (5 tests), Windmill compile activity (7 tests), EngagementStateStore (8 tests), strategy name fix | ✅ |
-| **V6 BABOK Artifacts** | BA artifact base (9 tests), strategy artifacts (9 tests), governance gate (12 tests), merge_patch protection (4 tests), strategy workflow + evaluation (4 tests) — **24 + 14 = 38 total** | ✅ |
-| V6 ChiefOfStaff routing | `@strategy` alias, strategy intent classification, strategy route — integration tested | ✅ |
-| Go HTMX Web Handlers + Wizard | Route map (17 aliases), command center panels, ontology setup wizard (17 tests) | ✅ |
+| Python Unit Tests | 1286 passing / 32 skipped (baseline + V5.2 schema/workflow/governance suites) | ✅ |
+| V5.2 Schema & State | object_types, link_types, action_types, engagement_state, specialist_response, workflow_spec, sop, executable_workflow_draft | ✅ |
+| V5.2 Workflows (6 workflows) | Discovery, Ontology Mapping, Knowledge Validation, Solution Architect, Governance + workflow_names | ✅ |
+| V5.2 Multi-Runtime Compilers | n8n, ADK-Go, PydanticAI, smolagents + ABC + factory | ✅ |
+| V5.2 Compilers / Export | n8n, custom_agent compile + export tests | ✅ |
+| V5.2 Governance / HITL | Governance workflow (17 tests), HITL signals | ✅ |
+| **V5.2 Ontology Setup Wizard** | Setup state models (28 tests), Go handler (17 tests), ChiefOfStaff wizard routing (52 tests) — **97 total** | ✅ |
+| **V5.2 Infra & Registration** | Worker registration (5 tests), EngagementStateStore (8 tests) | ✅ |
+| V5.2 ChiefOfStaff routing | Route map (15+ aliases), intent classification, specialist routing — integration tested | ✅ |
+| Go HTMX Web Handlers + Wizard | Route map (15+ aliases), workspace panels, ontology setup wizard (17 tests) | ✅ |
 | Go Build | Clean | ✅ Binary compiles |
 | E2E Smoke Test | 9/9 | ✅ Real Docker + real LLM |
-| Windmill E2E | 4 pass + 4 skip (graceful when Windmill container not running) | ✅ |
 | DB Tests | — | 🟡 Skip (requires PostgreSQL container) |

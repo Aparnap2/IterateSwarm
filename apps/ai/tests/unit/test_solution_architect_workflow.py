@@ -1,6 +1,6 @@
-"""TDD tests for WorkflowBuilderWorkflow (PRD §8.5 / §16.5).
+"""TDD tests for SolutionArchitectWorkflow (PRD §8.5 / §16.5).
 
-Run FIRST — must FAIL, then implement workflow_builder_workflow.py to pass.
+Run FIRST — must FAIL, then implement solution_architect_workflow.py to pass.
 
 Key behaviors asserted:
   * produces a WorkflowSpec (src.schemas.workflow_spec.WorkflowSpec),
@@ -8,7 +8,7 @@ Key behaviors asserted:
   * produces an ExecutableWorkflowDraft (status="draft"),
   * produces a PlannedAction when execution/export/activation proposed,
   * returns patches to workflow_specs, planned_actions, executable_workflow_drafts,
-  * specialist="WorkflowBuilder".
+  * specialist="SolutionArchitect".
 """
 import pytest
 
@@ -20,8 +20,8 @@ from src.ontology.object_types import PlannedAction
 
 
 def _make_workflow(llm=None):
-    from src.workflows.workflow_builder_workflow import WorkflowBuilderWorkflow
-    return WorkflowBuilderWorkflow(llm_client=llm)
+    from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
+    return SolutionArchitectWorkflow(llm_client=llm)
 
 
 def _truth_findings():
@@ -35,7 +35,7 @@ def _truth_findings():
     }]
 
 
-class TestWorkflowBuilderOutputs:
+class TestSolutionArchitectOutputs:
     def test_produces_workflow_spec(self):
         wf = _make_workflow()
         resp = wf.run(tenant_id="t1", engagement_id="e1",
@@ -79,13 +79,13 @@ class TestWorkflowBuilderOutputs:
         assert resp.actions_proposed
 
 
-class TestWorkflowBuilderResponse:
-    def test_returns_workflow_builder_response(self):
+class TestSolutionArchitectResponse:
+    def test_returns_solution_architect_response(self):
         wf = _make_workflow()
         resp = wf.run(tenant_id="t1", engagement_id="e1",
                       truth_findings=_truth_findings())
         assert isinstance(resp, SpecialistResponse)
-        assert resp.specialist == "WorkflowBuilder"
-        assert resp.workflow_name == "WorkflowBuilderWorkflow"
+        assert resp.specialist == "SolutionArchitect"
+        assert resp.workflow_name == "SolutionArchitectWorkflow"
         assert "workflow_specs" in resp.engagement_state_patch
         assert "executable_workflow_drafts" in resp.engagement_state_patch

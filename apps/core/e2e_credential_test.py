@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OntologyAI V5.1 — Credential E2E Test
+OntologyAI V5.2 — Credential E2E Test
 
 Tests the credential collection UI CRUD flow end-to-end:
   1. GET  /api/workspace/credentials       → empty state
@@ -74,7 +74,7 @@ def main():
     failed = 0
 
     print(f"\n{'='*60}")
-    print(f" OntologyAI V5.1 Credential E2E Test")
+    print(f" OntologyAI V5.2 Credential E2E Test")
     print(f" Target: {BASE_URL}")
     print(f"{'='*60}\n")
 
