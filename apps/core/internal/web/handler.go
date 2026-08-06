@@ -34,18 +34,26 @@ func Render(c *fiber.Ctx, name string, data interface{}) error {
 			switch sender {
 			case "founder":
 				return "You"
-			case "sarthi", "agent", "chief_of_staff", "chief":
+			case "sarthi":
 				return "Workspace Guide"
-			case "discover", "discovery":
-				return "Discovery"
-			case "map", "ontology_mapper":
-				return "Business Map"
-			case "truth", "knowledge_validator":
-				return "Operational Truth"
-			case "build", "solution_architect":
-				return "Pilot Builder"
-			case "govern", "governance":
-				return "Approvals & Safety"
+			case "finance":
+				return "FP&A"
+			case "data":
+				return "Data"
+			case "ops":
+				return "Ops"
+			case "qa":
+				return "QA"
+			case "comms":
+				return "Comms"
+			case "hiring":
+				return "Hiring"
+			case "pulse":
+				return "Pulse"
+			case "anomaly":
+				return "Anomaly"
+			case "investor":
+				return "Investor"
 			case "all":
 				return "Everyone"
 			default:
@@ -262,34 +270,34 @@ func (h *Handler) RegisterRoutes(app *fiber.App) {
 					switch sender {
 					case "founder":
 						displayName = "You"
-					case "sarthi", "agent", "chief_of_staff", "chief":
+					case "sarthi":
 						displayName = "Workspace Guide"
-					case "discover", "discovery":
-						displayName = "Discovery"
-					case "map", "ontology_mapper":
-						displayName = "Business Map"
-					case "truth", "knowledge_validator":
-						displayName = "Operational Truth"
-					case "build", "solution_architect":
-						displayName = "Pilot Builder"
-					case "govern", "governance":
-						displayName = "Approvals & Safety"
-					case "finance", "fpa":
+					case "finance":
 						displayName = "FP&A"
-					case "data", "growth":
-						displayName = "Growth Analytics"
-					case "ops", "reliability":
-						displayName = "Reliability & Delivery"
+					case "data":
+						displayName = "Data"
+					case "ops":
+						displayName = "Ops"
+					case "qa":
+						displayName = "QA"
 					case "comms":
-						displayName = "Communications"
+						displayName = "Comms"
+					case "hiring":
+						displayName = "Hiring"
+					case "pulse":
+						displayName = "Pulse"
+					case "anomaly":
+						displayName = "Anomaly"
+					case "investor":
+						displayName = "Investor"
 					}
 
 					normalized := strings.TrimPrefix(sender, "@")
 					initials := map[string]string{
-						"founder": "Y", "sarthi": "W", "chief": "W", "chief_of_staff": "W",
-						"discover": "D", "map": "B", "truth": "O", "build": "P", "govern": "A",
-						"finance": "F", "fpa": "F", "data": "G", "growth": "G", "ops": "R",
-						"reliability": "R", "agent": "A", "comms": "M",
+						"founder": "Y", "sarthi": "W",
+						"finance": "F", "data": "G", "ops": "R",
+						"qa": "Q", "comms": "M", "hiring": "H",
+						"pulse": "P", "anomaly": "A", "investor": "I",
 					}
 					initial := initials[normalized]
 					if initial == "" && len(normalized) > 0 {
@@ -297,23 +305,17 @@ func (h *Handler) RegisterRoutes(app *fiber.App) {
 					}
 
 					agentClasses := map[string]string{
-						"founder":        "bg-blue-500/20 text-blue-400",
-						"sarthi":         "agent-chief-of-staff",
-						"chief":          "agent-chief-of-staff",
-						"chief_of_staff": "agent-chief-of-staff",
-						"discover":       "agent-discovery",
-						"map":            "agent-ontology-mapper",
-						"truth":          "agent-truth-analyst",
-						"build":          "agent-solution-architect",
-						"govern":         "agent-governance",
-						"finance":        "agent-fpa",
-						"fpa":            "agent-fpa",
-						"data":           "agent-growth-analytics",
-						"growth":         "agent-growth-analytics",
-						"ops":            "agent-reliability",
-						"reliability":    "agent-reliability",
-						"agent":          "agent-system",
-						"comms":          "agent-comms",
+						"founder":  "bg-blue-500/20 text-blue-400",
+						"sarthi":   "agent-chief-of-staff",
+						"finance":  "agent-fpa",
+						"data":     "agent-growth-analytics",
+						"ops":      "agent-reliability",
+						"qa":       "agent-qa",
+						"comms":    "agent-comms",
+						"hiring":   "agent-hiring",
+						"pulse":    "agent-pulse",
+						"anomaly":  "agent-anomaly",
+						"investor": "agent-investor",
 					}
 					agentClass := agentClasses[normalized]
 					if agentClass == "" {

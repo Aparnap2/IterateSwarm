@@ -1,8 +1,8 @@
-"""TDD tests for SpecialistResponse schema (PRD §15.1, V5.1 rebrand).
+"""TDD tests for SpecialistResponse schema (PRD §15.1, 9-runtime rebrand).
 
 Written BEFORE implementation. Run first — must FAIL, then implement to pass.
 
-The V5.1 rebrand migrates specialist/workflow Literals to the new canonical
+The 9-runtime rebrand migrates specialist/workflow Literals to the new canonical
 set and renames ``mission_state_patch`` -> ``engagement_state_patch`` (with a
 backward-compatible alias).
 """

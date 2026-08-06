@@ -1,4 +1,4 @@
-"""TDD tests for OntologyAI V5.1 credentials binding model.
+"""TDD tests for OntologyAI 9-runtime credentials binding model.
 
 RED phase: these imports will fail until src/runtime/credentials.py exists.
 GREEN phase: after implementing CredentialBinding + CredentialStore.

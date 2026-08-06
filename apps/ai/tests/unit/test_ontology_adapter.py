@@ -1,4 +1,4 @@
-"""TDD tests for OntologyAI V5.1 — State → Ontology Adapter (PRD §12).
+"""TDD tests for OntologyAI 9-runtime — State → Ontology Adapter (PRD §12).
 
 Run:
     cd /home/aparna/Desktop/iterate_swarm/apps/ai

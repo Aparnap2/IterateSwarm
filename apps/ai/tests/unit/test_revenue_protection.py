@@ -1,4 +1,4 @@
-"""TDD tests for Revenue Protection vertical slice — OntologyAI V5.1.
+"""TDD tests for Revenue Protection vertical slice — OntologyAI 9-runtime.
 
 Tests the three parallel implementation tracks:
   1. ``Shipment`` object type + ``order_shipment`` link in the ontology

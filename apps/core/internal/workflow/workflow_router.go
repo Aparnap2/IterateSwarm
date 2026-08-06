@@ -108,7 +108,7 @@ func GetRoutingTable() EventRoutingTable {
 		// Monthly executive review
 		"TIME_TICK_MONTHLY": {"ChiefOfStaffWorkflow"},
 
-		// Agent outputs require CoS attention
+		// Runtime outputs require CoS attention
 		"AGENT_OUTPUT": {"ChiefOfStaffWorkflow"},
 
 		// Strategic decisions
@@ -240,7 +240,7 @@ func WorkflowRouter(ctx workflow.Context, st WorkflowRouterState) error {
 }
 
 // RevenueWorkflow handles all revenue-related events (payments, subscriptions, CRM deals).
-// It routes the event to the Python Revenue agent via gRPC for processing.
+// It routes the event to the Python Revenue runtime via gRPC for processing.
 func RevenueWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info(
@@ -262,7 +262,7 @@ func RevenueWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error 
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
-	// Execute Python revenue agent via gRPC
+	// Execute Python revenue runtime via gRPC
 	var result SOPActivityResult
 	err := workflow.ExecuteActivity(ctx, ExecuteSOPActivity, envelope).Get(ctx, &result)
 	if err != nil {
@@ -275,7 +275,7 @@ func RevenueWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error 
 		"message", result.Message,
 	)
 
-	// Fire alert if the agent detected an issue requiring attention
+	// Fire alert if the runtime detected an issue requiring attention
 	if result.FireAlert {
 		logger.Info("RevenueWorkflow: alert flagged", "message", result.Message)
 	}
@@ -284,7 +284,7 @@ func RevenueWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error 
 }
 
 // CSWorkflow handles customer success events (signups, support tickets, engagement ticks).
-// It routes the event to the Python CS agent via gRPC for processing.
+// It routes the event to the Python CS runtime via gRPC for processing.
 func CSWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info(
@@ -306,7 +306,7 @@ func CSWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
-	// Execute Python CS agent via gRPC
+	// Execute Python CS runtime via gRPC
 	var result SOPActivityResult
 	err := workflow.ExecuteActivity(ctx, ExecuteSOPActivity, envelope).Get(ctx, &result)
 	if err != nil {
@@ -319,7 +319,7 @@ func CSWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 		"message", result.Message,
 	)
 
-	// Fire alert if the agent detected an issue requiring attention
+	// Fire alert if the runtime detected an issue requiring attention
 	if result.FireAlert {
 		logger.Info("CSWorkflow: alert flagged", "message", result.Message)
 	}
@@ -328,7 +328,7 @@ func CSWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 }
 
 // PeopleWorkflow handles HR/people operations (employee lifecycle, onboarding, checklists).
-// It routes the event to the Python People agent via gRPC for processing.
+// It routes the event to the Python People runtime via gRPC for processing.
 func PeopleWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info(
@@ -350,7 +350,7 @@ func PeopleWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
-	// Execute Python people agent via gRPC
+	// Execute Python people runtime via gRPC
 	var result SOPActivityResult
 	err := workflow.ExecuteActivity(ctx, ExecuteSOPActivity, envelope).Get(ctx, &result)
 	if err != nil {
@@ -363,7 +363,7 @@ func PeopleWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 		"message", result.Message,
 	)
 
-	// Fire alert if the agent detected an issue requiring attention
+	// Fire alert if the runtime detected an issue requiring attention
 	if result.FireAlert {
 		logger.Info("PeopleWorkflow: alert flagged", "message", result.Message)
 	}
@@ -372,7 +372,7 @@ func PeopleWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 }
 
 // FinanceWorkflow handles finance operations (expenses, bank webhooks, vendor invoices).
-// It routes the event to the Python Finance agent via gRPC for processing.
+// It routes the event to the Python Finance runtime via gRPC for processing.
 func FinanceWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info(
@@ -394,7 +394,7 @@ func FinanceWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error 
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
-	// Execute Python finance agent via gRPC
+	// Execute Python finance runtime via gRPC
 	var result SOPActivityResult
 	err := workflow.ExecuteActivity(ctx, ExecuteSOPActivity, envelope).Get(ctx, &result)
 	if err != nil {
@@ -407,7 +407,7 @@ func FinanceWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error 
 		"message", result.Message,
 	)
 
-	// Fire alert if the agent detected an issue requiring attention
+	// Fire alert if the runtime detected an issue requiring attention
 	if result.FireAlert {
 		logger.Info("FinanceWorkflow: alert flagged", "message", result.Message)
 	}
@@ -415,7 +415,8 @@ func FinanceWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error 
 	return nil
 }
 
-// ChiefOfStaffWorkflow handles executive-level events (weekly synthesis, agent outputs, decisions).
+// ChiefOfStaffWorkflow handles executive-level events (weekly synthesis, runtime outputs, decisions).
+// It acts as the coordinator/router that dispatches to domain-specific runtime workflows.
 func ChiefOfStaffWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	logger := workflow.GetLogger(ctx)
 	logger.Info(

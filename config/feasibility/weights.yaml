@@ -1,0 +1,60 @@
+# V6 OntologyAI — Feasibility Dimension Weights
+#
+# This file is loaded at startup by FeasibilityEngine.  Changes take effect
+# on next restart (or when the engine is re-instantiated).
+#
+# Per §8.1 of the V6 spec, weights are NOT hardcoded.  Each dimension has:
+#   weight    — relative importance (must sum to 1.0)
+#   source    — data origin (documentation only — not read by code)
+#   scale     — valid range: "0-100" or "-100-100"
+#   inverted  — if true, a high raw score becomes a low feasibility score
+#               (used for complexity, risk, and effort dimensions)
+
+dimensions:
+  business_value:
+    weight: 0.25
+    source: stakeholder_scoring
+    scale: 0-100
+    inverted: false
+
+  technical_complexity:
+    weight: 0.15
+    source: dependency_analysis
+    scale: 0-100
+    inverted: true
+
+  operational_fit:
+    weight: 0.15
+    source: capability_maturity
+    scale: 0-100
+    inverted: false
+
+  financial_impact:
+    weight: 0.20
+    source: cost_benefit_evidence
+    scale: -100-100
+    inverted: false
+
+  compliance_risk:
+    weight: 0.10
+    source: business_rule_check
+    scale: 0-100
+    inverted: true
+
+  data_readiness:
+    weight: 0.05
+    source: evidence_coverage
+    scale: 0-100
+    inverted: false
+
+  change_effort:
+    weight: 0.05
+    source: org_impact
+    scale: 0-100
+    inverted: true
+
+  stakeholder_alignment:
+    weight: 0.05
+    source: sentiment_analysis
+    scale: 0-100
+    inverted: false

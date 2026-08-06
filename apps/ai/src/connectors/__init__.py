@@ -84,20 +84,16 @@ def list_available_capabilities() -> list[str]:
 # Lazy-import to avoid circular dependencies — the registry is populated at
 # module level after all classes are defined.
 def _auto_register() -> None:
-    from .salesforce import SalesforceConnector
     from .erpnext_connector import ERPNextConnector
     from .quickbooks_connector import QuickBooksConnector
     from .stripe_connector import StripeConnector
-    from .slack_connector import SlackConnector
     from .mock.mock_crm import MockCRMConnector
     from .mock.mock_erp import MockERPConnector
 
     # Production-grade connectors (preferred when credentials exist)
-    register_connector("crm", SalesforceConnector)
     register_connector("erp", ERPNextConnector)
     register_connector("accounting", QuickBooksConnector)
     register_connector("accounting", StripeConnector)  # duplicate: last wins for same capability
-    register_connector("messaging", SlackConnector)
 
     # Mock connectors — registered under capability + "_mock" so they can be
     # explicitly requested, but also serve as fallback in *mock_mode*.

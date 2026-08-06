@@ -1,4 +1,4 @@
-"""TDD tests for OntologyAI V5.1 runtime deployers.
+"""TDD tests for OntologyAI 9-runtime runtime deployers.
 
 RED phase: these imports will fail until src/runtime/deployers.py exists.
 GREEN phase: after implementing deployers module.

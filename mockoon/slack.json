@@ -1,0 +1,302 @@
+{
+  "uuid": "d95a375c-3c3c-4b9d-b36b-b1fa1791aaab",
+  "lastMigration": 33,
+  "name": "Slack Mock API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3002,
+  "hostname": "0.0.0.0",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "d4e5a16e-4171-4b8d-97bf-dce17f1dd05b",
+      "type": "http",
+      "documentation": "List channels",
+      "method": "get",
+      "endpoint": "conversations.list",
+      "responses": [
+        {
+          "uuid": "203a7ed2-dce8-4acd-b6f6-ca9cec2f2f37",
+          "body": "{\"ok\": true, \"channels\": [{\"id\": \"C001\", \"name\": \"engineering\", \"topic\": \"Engineering discussions\", \"member_count\": 12}, {\"id\": \"C002\", \"name\": \"sales\", \"topic\": \"Sales pipeline\", \"member_count\": 8}, {\"id\": \"C003\", \"name\": \"product\", \"topic\": \"Product decisions\", \"member_count\": 6}, {\"id\": \"C004\", \"name\": \"leadership\", \"topic\": \"Leadership announcements\", \"member_count\": 4}], \"response_metadata\": {\"next_cursor\": null}}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "List channels",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "b429fc48-30d1-476a-be96-3fcef6e9e1fc",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "fde15813-9a07-4deb-8784-cde8d90f36b2",
+      "type": "http",
+      "documentation": "Conversation history",
+      "method": "get",
+      "endpoint": "conversations.history",
+      "responses": [
+        {
+          "uuid": "006fe781-6e0d-49f0-acfd-a60b87c8f18b",
+          "body": "{\"ok\": true, \"messages\": [{\"user\": \"U001\", \"text\": \"The CI pipeline has been flaky. Neo4j test container keeps OOMing.\", \"ts\": \"1715000000.000001\", \"reactions\": [{\"name\": \"eyes\", \"count\": 3}], \"reply_count\": 2}, {\"user\": \"U002\", \"text\": \"Looking at it now. I'll bump the memory limit to 2G.\", \"ts\": \"1715000100.000002\", \"thread_ts\": \"1715000000.000001\"}, {\"user\": \"U003\", \"text\": \"We should discuss the auth service rewrite. Current design won't scale past 10K users.\", \"ts\": \"1715000200.000003\", \"reactions\": [{\"name\": \"heavy_plus_sign\", \"count\": 5}]}, {\"user\": \"U001\", \"text\": \"Agreed. I've drafted a proposal using OIDC \\u2014 PRD link incoming.\", \"ts\": \"1715000300.000004\", \"thread_ts\": \"1715000200.000003\"}, {\"user\": \"U004\", \"text\": \"Q3 planning tomorrow at 2 PM. Add items to the doc by EOD.\", \"ts\": \"1715000400.000005\", \"reactions\": [{\"name\": \"calendar\", \"count\": 6}]}, {\"user\": \"U002\", \"text\": \"DB migration this weekend will need ~30 mins downtime.\", \"ts\": \"1715000500.000006\", \"reactions\": [{\"name\": \"warning\", \"count\": 2}]}, {\"user\": \"U003\", \"text\": \"Can we do blue-green? Zero-downtime is possible with the new Postgres.\", \"ts\": \"1715000600.000007\", \"thread_ts\": \"1715000500.000006\"}]}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Engineering messages",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "a7d3bcd9-8576-4d80-b0cc-cd26fbc16fa6",
+          "callbacks": []
+        },
+        {
+          "uuid": "4a6b86f9-517e-4cd9-9ba8-a1b6fe585958",
+          "body": "{\"ok\": false, \"error\": \"rate_limited\"}",
+          "latency": 0,
+          "statusCode": "429",
+          "label": "Rate limited",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Retry-After",
+              "value": "30"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "trigger",
+              "value": "rate_limit",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "f9b817b2-94ff-4089-9220-4fccefc263cf",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "a92917a5-95fb-4e58-8e68-1dd62a9aa624",
+      "type": "http",
+      "documentation": "Post message",
+      "method": "post",
+      "endpoint": "chat.postMessage",
+      "responses": [
+        {
+          "uuid": "bba8c039-b3fa-47e5-bbe8-90abb50d9514",
+          "body": "{\"ok\": true, \"ts\": \"1715004000.000026\", \"channel\": \"C001\"}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Post message",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "9877f5c6-1301-413c-9d9c-d3df1377f6cd",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "e818898d-854e-4c11-bb6a-ef6f0022252e",
+      "type": "http",
+      "documentation": "List users",
+      "method": "get",
+      "endpoint": "users.list",
+      "responses": [
+        {
+          "uuid": "4bea9417-ce15-4d95-b1ad-bb2ad21a9016",
+          "body": "{\"ok\": true, \"members\": [{\"id\": \"U001\", \"name\": \"alice.chen\", \"real_name\": \"Alice Chen\", \"profile\": {\"email\": \"alice@company.com\", \"title\": \"Staff Engineer\", \"status_text\": \"Focusing\"}}, {\"id\": \"U002\", \"name\": \"david.kim\", \"real_name\": \"David Kim\", \"profile\": {\"email\": \"david@company.com\", \"title\": \"Senior DevOps Engineer\", \"status_text\": \"\"}}, {\"id\": \"U003\", \"name\": \"sarah.chen\", \"real_name\": \"Sarah Chen\", \"profile\": {\"email\": \"sarah@company.com\", \"title\": \"Head of Product\", \"status_text\": \"In meetings\"}}, {\"id\": \"U004\", \"name\": \"mike.liu\", \"real_name\": \"Mike Liu\", \"profile\": {\"email\": \"mike@company.com\", \"title\": \"Engineering Manager\", \"status_text\": \"1:1s\"}}, {\"id\": \"U005\", \"name\": \"bob.martinez\", \"real_name\": \"Bob Martinez\", \"profile\": {\"email\": \"bob@company.com\", \"title\": \"VP of Sales\", \"status_text\": \"On calls\"}}, {\"id\": \"U006\", \"name\": \"carol.williams\", \"real_name\": \"Carol Williams\", \"profile\": {\"email\": \"carol@company.com\", \"title\": \"Sales Engineer\", \"status_text\": \"\"}}, {\"id\": \"U007\", \"name\": \"emma.jones\", \"real_name\": \"Emma Jones\", \"profile\": {\"email\": \"emma@company.com\", \"title\": \"Customer Success Manager\", \"status_text\": \"sick\"}}, {\"id\": \"U008\", \"name\": \"james.wilson\", \"real_name\": \"James Wilson\", \"profile\": {\"email\": \"james@company.com\", \"title\": \"Product Designer\", \"status_text\": \"In a workshop\"}}, {\"id\": \"U009\", \"name\": \"ceo\", \"real_name\": \"Alex Rivera\", \"profile\": {\"email\": \"alex@company.com\", \"title\": \"CEO\", \"status_text\": \"\"}}]}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "List users",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "b81d1a0c-2f5e-4267-8a24-1da2220b8cb8",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "72885fc6-1b20-488f-a282-14ac84f79ed1",
+      "type": "http",
+      "documentation": "User info",
+      "method": "get",
+      "endpoint": "users.info",
+      "responses": [
+        {
+          "uuid": "1454eefd-dafa-4f0a-8305-3f008c869729",
+          "body": "{\"ok\": true, \"user\": {\"id\": \"U001\", \"name\": \"alice.chen\", \"real_name\": \"Alice Chen\", \"profile\": {\"email\": \"alice@company.com\", \"title\": \"Staff Engineer\", \"status_text\": \"Focusing\"}}}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "User info",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "6b2ec926-c04e-4783-b42f-b3bdba951c41",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "uuid": "91afe18c-b55e-4ac5-bd45-8c41523eea6f",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "e98af2fd-d1c6-42e8-8a2d-88871ed3fbfe",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "3e70761f-5f1b-488a-bde9-b65f17ef6567",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "287c676c-61ba-41d4-a0be-cd76017a1f50",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "09e4582f-64b8-4bc9-aa77-679d1e40b3d5",
+      "type": "route",
+      "path": ""
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "proxyReqHeaders": [],
+  "proxyResHeaders": [],
+  "data": [],
+  "callbacks": [],
+  "https": false,
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "rules": [],
+  "rulesOperator": "OR",
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "folderChildComparator": "default"
+}

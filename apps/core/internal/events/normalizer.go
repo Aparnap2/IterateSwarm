@@ -34,7 +34,7 @@ const (
 	EventTypeTimeTickDaily   EventType = "TIME_TICK_DAILY"
 	EventTypeTimeTickMonthly EventType = "TIME_TICK_MONTHLY"
 
-	// Agent output events
+	// Runtime output events
 	EventTypeAgentOutput EventType = "AGENT_OUTPUT"
 )
 

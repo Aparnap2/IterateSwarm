@@ -445,12 +445,12 @@ class TestAPSchedulerDevMode:
 
 # =============================================================================
 # TestWorkerModuleRegistration (merged from deleted test_workflows.py +
-# test_workflows_v2.py — validates V5.1 canonical worker module)
+# test_workflows_v2.py — validates 9-runtime canonical worker module)
 # =============================================================================
 
 
 class TestWorkerModuleRegistration:
-    """Tests that ``src.worker`` exposes the correct V5.1 canonical roster.
+    """Tests that ``src.worker`` exposes the correct 9-runtime canonical roster.
 
     These were migrated from the consolidated ``test_workflows.py`` and
     ``test_workflows_v2.py`` files (deleted). Legacy V4.2 workflows
@@ -462,20 +462,20 @@ class TestWorkerModuleRegistration:
     # -- From test_workflows.py :: TestWorkerRegistration ---------------------
 
     def test_worker_task_queue_configured(self):
-        """V5.1 default task queue is ONTOLOGYAI-MAIN-QUEUE."""
+        """9-runtime default task queue is ONTOLOGYAI-MAIN-QUEUE."""
         import os
         from unittest.mock import patch
 
         with patch.dict(os.environ, {"TEMPORAL_TASK_QUEUE": "ONTOLOGYAI-MAIN-QUEUE"}, clear=True):
             from src.orchestration.queue import resolve_task_queue
             assert resolve_task_queue() == "ONTOLOGYAI-MAIN-QUEUE", (
-                "V5.1 default task queue is ONTOLOGYAI-MAIN-QUEUE"
+                "9-runtime default task queue is ONTOLOGYAI-MAIN-QUEUE"
             )
 
     # -- From test_workflows_v2.py :: TestWorkerRegistrationV2 ----------------
 
     def test_worker_imports_canonical_workflows(self):
-        """V5.1 canonical workflows are exposed on the worker module."""
+        """9-runtime canonical workflows are exposed on the worker module."""
         from src import worker
 
         assert hasattr(worker, "ChiefOfStaffWorkflow")

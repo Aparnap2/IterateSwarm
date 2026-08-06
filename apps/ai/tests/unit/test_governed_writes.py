@@ -1,4 +1,4 @@
-"""TDD tests for Governed Write Enforcement — OntologyAI V5.1 (PRD §18).
+"""TDD tests for Governed Write Enforcement — OntologyAI 9-runtime (PRD §18).
 
 Run:
     cd /home/aparna/Desktop/iterate_swarm/apps/ai

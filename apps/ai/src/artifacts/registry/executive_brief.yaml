@@ -1,0 +1,80 @@
+# V6 OntologyAI — Executive Decision Brief DSL Config
+#
+# Per §6.2 (artifact #1) of the V6 spec.
+# This is an EXTERNAL artifact targeting C-level / board audiences.
+
+artifact:
+  id: "executive-decision-brief"
+  name: "Executive Decision Brief"
+  type: external
+  audience:
+    - CEO
+    - board
+    - executives
+  model_dependencies:
+    - workspace.summary
+    - evidence.top_findings
+    - decisions.active
+    - decisions.recommendations
+    - decisions.risks
+    - decisions.tradeoffs
+
+sections:
+  - name: "Header"
+    type: title
+    source: workspace.title
+
+  - name: "Executive Summary"
+    type: summary
+    source: workspace.summary
+    llm_augment: false
+
+  - name: "Key Evidence"
+    type: evidence_list
+    source: evidence.top_findings
+    config:
+      max_items: 10
+      sort_by: confidence
+      min_confidence: 0.7
+
+  - name: "Active Decisions"
+    type: decision_table
+    source: decisions.active
+    config:
+      include_tradeoffs: true
+
+  - name: "Recommendations"
+    type: recommendation_list
+    source: decisions.recommendations
+    llm_augment: false
+
+  - name: "Risk Assessment"
+    type: risk_matrix
+    source: decisions.risks
+    config:
+      severity_filter: ">=medium"
+
+  - name: "Downstream Impact"
+    type: impact_analysis
+    source: decisions.blast_radius
+
+validation:
+  required_sections:
+    - Executive Summary
+    - Key Evidence
+    - Recommendations
+  optional_sections: []
+  rules:
+    - V001
+    - V002
+    - V005
+
+traceability:
+  field_sources:
+    Header: workspace.title
+    Executive Summary: workspace.summary
+    Key Evidence: evidence.top_findings
+    Active Decisions: decisions.active
+    Recommendations: decisions.recommendations
+    Risk Assessment: decisions.risks
+    Downstream Impact: decisions.blast_radius

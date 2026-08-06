@@ -10,10 +10,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ── Ontology Schema Tests (V5.1 canonical contract) ────────────────────
-// The locked V5.1 contract specifies exactly 6 canonical object types and
-// 9 link types. Artifact / Decision / Metric are V6 BABOK view-model
-// categories, not V5.1 ontology types.
+// ── Ontology Schema Tests (9-runtime model) ────────────────────
+// The 9-runtime model specifies canonical object types and
+// link types. Artifact / Decision / Metric are V6 BABOK view-model
+// categories, not canonical ontology types.
 
 func TestWorkspaceOntology_ReturnsObjectTypes(t *testing.T) {
 	app := fiber.New()
@@ -165,8 +165,8 @@ func TestWorkspaceOntology_CanonicalContractCounts(t *testing.T) {
 	var linkTypes []string
 	json.Unmarshal(result["link_types"], &linkTypes)
 
-	if len(objectTypes) != 6 {
-		t.Errorf("FAIL: V5.2 contract requires exactly 6 canonical object types, got %d: %v",
+	if len(objectTypes) != 9 {
+		t.Errorf("FAIL: 9-runtime contract requires exactly 9 canonical object types, got %d: %v",
 			len(objectTypes), objectTypes)
 	}
 	if len(linkTypes) != 9 {

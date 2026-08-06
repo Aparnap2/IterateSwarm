@@ -1,4 +1,4 @@
-"""Tests for OntologyAI V5.1 — OntologySetupState (setup wizard state machine).
+"""Tests for OntologyAI 9-runtime — OntologySetupState (setup wizard state machine).
 
 Tests cover:
 - State transitions (valid sequence and invalid skips)

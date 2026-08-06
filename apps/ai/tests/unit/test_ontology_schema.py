@@ -1,6 +1,7 @@
-"""TDD tests for OntologyAI V5.1 — Ontology Schema Module (PRD §12).
+"""TDD tests for OntologyAI 9-runtime — Ontology Schema Module (PRD §12).
 
-These tests assert the six canonical Object Types and the 11 link types.
+These tests assert the canonical Object Types and the 11 link types
+for the 9-runtime model.
 Run:
     cd /home/aparna/Desktop/iterate_swarm/apps/ai
     uv run pytest tests/unit/test_ontology_schema.py -v

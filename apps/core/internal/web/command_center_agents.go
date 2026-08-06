@@ -7,24 +7,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ============== Panel 3: Agent Map ==============
+// ============== Panel 3: Runtime Map ==============
 
-// AgentStatus represents an agent's current status
-type AgentStatus struct {
+// RuntimeStatus represents a runtime's current status
+type RuntimeStatus struct {
 	Name      string `json:"name"`
 	State     string `json:"state"` // active, busy, idle, error
 	TaskCount int    `json:"task_count"`
 	LastSeen  string `json:"last_seen"`
 }
 
-// GetAgentStatus returns status for a specific agent from agent_traces
+// GetRuntimeStatus returns status for a specific runtime from agent_traces
 func (h *Handler) GetAgentStatus(c *fiber.Ctx) error {
 	agent := c.Params("agent")
 	if agent == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Missing agent parameter"})
 	}
 
-	status := AgentStatus{
+	status := RuntimeStatus{
 		Name:      agent,
 		State:     "idle",
 		TaskCount: 0,
@@ -72,9 +72,9 @@ func (h *Handler) GetAgentStatus(c *fiber.Ctx) error {
 	return c.JSON(status)
 }
 
-// GetAllAgentsStatus returns status for all agents from agent_traces
+// GetAllRuntimesStatus returns status for all runtimes from agent_traces
 func (h *Handler) GetAllAgentsStatus(c *fiber.Ctx) error {
-	statuses := make(map[string]AgentStatus)
+	statuses := make(map[string]RuntimeStatus)
 
 	if h.db != nil {
 		rows, err := h.db.Query(`
@@ -111,7 +111,7 @@ func (h *Handler) GetAllAgentsStatus(c *fiber.Ctx) error {
 							state = "active"
 						}
 					}
-					statuses[name] = AgentStatus{
+					statuses[name] = RuntimeStatus{
 						Name:      name,
 						State:     state,
 						TaskCount: taskCount,
@@ -125,7 +125,7 @@ func (h *Handler) GetAllAgentsStatus(c *fiber.Ctx) error {
 	return c.JSON(statuses)
 }
 
-// GetAgentMap renders the agent map panel
+// GetRuntimeMap renders the runtime map panel
 func (h *Handler) GetAgentMap(c *fiber.Ctx) error {
 	return Render(c, "agent_map", nil)
 }

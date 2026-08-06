@@ -1,4 +1,4 @@
-"""Tests for OntologyAI V5.1 route map (PRD §25).
+"""Tests for OntologyAI 9-runtime route map (PRD §25).
 
 Asserts @mention aliases route to the correct workflow class.
 Run:

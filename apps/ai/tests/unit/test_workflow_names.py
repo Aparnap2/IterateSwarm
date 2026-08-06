@@ -1,6 +1,6 @@
-"""Tests for OntologyAI V5.1 workflow roster (PRD §7).
+"""Tests for OntologyAI 9-runtime workflow roster (PRD §7).
 
-Default roster is exactly 6 V5.1 canonical workflows.
+Default roster is exactly 9 canonical workflows (9-runtime model).
 V6 StrategyWorkflow is gated behind ``ENABLE_V6_WORKFLOWS=on``.
 Run:
     cd /home/aparna/Desktop/iterate_swarm/apps/ai
@@ -19,12 +19,15 @@ CANONICAL_V5_WORKFLOWS = {
     "KnowledgeValidationWorkflow",
     "SolutionArchitectWorkflow",
     "GovernanceWorkflow",
+    "DecisionWorkflow",
+    "ExecutionWorkflow",
+    "EvaluationWorkflow",
 }
 
 
 class TestWorkflowRoster:
-    def test_default_roster_is_exactly_6(self):
-        assert len(ACTIVE_WORKFLOWS) == 6
+    def test_default_roster_is_exactly_9(self):
+        assert len(ACTIVE_WORKFLOWS) == 9
 
     def test_exact_names_match_prd(self):
         assert set(ACTIVE_WORKFLOWS.keys()) == CANONICAL_V5_WORKFLOWS

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"html"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -77,29 +76,20 @@ func (h *Handler) APICommandChatSend(c *fiber.Ctx) error {
 		displayName  string
 	}
 
+	// V6 9-runtime model: @mentions map to Temporal workflow implementations
+	// of the Evidence→Knowledge→Decision→Workspace pipeline.
+	// ChiefOfStaffWorkflow is the coordinator/router that dispatches to domain workflows.
 	var specialistRoutes = map[string]specialistRoute{
-		// V5.2 canonical: exactly 6 workflows per PRD spec
-		"@sarthi":     {"ChiefOfStaffWorkflow", "Workspace Guide"},
-		"@agent":      {"ChiefOfStaffWorkflow", "Workspace Guide"},
-		"@qa":         {"ChiefOfStaffWorkflow", "Workspace Guide"},
-		"@ask":        {"ChiefOfStaffWorkflow", "Workspace Guide"},
-		"@chief":      {"ChiefOfStaffWorkflow", "Workspace Guide"},
-		"@ontologyai": {"ChiefOfStaffWorkflow", "Workspace Guide"},
-		"@discover":   {"DiscoveryWorkflow", "Discovery"},
-		"@map":        {"OntologyMappingWorkflow", "Business Map"},
-		"@truth":      {"KnowledgeValidationWorkflow", "Operational Truth"},
-		"@build":      {"SolutionArchitectWorkflow", "Pilot Builder"},
-		"@govern":     {"GovernanceWorkflow", "Approvals & Safety"},
-		"@strategy":   {"StrategyWorkflow", "Strategy"},
-	}
-
-	if os.Getenv("LEGACY_FDE_MODULES") == "on" {
-		specialistRoutes["@finance"] = specialistRoute{"ChiefOfStaffWorkflow", "FP&A"}
-		specialistRoutes["@fpa"] = specialistRoute{"ChiefOfStaffWorkflow", "FP&A"}
-		specialistRoutes["@data"] = specialistRoute{"ChiefOfStaffWorkflow", "Growth Analytics"}
-		specialistRoutes["@growth"] = specialistRoute{"ChiefOfStaffWorkflow", "Growth Analytics"}
-		specialistRoutes["@ops"] = specialistRoute{"ChiefOfStaffWorkflow", "Reliability & Delivery"}
-		specialistRoutes["@comms"] = specialistRoute{"ChiefOfStaffWorkflow", "Communications"}
+		"@sarthi":   {"ChiefOfStaffWorkflow", "Workspace Guide"},
+		"@finance":  {"FinanceWorkflow", "FP&A"},
+		"@data":     {"DataWorkflow", "Data"},
+		"@ops":      {"OpsWorkflow", "Ops"},
+		"@qa":       {"QAWorkflow", "QA"},
+		"@comms":    {"CommsWorkflow", "Comms"},
+		"@hiring":   {"HiringWorkflow", "Hiring"},
+		"@pulse":    {"PulseWorkflow", "Pulse"},
+		"@anomaly":  {"AnomalyWorkflow", "Anomaly"},
+		"@investor": {"InvestorWorkflow", "Investor"},
 	}
 
 	shouldDispatch := false
@@ -212,23 +202,17 @@ func (h *Handler) renderChatBubble(sender, displayName, text, timeStr string) st
 	normalized := strings.TrimPrefix(sender, "@")
 
 	agentClasses := map[string]string{
-		"founder":        "bg-blue-500/20 text-blue-400",
-		"sarthi":         "agent-chief-of-staff",
-		"chief":          "agent-chief-of-staff",
-		"chief_of_staff": "agent-chief-of-staff",
-		"discover":       "agent-discovery",
-		"map":            "agent-ontology-mapper",
-		"truth":          "agent-truth-analyst",
-		"build":          "agent-solution-architect",
-		"govern":         "agent-governance",
-		"finance":        "agent-fpa",
-		"fpa":            "agent-fpa",
-		"data":           "agent-growth-analytics",
-		"growth":         "agent-growth-analytics",
-		"ops":            "agent-reliability",
-		"reliability":    "agent-reliability",
-		"agent":          "agent-system",
-		"comms":          "agent-comms",
+		"founder":  "bg-blue-500/20 text-blue-400",
+		"sarthi":   "agent-chief-of-staff",
+		"finance":  "agent-fpa",
+		"data":     "agent-growth-analytics",
+		"ops":      "agent-reliability",
+		"qa":       "agent-qa",
+		"comms":    "agent-comms",
+		"hiring":   "agent-hiring",
+		"pulse":    "agent-pulse",
+		"anomaly":  "agent-anomaly",
+		"investor": "agent-investor",
 	}
 	agentClass := agentClasses[normalized]
 	if agentClass == "" {
@@ -236,10 +220,10 @@ func (h *Handler) renderChatBubble(sender, displayName, text, timeStr string) st
 	}
 
 	initials := map[string]string{
-		"founder": "Y", "sarthi": "W", "chief": "W", "chief_of_staff": "W",
-		"discover": "D", "map": "B", "truth": "O", "build": "P", "govern": "A",
-		"finance": "F", "fpa": "F", "data": "G", "growth": "G", "ops": "R",
-		"reliability": "R", "agent": "A", "comms": "M",
+		"founder": "Y", "sarthi": "W",
+		"finance": "F", "data": "G", "ops": "R",
+		"qa": "Q", "comms": "M", "hiring": "H",
+		"pulse": "P", "anomaly": "A", "investor": "I",
 	}
 	initial := initials[normalized]
 	if initial == "" && len(normalized) > 0 {

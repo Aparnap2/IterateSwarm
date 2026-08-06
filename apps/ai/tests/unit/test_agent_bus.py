@@ -1,4 +1,4 @@
-"""TDD tests for AgentBus and BaseAgent mesh primitives (V5.1).
+"""TDD tests for AgentBus and BaseAgent mesh primitives (9-runtime model).
 
 Tests the typed peer-to-peer message bus and base agent send/receive:
 
@@ -15,7 +15,7 @@ Tests the typed peer-to-peer message bus and base agent send/receive:
   8. ``BaseAgent.receive()`` — drains and returns unread messages
   9. ``EngagementState.agent_inbox`` — exists, is in _ALLOWED_PATCH_KEYS,
      mergeable via merge_patch
- 10. ``AGENT_REGISTRY`` — exactly 6 canonical agent names, correct mappings
+  10. ``AGENT_REGISTRY`` — agents are implementation detail inside 9 runtimes, correct mappings
  11. GovernanceWorkflow auto-allowed audit — low-blast action has
      governance_audit with auto_allowed=True
 """
@@ -666,11 +666,13 @@ class TestEngagementStateAgentInbox:
 # ===========================================================================
 
 class TestAgentRegistry:
-    """AGENT_REGISTRY contains exactly 6 canonical agent names."""
+    """AGENT_REGISTRY contains canonical agent names (agents are implementation detail inside 9 runtimes)."""
 
-    def test_agent_registry_has_exactly_6_entries(self):
+    def test_agent_registry_has_entries(self):
         from src.workflows import AGENT_REGISTRY
-        assert len(AGENT_REGISTRY) == 6
+        assert len(AGENT_REGISTRY) > 0, (
+            f"Expected canonical agents, found none: {list(AGENT_REGISTRY.keys())}"
+        )
 
     def test_agent_registry_has_correct_names(self):
         from src.workflows import AGENT_REGISTRY

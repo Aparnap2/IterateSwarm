@@ -1,4 +1,4 @@
-"""TDD tests for the V5.1 multi-runtime compiler architecture.
+"""TDD tests for the 9-runtime multi-runtime compiler architecture.
 
 RED phase: these imports will fail until compilers are implemented.
 GREEN phase: after implementing src/runtime/{base,n8n,adk_go,pydantic_ai,python_agent}.py

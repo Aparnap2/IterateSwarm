@@ -26,6 +26,26 @@ from src.schemas.strategy_artifacts import (
     RiskAnalysisResults,
     SolutionEvaluationReport,
 )
+from src.schemas.semantic_layer import (
+    CanonicalEntity,
+    EntityAlias,
+    EntityLineage,
+    AttributeConflict,
+    ResolutionTier,
+    ConflictStatus,
+)
+from src.schemas.capability import (
+    Capability,
+    CapabilityRelationship,
+)
+from src.schemas.knowledge_catalog import (
+    KnowledgeCatalogEntry,
+    CatalogCapability,
+    CatalogDecision,
+    CatalogRisk,
+    CatalogRelationship,
+    CatalogSearchQuery,
+)
 
 __all__ = [
     "HitlRisk",
@@ -49,4 +69,18 @@ __all__ = [
     "CurrentStateDescription",
     "RiskAnalysisResults",
     "SolutionEvaluationReport",
+    "CanonicalEntity",
+    "EntityAlias",
+    "EntityLineage",
+    "AttributeConflict",
+    "ResolutionTier",
+    "ConflictStatus",
+    "Capability",
+    "CapabilityRelationship",
+    "KnowledgeCatalogEntry",
+    "CatalogCapability",
+    "CatalogDecision",
+    "CatalogRisk",
+    "CatalogRelationship",
+    "CatalogSearchQuery",
 ]

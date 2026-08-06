@@ -1,5 +1,37 @@
 services:
   # ===========================================
+  # Neo4j 5 - Knowledge Graph (V6 OntologyAI)
+  # ===========================================
+  neo4j:
+    image: neo4j:5-enterprise
+    container_name: iterateswarm-neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-iterateswarm}
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*
+      - NEO4J_dbms_security_procedures_allowlist=apoc.*,gds.*
+      - NEO4J_dbms_memory_heap_max__size=2G
+      - NEO4J_dbms_memory_pagecache_size=512M
+    ports:
+      - "7474:7474"   # HTTP Browser
+      - "7687:7687"   # Bolt Protocol
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+      - neo4j-import:/import
+      - ./config/neo4j/init.cypher:/init.cypher:ro
+    networks:
+      - iterateswarm-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/7687'"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+services:
+  # ===========================================
   # Temporal - Workflow Orchestration
   # ===========================================
   temporal:
@@ -418,6 +450,12 @@ volumes:
   redis-data:
     driver: local
   n8n-data:
+    driver: local
+  neo4j-data:
+    driver: local
+  neo4j-logs:
+    driver: local
+  neo4j-import:
     driver: local
 
 networks:

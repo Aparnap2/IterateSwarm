@@ -1,417 +1,339 @@
-# OntologyAI Workspace
+# OntologyAI V6 — Decision Intelligence Platform
 
 <p align="center">
 <img width="200" height="200" alt="ki-logo-1784785049927" src="https://github.com/user-attachments/assets/dbcd807b-06f5-4fc8-a8f8-f33a429b1951" />
-</p> 
+</p>
 
-
-
-> 
->
-> **An enterprise AI operations workspace.** OntologyAI Workspace turns messy business evidence into a shared business map, surfaces operational truth, and drafts governed workflow pilots for review and deployment planning. It is designed as a self-serve FDE companion and a multi-agent FDE operating system — not a small-business dashboard, generic chatbot, or no-code automation builder.
+> **Convert fragmented enterprise evidence into a living Enterprise Knowledge Model and stakeholder-specific Decision Workspaces.** OntologyAI V6 ingests evidence from connected systems, builds a canonical knowledge graph, detects conflicts, scores feasibility, and projects decision-ready artifacts for every stakeholder — CEO to engineer — without autonomous side effects.
 
 [![Build](https://img.shields.io/badge/build-clean-brightgreen)](#getting-started)
-[![Tests](https://img.shields.io/badge/tests-V5.2%20Enterprise%20Discovery-blue)](#test-coverage)
+[![Tests](https://img.shields.io/badge/tests-V6%20Decision%20Intelligence-blue)](#test-coverage)
 [![Go](https://img.shields.io/badge/Go-1.24-blue?logo=go&logoColor=white)](https://go.dev)
 [![Python](https://img.shields.io/badge/Python-3.13-green?logo=python&logoColor=white)](https://www.python.org)
-[![Version](https://img.shields.io/badge/version-5.2-blue)](#v52-active-roster-vs-legacy-compatibility)
+[![Version](https://img.shields.io/badge/version-6.0-blue)](#v6-summary)
 
 ---
 
 ## Table of Contents
 
-- [What changed](#what-changed)
-- [Product position](#product-position)
+- [Vision](#vision)
+- [Product Principle](#product-principle)
 - [Who it is for](#who-it-is-for)
-- [Product pillars](#product-pillars)
-- [User-facing workflow](#user-facing-workflow)
-- [Core architecture](#core-architecture)
-- [Why enterprise focus](#why-enterprise-focus)
-- [UI language remaster](#ui-language-remaster)
-- [Navigation](#navigation)
-- [Current V5.2 scope](#current-v52-scope)
-- [Build principle](#build-principle)
+- [Scope](#scope)
+- [Canonical Data Model](#canonical-data-model)
+- [Knowledge Pipeline](#knowledge-pipeline)
+- [Agent Roster](#agent-roster)
+- [Artifact Catalog](#artifact-catalog)
+- [Feasibility & Decision Readiness](#feasibility--decision-readiness)
 - [Architecture](#architecture)
-- [Request / Response Flow](#request--response-flow)
-- [Ontology Layer](#ontology-layer)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-- [Architecture Decision Records](#architecture-decision-records)
-- [V5.2 Active Roster vs Legacy Compatibility](#v52-active-roster-vs-legacy-compatibility)
-- [Contributing & Conventions](#contributing--conventions)
+- [Key Metrics](#key-metrics)
 - [Test Coverage](#test-coverage)
 
 ---
 
-## What changed
+## Vision
 
-V5.2 reframes the product as an AI Discovery and Solution Design Platform. OntologyAI is no longer positioned as an "FDE companion + multi-agent OS" — it is now a discovery-first platform that ingests messy business evidence, builds a validated Enterprise Knowledge Model, maps capabilities to solution patterns, and generates an Enterprise Architecture Pack (12 artifacts) for handoff. The core value appears when organizations have fragmented systems, cross-functional processes, approval gates, and high-cost coordination problems.
+Enterprise knowledge is scattered across meetings, docs, chat, spreadsheets, CRM, and ERP — creating duplicated effort, inconsistent decisions, and slow alignment. OntologyAI V6 converts that fragmented evidence into a **living Enterprise Knowledge Model** and **stakeholder-specific Decision Workspaces** that answer:
 
-## Product position
+- What is happening?
+- Why does it matter?
+- What evidence supports it?
+- What options exist?
+- What is recommended?
+- What are the trade-offs?
+- What happens if nothing changes?
+- Who owns the decision?
+- What changes downstream?
 
-OntologyAI Workspace is best understood as an enterprise **ops twin** and guided pilot-building environment. The platform converts raw evidence from conversations, uploads, exports, and connected tools into typed operational objects, diagnoses what is stuck or risky, and generates governed workflow drafts plus handoff artifacts.
+**Outcome:** One canonical model, many synchronized stakeholder views, and validated decision-ready artifacts.
 
-### One-line pitch
+## Product Principle
 
-OntologyAI Workspace turns messy enterprise operations into a shared business map, reveals what is broken, and drafts governed workflows teams can review, approve, and pilot.
+**Evidence first, knowledge second, decision third, artifact last.**
 
-### What it is
-
-- A self-serve FDE companion for enterprise discovery and pilot design.
-- A shared workspace for evidence intake, ontology review, operational truth, approvals, and exports.
-- An ontology-first AI operating layer with deterministic validation and governance controls.
-- A portfolio-grade demonstration of the Forward Deployed Engineer method as software.
-
-### What it is not
-
-- A founder alert bot.
-- A finance-only assistant.
-- A passive dashboard.
-- A generic no-code builder.
-- An unconstrained autonomous action engine.
-- A small-business utility bundle built around a few lightweight API add-ons.
+No evidence → no artifact. No traceability → block. Low confidence → human review. Unresolved conflict → reject publish. Every layer depends on the layer before it.
 
 ## Who it is for
 
-Primary users:
-- Forward Deployed Engineers, implementation engineers, transformation leads, and enterprise operators running discovery-to-pilot engagements.
-- Client-side operations owners using a workspace directly to structure messy business inputs and review proposed workflows.
+| Role | What they get |
+|------|---------------|
+| **CEO / COO** | Executive Decision Brief, Org / Ownership Map, Current-State Pack |
+| **CFO** | Feasibility & Options Report, Measurement Pack, Feasibility Scorecard |
+| **CTO / Enterprise Architect** | Solution Architecture Pack, Requirements Traceability Matrix |
+| **Product Leaders** | PRD / Solution Brief, User Stories + Acceptance Criteria, Wireframes / Storyboards |
+| **Business Analysts** | Stakeholder Register + Influence Matrix, Current-State Pack |
+| **Ops Leads** | Delivery Plan (WBS + roadmap + RACI), Evidence Register |
+| **Implementation Teams** | All 18 artifacts, full traceability and audit trail |
 
-Secondary users:
-- Approvers, reviewers, domain contributors, and stakeholders consuming truth maps, workflow packs, SOPs, and governed action proposals.
+## Scope
 
-## Product pillars
+**MVP supports 4 connectors only:**
 
-The product should be presented through three visible pillars rather than six backend workflow names.
+| Connector | Purpose |
+|-----------|---------|
+| **Notion** | Docs, product specs, meeting notes, wikis |
+| **Slack** | Conversations, decisions, async discussions |
+| **Jira / Linear** | Issues, epics, tickets, sprint data |
+| **Salesforce** | CRM data, opportunities, account hierarchies |
 
-### Understand
+All other systems are future adapters behind the same connector interface.
 
-This pillar covers conversational discovery, evidence intake, the ontology setup flow, unresolved questions, and the first shared business map. It is powered internally by ChiefOfStaff, Discovery, and Ontology Mapping workflows, but the user experience should feel like one guided understanding loop.
+### What V6 is not
 
-### Diagnose
+- No freeform document generation
+- No autonomous side effects
+- No generic chatbot
+- No broad connector sprawl
+- No production deployment automation
 
-This pillar covers operational truth: blockers, contradictions, missing ownership, risky states, and action-worthy findings. Internally this maps to TruthAnalysisWorkflow, but the product surface should present it as operational diagnosis rather than abstract analytics.
+## Canonical Data Model
 
-### Build
+V6 defines **22 canonical entity types** that form the Enterprise Knowledge Model:
 
-This pillar covers workflow specs, SOPs, pilot drafts, approval gating, and exportable deployment packages. Internally this spans WorkflowBuilderWorkflow and GovernanceWorkflow, while the user sees a safe path from recommendation to review to pilot package.
+| # | Entity | Description |
+|---|--------|-------------|
+| 1 | **Evidence** | Raw fact with source, timestamp, confidence, provenance |
+| 2 | **Source** | Origin system or channel (connector, upload, chat, etc.) |
+| 3 | **Stakeholder** | Person or role with influence and interests |
+| 4 | **OrgUnit** | Organizational unit, team, or department |
+| 5 | **Capability** | Business capability or function |
+| 6 | **Process** | Business process or workflow |
+| 7 | **System** | Software system, tool, or platform |
+| 8 | **Requirement** | Functional or non-functional requirement |
+| 9 | **BusinessRule** | Policy, invariant, or business logic |
+| 10 | **Assumption** | Accepted premise without full evidence |
+| 11 | **Constraint** | Limitation or boundary condition |
+| 12 | **Risk** | Identified risk with impact and likelihood |
+| 13 | **Decision** | Recorded decision with rationale and date |
+| 14 | **Option** | Considered alternative or choice |
+| 15 | **TradeOff** | Comparison of two or more options |
+| 16 | **KPI** | Key performance indicator with baseline/target |
+| 17 | **Project** | Initiative, program, or workstream |
+| 18 | **Artifact** | Generated document or deliverable |
+| 19 | **ArtifactVersion** | Versioned snapshot of an artifact |
+| 20 | **Conflict** | Detected contradiction between evidence/entities |
+| 21 | **ValidationResult** | Result of a validation check |
+| 22 | **FeasibilityScore** | Multi-dimensional feasibility score |
+| 23 | **AuditEvent** | Immutable audit log entry |
 
-## User-facing workflow
+## Knowledge Pipeline
 
-The internal architecture keeps the locked V5.1 phases, but the visible workflow should be simpler:
+```
+Ingest → Parse → Normalize → Dedupe → Alias Resolve →
+Entity/Relationship Build → Conflict Detection →
+Knowledge Graph Update → Gap Analysis → Decision Analysis →
+Feasibility Scoring → Artifact Projection → Validation → Publish
+```
 
-1. Frame the problem.
-2. Add evidence.
-3. Confirm the business map.
-4. Review what is broken.
-5. Approve the pilot draft.
-6. Export or launch the pilot.
+Each stage is a deterministic activity (Temporal) that reads from and writes to the canonical model. No stage bypasses validation.
 
-This aligns with the existing engagement phases of Discovery, Ontology Mapping, Truth Analysis, Workflow Design, Governance Review, Deployment Planning, and Handoff while making the experience easier to understand for enterprise users.
+| Stage | Responsibility |
+|-------|----------------|
+| **Ingest** | Accept raw data from 4 MVP connectors + uploads + chat |
+| **Parse** | Convert raw data into typed Evidence objects |
+| **Normalize** | Standardize formats, dates, references |
+| **Dedupe** | Merge duplicate evidence from overlapping sources |
+| **Alias Resolve** | Map aliases (e.g. "Acme Inc" ↔ "Acme Corporation") |
+| **Entity/Relationship Build** | Construct canonical entities and links |
+| **Conflict Detection** | Identify contradictions across sources |
+| **Knowledge Graph Update** | Persist to the Enterprise Knowledge Model |
+| **Gap Analysis** | Identify missing evidence or relationships |
+| **Decision Analysis** | Surface decisions, options, and trade-offs |
+| **Feasibility Scoring** | Score across 8 dimensions |
+| **Artifact Projection** | Generate external and internal artifacts |
+| **Validation** | Run all validation gates before publishing |
+| **Publish** | Release artifacts to Decision Workspaces |
 
-## Core architecture
+## Agent Roster
 
-The V5.2 architecture is built on the following foundations:
-- Exactly 6 workflows: ChiefOfStaffWorkflow, DiscoveryWorkflow, OntologyMappingWorkflow, KnowledgeValidationWorkflow, SolutionArchitectWorkflow, GovernanceWorkflow.
-- Exactly 6 ontology object types: Party, Engagement, MoneyEvent, Issue, Message, PlannedAction.
-- Enterprise Knowledge Model is the canonical intermediate representation — entities, relationships, processes, business rules, capabilities, problems, opportunities.
-- Evidence layer: every entity carries full provenance (source, confidence, evidence ID, timestamp, extraction method).
-- Canonical EngagementState as the shared state for all workflow collaboration.
-- ExecutableWorkflowDraft as the typed deployable workflow artifact.
-- Governance exclusivity for external execution and approval-gated side effects.
+| # | Agent | Responsibility |
+|---|-------|----------------|
+| 1 | **ChiefOfStaff** | Front-door orchestrator, context assembly, routing, state merge |
+| 2 | **IngestionParser** | Parse raw input into typed Evidence; handle all 4 connectors |
+| 3 | **KnowledgeMapper** | Build entities, relationships, and the knowledge graph |
+| 4 | **ConflictResolver** | Detect and resolve contradictions across sources |
+| 5 | **FeasibilityAnalyst** | Score recommendations across 8 dimensions |
+| 6 | **DecisionAnalyst** | Surface decisions, options, trade-offs, and rationale |
+| 7 | **ArtifactComposer** | Template-driven artifact generation from canonical model |
+| 8 | **GovernanceAgent** | Enforce guardrails, validation gates, and approval flows |
+| 9 | **EvaluationAgent** | Measure quality, coverage, freshness, and calibration |
 
-## Why enterprise focus
+### Agent Rules
 
-OntologyAI shines when operations are too cross-functional, messy, and risky for simple automation glue. Small teams can often survive with a few point integrations, but larger organizations need a governed system that can unify evidence, preserve provenance, model relationships, identify contradictions, and route action through approvals instead of brittle one-off scripts.
+- One responsibility per agent
+- Typed I/O only — no unstructured data passing between agents
+- No agent mutates canonical state directly (writes go through governance)
+- No agent bypasses validation
+- No agent executes side effects without governance
 
-This enterprise framing also better matches the product's ontology-first architecture, shared state design, governance model, handoff artifacts, and workflow-draft generation. Those capabilities are structurally more valuable in multi-team environments than in very small businesses with simple tool stacks.
+## Artifact Catalog
 
-## UI language remaster
+### External Decision Artifacts (12)
 
-Recommended user-facing labels:
+| # | Artifact | Consumer |
+|---|----------|----------|
+| 1 | **Executive Decision Brief** | CEO, COO, Board |
+| 2 | **Stakeholder Register + Influence Matrix** | Business Analysts, PMs |
+| 3 | **Org / Ownership Map** | COO, Enterprise Architects |
+| 4 | **Current-State Pack** (capability map + SIPOC + context diagram + process map) | All stakeholders |
+| 5 | **Feasibility & Options Report** | CFO, CTO, Product Leaders |
+| 6 | **PRD / Solution Brief** | Product, Engineering |
+| 7 | **User Stories + Acceptance Criteria** | Engineering, QA |
+| 8 | **Wireframes / Storyboards** | Design, Product |
+| 9 | **Solution Architecture Pack** | CTO, Architects, Engineering |
+| 10 | **Requirements Traceability Matrix** | QA, Compliance, PMs |
+| 11 | **Delivery Plan** (WBS + roadmap + RACI) | Ops Leads, Implementation Teams |
+| 12 | **Measurement Pack** (KPIs + baseline + target + retrospective) | CFO, COO |
 
-| Internal term | User-facing label |
-|---|---|
-| ChiefOfStaff | Workspace Guide |
-| Ontology | Business Map |
-| Truth Analysis | Operational Truth |
-| Solution Architect | Pilot Builder |
-| Governance | Approvals & Safety |
-| ExecutableWorkflowDraft | Pilot Draft |
+### Internal Control Artifacts (6)
 
-These labels keep the architecture intact while making the product more legible to enterprise users.
+| # | Artifact | Purpose |
+|---|----------|---------|
+| 13 | **Evidence Register** | All evidence with provenance, confidence, and source |
+| 14 | **Data Quality / Mismatch Report** | Detected inconsistencies and gaps |
+| 15 | **Conflict Register** | All unresolved and resolved conflicts |
+| 16 | **Decision Log** | Immutable record of every decision and rationale |
+| 17 | **Feasibility Scorecard** | Multi-dimensional scores for every recommendation |
+| 18 | **Artifact Health Report** | Freshness, completeness, and validation status of all artifacts |
 
-## Navigation
+### Artifact Generation Rules
 
-Recommended primary workspace navigation:
-- Workspace
-- Business Map
-- Findings
-- Workflow Drafts
-- Approvals
-- Exports
+- Template-driven — every artifact uses a deterministic template
+- Evidence-linked — every claim maps back to underlying Evidence
+- Versioned — every regeneration creates a new ArtifactVersion
+- Regenerated only from the canonical model — never from freeform LLM output
+- LLM may fill fields but may not invent sections or authoritative facts
 
-This is cleaner than exposing internal workflow names directly and still satisfies the required shared workspace views for chat, uploads, ontology, truth findings, workflows, drafts, approvals, and artifacts.
+## Feasibility & Decision Readiness
 
-## Current V5.2 scope
+### Feasibility Engine
 
-V5.2 is an AI Discovery and Solution Design Platform. It includes:
-- Shared workspace intake and streaming interaction.
-- Enterprise Knowledge Model as the canonical intermediate representation.
-- Evidence layer: provenance-tracked ingestion with full lineage.
-- Guided ontology construction from evidence.
-- Knowledge validation: cross-source truth diagnosis with provenance verification.
-- Capability Catalogue: searchable registry of enterprise capabilities.
-- Solution Recommendation Engine: matches requirements to capabilities.
-- Enterprise Architecture Pack (12 artifacts): truth map, ontology snapshot, EKM snapshot, evidence index, capability catalogue, solution recommendation, workflow specs, SOP packs, action registers, business rules, process models, and executable draft artifacts.
-- Approval-gated governance.
+Every recommendation is scored across **8 dimensions**:
 
-It explicitly does not include deployment, activation, scheduling, or unconstrained autonomous execution. Runtime compilation is an optional export target only.
+| Dimension | Description |
+|-----------|-------------|
+| Business Value | Strategic impact and ROI |
+| Technical Complexity | Implementation difficulty and unknowns |
+| Operational Fit | Alignment with existing processes |
+| Financial Impact | Cost, savings, and payback period |
+| Compliance Risk | Regulatory and policy exposure |
+| Data Readiness | Availability and quality of required data |
+| Change Effort | Organizational change management load |
+| Stakeholder Alignment | Buy-in and support from affected parties |
 
-## Build principle
+### Decision Readiness Gates
 
-Keep the backend contract strict and the frontend experience simple: typed state, deterministic validation, governed actions, and enterprise-grade review loops underneath; guided, comprehensible, outcome-first UX on top.
+| Score | Action |
+|-------|--------|
+| **85–100** | Publish — ready for decision |
+| **70–84** | Publish with caveats |
+| **60–69** | Human review required |
+| **Below 60** | Block and return to discovery |
 
----
+### Validation Engine
+
+The system **blocks** publication when any of the following is true:
+
+- Any requirement lacks evidence
+- Any claim lacks traceability
+- Any artifact section conflicts with the canonical model
+- Any KPI lacks baseline or owner
+- Any numeric claim fails source reconciliation
+- Any policy or governance rule is violated
 
 ## Architecture
 
-Users reach OntologyAI through the workspace landing page (web). The Go Core accepts the message, routes the `@mention` in O(1) to the `ChiefOfStaffWorkflow` control plane, which dispatches specialist Temporal workflows. A Python AI worker runs the LangGraph/DSPy agents against an LLM provider, streams answers back over SSE, and — for consequential writes — proposes a `PlannedAction` that `GovernanceWorkflow` approves. Every ontology entity carries full provenance (source, confidence, evidence ID, timestamp, extraction method), enforced by the **Evidence Layer**. The `SolutionArchitectWorkflow` consults the **Capability Catalogue** and **Solution Recommendation Engine** to map validated knowledge to solution architectures. The `GovernanceWorkflow` produces the **Enterprise Architecture Pack** (12 artifacts) for download — not deployment.
-
 ```mermaid
 flowchart TD
-    U["Enterprise User"] --> CORE["Go Core (Fiber HTTP + HTMX + SSE)"]
-    CORE --> ROUTER["@mention Router — O(1) map lookup → ChiefOfStaff control plane"]
-    ROUTER --> COS["ChiefOfStaffWorkflow  (@ontologyai / @chief / @sarthi)"]
-    COS --> DISC["DiscoveryWorkflow  (@discover)"]
-    COS --> MAP["OntologyMappingWorkflow  (@map)"]
-    COS --> KV["KnowledgeValidationWorkflow  (@validate)"]
-    COS --> SA["SolutionArchitectWorkflow  (@architect)"]
-    COS --> GOV["GovernanceWorkflow  (@govern)"]
-    DISC --> PY["Python AI Worker (LangGraph / DSPy)"]
-    MAP --> PY
-    KV --> PY
-    SA --> PY
-    GOV --> PY
-    PY --> LLM["LLM Providers (Azure AI Foundry / Groq / Ollama / OpenAI)"]
-    PY --> EKM["Enterprise Knowledge Model"]
-    EKM --> PG[("PostgreSQL (engagement_states)")]
-    EKM --> REDIS[("Redis")]
-    EKM --> QDRANT[("Qdrant")]
-    EKM --> GRAPH[("Neo4j + Graphiti)"]
+    U["Enterprise Stakeholder"] --> WS["Decision Workspace (HTMX + SSE)"]
+    WS --> CORE["Go Core (Fiber HTTP)"]
 
-    SA --> CAT["Capability Catalogue"]
-    CAT --> REC["Solution Recommendation Engine"]
-    REC -.-> SA
-
-    GOV --> EAP["Enterprise Architecture Pack <br/> <i>12 artifacts</i>"]
-    EAP -->|"download"| DOWNLOAD["Artifact Download"]
-
-    subgraph EVIDENCE["Evidence Layer"]
-        PROV["Provenance: source, confidence, evidence ID, timestamp, extraction method"]
+    subgraph CONNECTORS["MVP Connectors (4)"]
+        N["Notion"]
+        S["Slack"]
+        JL["Jira / Linear"]
+        SF["Salesforce"]
     end
-    PY --> EVIDENCE
-    EKM --> EVIDENCE
 
-    subgraph OPTIONAL["Optional Export (not required for core product)"]
-        N8N["n8n compiler <br/> <i>canonical optional export</i>"]
-        ADK["ADK-Go compiler"]
-        PA["PydanticAI compiler"]
-        SA2["smolagents compiler"]
+    CONNECTORS --> ING["Ingestion Service"]
+    UPL["Upload / Chat / Email / Screenshot"] --> ING
+    ING --> EV["Evidence Store"]
+
+    EV --> PIPELINE["Knowledge Pipeline (Temporal Orchestration)"]
+
+    PIPELINE --> PARSE["Parse"]
+    PIPELINE --> NORM["Normalize"]
+    PIPELINE --> DEDUPE["Dedupe"]
+    PIPELINE --> ALIAS["Alias Resolve"]
+    PIPELINE --> ER["Entity / Relationship Build"]
+    PIPELINE --> CD["Conflict Detection"]
+    PIPELINE --> KG["Knowledge Graph Update"]
+    PIPELINE --> GA["Gap Analysis"]
+    PIPELINE --> DA["Decision Analysis"]
+    PIPELINE --> FS["Feasibility Scoring"]
+    PIPELINE --> AP["Artifact Projection"]
+    PIPELINE --> VAL["Validation"]
+    PIPELINE --> PUB["Publish"]
+
+    KG --> EKM[("Enterprise Knowledge Model<br/>PostgreSQL + Qdrant + Graphiti")]
+
+    AP --> ARTIFACTS["Artifact Generator"]
+    ARTIFACTS --> EXT["12 External Artifacts<br/>Executive Brief, PRD, RTM, ..."]
+    ARTIFACTS --> INT["6 Internal Artifacts<br/>Evidence Register, Conflict Log, ..."]
+
+    VAL --> GATES["Decision Readiness Gates<br/>85–100 Publish | 70–84 Caveats | 60–69 Review | <60 Block"]
+
+    PUB --> WORKSPACES["Stakeholder Decision Workspaces"]
+    WORKSPACES --> CEO["CEO Dashboard"]
+    WORKSPACES --> CFO["CFO Dashboard"]
+    WORKSPACES --> CTO["CTO Dashboard"]
+    WORKSPACES --> PM["Product Dashboard"]
+    WORKSPACES --> OPS["Ops Dashboard"]
+
+    subgraph AGENTS["Agent Roster (9)"]
+        COS["ChiefOfStaff"]
+        IP["IngestionParser"]
+        KM["KnowledgeMapper"]
+        CR["ConflictResolver"]
+        FA["FeasibilityAnalyst"]
+        DANA["DecisionAnalyst"]
+        AC["ArtifactComposer"]
+        GOV["GovernanceAgent"]
+        EA["EvaluationAgent"]
     end
-    GOV -.->|"optional export_payload"| N8N
-    GOV -.->|"optional"| ADK
-    GOV -.->|"optional"| PA
-    GOV -.->|"optional"| SA2
+
+    CORE --> COS
+    COS --> PIPELINE
+    COS --> AGENTS
+
+    subgraph TEMPORAL["Temporal Orchestration Layer"]
+        WF1["IngestionWorkflow"]
+        WF2["KnowledgeWorkflow"]
+        WF3["FeasibilityWorkflow"]
+        WF4["ArtifactWorkflow"]
+        WF5["GovernanceWorkflow"]
+    end
+
+    PIPELINE --> TEMPORAL
 ```
 
-**Key components**
+### Key components
 
 | Layer | Responsibility |
 |-------|----------------|
-| **Interface** (`apps/core/` HTMX) | Web workspace, chat, uploads, approval UI, exports UI. |
-| **Go Core** (`apps/core/`) | Fiber HTTP server, HTMX templates, SSE streaming, `@mention` routing, Temporal client. |
-| **Control plane** | `ChiefOfStaffWorkflow` — intent classify, route, deterministically merge `EngagementState` patches, summarize. |
-| **Specialist workflow layer** | 5 canonical specialists + ChiefOfStaff control plane (= 6 total). |
-| **Python AI Worker** (`apps/ai/`) | LangGraph/DSPy agents per domain; builds the Ontology; proposes governed writes; compiles drafts. |
-| **LLM providers** | OpenAI-compatible SDK → Azure AI Foundry, Groq, Ollama, OpenAI (auto-detected). |
-| **Enterprise Knowledge Model** (canonical IR) | PostgreSQL (`engagement_states`), Redis, Qdrant, Neo4j + Graphiti. Typed entities with full provenance: every entity carries `source_refs`, `confidence_score`, `evidence_id`, `extracted_at`, `extraction_method`. |
-| **Capability Catalogue** | Registry of enterprise capabilities mapped to solution patterns. Powered by `SolutionArchitectWorkflow`. |
-| **Solution Recommendation Engine** | Maps validated knowledge to recommended solution architectures. |
-| **Evidence Layer** | Provenance-preserving pipeline: every ontology entity tracks source, confidence, evidence ID, timestamp, and extraction method. Enforced by Pydantic validators across all ontology writes. |
-| **Governance** | `GovernanceWorkflow` enforces approval gating, blast-radius checks, and audit logging. Produces the Enterprise Architecture Pack (12 artifacts). |
-| **Runtime / export** (optional) | Deterministic compilers for n8n (canonical optional target), ADK-Go, PydanticAI, smolagents behind a `RuntimeCompiler` ABC + `get_compiler()` factory. **Windmill** — DEPRECATED (ADR-009 superseded). Compilation is export-only; no deployment or execution. |
-| **Observability** | Langfuse tracing, audit logs, approval history. |
-
----
-
-## Request / Response Flow
-
-A typical `@mention` query — from the user's message to a streamed answer, with the specialist → governance approval → deterministic export branch:
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant Core as Go Core (Fiber)
-    participant Router as @mention Router
-    participant COS as ChiefOfStaffWorkflow
-    participant Spec as Specialist Workflow
-    participant Agent as Python AI Worker
-    participant LLM as LLM Provider
-    participant Gov as GovernanceWorkflow
-    participant Comp as Compilers (n8n / custom_agent)
-    participant UI as HTMX UI (SSE)
-    participant Human as Approver
-
-    User->>Core: POST /api/command/chat/send "@discover extract facts from upload"
-    Core->>Router: extract @mention
-    Router-->>Core: ChiefOfStaffWorkflow (O(1) map)
-    Core->>UI: SSE event:chat (user bubble)
-    Core->>COS: ExecuteWorkflow("ChiefOfStaffWorkflow", input)
-    COS->>Spec: route to DiscoveryWorkflow
-    COS->>Agent: dispatch activity
-    Agent->>LLM: extraction / synthesis
-    LLM-->>Agent: result
-    Agent-->>COS: SpecialistResponse + EngagementState patch
-    COS-->>Core: merged summary
-    Core->>UI: SSE event:chat (answer bubble)
-    alt requires governance approval
-        Spec->>Gov: propose PlannedAction / ExecutableWorkflowDraft
-        Gov->>UI: SSE event:hitl (approval request)
-        Human->>Core: POST /api/command/approvals/:id/approve
-        Core->>Gov: SignalWorkflow("hitl-approval", true)
-        Gov-->>Comp: approved → compile export_payload
-        Comp-->>Core: artifact exported
-    end
-```
-
-The dispatch runs in a goroutine with a 5-minute context timeout and a non-blocking `tryBroadcast()` (`select { case ch <- msg: default: log }`) so the UI shows a "🤔 Thinking…" bubble immediately and never blocks the HTTP handler.
-
----
-
-## Ontology Layer
-
-The V5.2 Ontology is the **canonical shared model** of a business engagement. It is fully typed (Pydantic v2, `extra="forbid"`, `strict=True`) and TDD-verified. It comprises 6 primary Object Types, the `ExecutableWorkflowDraft` and `EngagementState` shared-state shapes, and 11 semantic link types. Every entity carries full provenance (source, confidence, evidence ID, timestamp, extraction method) enforced by the Evidence Layer.
-
-| Component | File | What it does |
-|-----------|------|--------------|
-| **Object Types** | `apps/ai/src/ontology/object_types.py` | 6 strict Pydantic v2 models: `Party`, `Engagement`, `MoneyEvent`, `Issue`, `Message`, `PlannedAction`. |
-| **Link Types** | `apps/ai/src/ontology/link_types.py` | `LINK_TYPES` registry of 11 semantic links + `resolve_link()`. |
-| **Action Types** | `apps/ai/src/ontology/action_types.py` | Full `PlannedAction` model + action registry. |
-| **Workflow Drafts** | `apps/ai/src/ontology/workflow_drafts.py` | `ExecutableWorkflowDraft` — single source of truth; `export_payload` only set by compiler; `status="activated"` only by Governance. |
-| **Engagement State** | `apps/ai/src/schemas/engagement_state.py` | `EngagementState` canonical shared state (mode, phase, ontology objects/links, truth findings, drafts, actions). |
-| **Governed Writes** | `apps/ai/src/ontology/governance.py` | `@governed_write` decorator enforcing the `OBJECT_WRITE_POLICY` blast-radius gate; only `GovernanceWorkflow` finalizes external execution. |
-
-### Object Types, Links & Shared State
-
-```mermaid
-classDiagram
-    class Party {
-        +str id
-        +Literal kind
-        +str name
-        +Literal status
-        +str owner
-        +list~str~ contact_points
-        +list~str~ source_refs
-    }
-    class Engagement {
-        +str id
-        +Literal kind
-        +str title
-        +Literal status
-        +float value
-        +str due_date
-        +list~str~ source_refs
-    }
-    class MoneyEvent {
-        +str id
-        +Literal kind
-        +float amount
-        +str currency
-        +Literal status
-        +str due_date
-        +str counterparty_id
-    }
-    class Issue {
-        +str id
-        +Literal kind
-        +Literal severity
-        +Literal status
-        +str opened_at
-        +str resolved_at
-        +str summary
-    }
-    class Message {
-        +str id
-        +Literal channel
-        +str thread_id
-        +Literal direction
-        +str summary
-        +Literal sentiment
-        +bool needs_action
-    }
-    class PlannedAction {
-        +str id
-        +str type
-        +Literal blast_radius
-        +Literal status
-        +str requested_by
-        +Literal target_object_type
-        +str target_id
-        +bool requires_approval
-    }
-    class ExecutableWorkflowDraft {
-        +str id
-        +Literal runtime
-        +str name
-        +Literal status
-        +dict trigger
-        +list~dict~ steps
-        +dict export_payload
-    }
-    class EngagementState {
-        +str engagement_id
-        +str tenant_id
-        +Literal workspace_mode
-        +Literal phase
-        +list~dict~ ontology_objects
-        +list~dict~ ontology_links
-        +list~dict~ truth_findings
-        +list~dict~ executable_workflow_drafts
-        +list~dict~ planned_actions
-    }
-
-    Party "1" --> "*" Engagement : party_engagement
-    Engagement "1" --> "*" MoneyEvent : engagement_money_event
-    Engagement "1" --> "*" Issue : engagement_issue
-    Message "1" --> "*" Party : message_party
-    Message "1" --> "*" Engagement : message_engagement
-    Issue "1" --> "*" PlannedAction : issue_planned_action
-    MoneyEvent "1" --> "*" PlannedAction : money_event_planned_action
-    Party "1" --> "*" PlannedAction : party_planned_action
-    Engagement "1" --> "*" PlannedAction : engagement_planned_action
-    ExecutableWorkflowDraft "1" --> "*" PlannedAction : workflow_action
-    ExecutableWorkflowDraft "1" --> "*" Party : workflow_object_dependency
-    EngagementState "1" --> "*" Party : holds
-    EngagementState "1" --> "*" ExecutableWorkflowDraft : holds
-```
-
-> **Canonical ontology types (6):** The V5.2 product contract specifies exactly 6 canonical ontology object types: Party, Engagement, MoneyEvent, Issue, Message, PlannedAction. These are the entity types that the OntologyAI core populates, links, and reasons over. Each type carries the Evidence Layer provenance envelope (source, confidence, evidence ID, timestamp, extraction method) to ensure traceability.
-
-### `@governed_write`
-
-The `@governed_write` decorator enforces human-in-the-loop approval for consequential ontology writes. Two independent gates trigger a required `PlannedAction`:
-
-1. **Explicit flag** — the property is `requires_approval=True` in `OBJECT_WRITE_POLICY`.
-2. **Blast-radius threshold** — the effective blast radius is at/above the configured threshold (default `"medium"`; `"low"` writes proceed).
-
-When a `PlannedAction` is required, the decorator **blocks** the underlying write and returns the `PlannedAction` for the caller to submit for approval. Only `GovernanceWorkflow` may set `status=activated`, `executing`, `completed`, or `exported` on external side effects.
-
-```python
-@governed_write(object_type="Party", property_name="status", requested_by="Discovery")
-def governed_party_update(party_id: str, **kwargs): ...
-```
+| **Interface** (`apps/core/` HTMX) | Decision Workspaces, stakeholder-specific dashboards, SSE streaming |
+| **Go Core** (`apps/core/`) | Fiber HTTP server, SSE, workspace routing, Temporal client |
+| **Ingestion** | 4 MVP connectors (Notion, Slack, Jira/Linear, Salesforce) + upload/chat intake |
+| **Knowledge Pipeline** | 14-stage Temporal-orchestrated pipeline from ingest to publish |
+| **Enterprise Knowledge Model** | 22 canonical entity types in PostgreSQL, Qdrant, Graphiti |
+| **Agent Roster** | 9 agents with typed I/O, governed writes, no direct state mutation |
+| **Feasibility Engine** | 8-dimension scoring with Decision Readiness Gates |
+| **Validation Engine** | Evidence-gated, traceability-checked, conflict-blocked publication |
+| **Artifact Projection** | 18 artifact templates (12 external + 6 internal) |
+| **Decision Workspaces** | Stakeholder-specific views of the same canonical model |
+| **Observability** | Langfuse tracing, audit events, evaluation metrics |
 
 ---
 
@@ -419,64 +341,99 @@ def governed_party_update(party_id: str, **kwargs): ...
 
 ```
 apps/
-  core/                     # Go Modular Monolith (control / gateway)
+  core/                         # Go Modular Monolith (control / gateway)
     cmd/
-      server/               # HTTP server entrypoint
-      worker/               # Temporal worker entrypoint
+      server/                   # HTTP server entrypoint
+      worker/                   # Temporal worker entrypoint
     internal/
-      web/                  # HTTP handlers (Fiber + HTMX + SSE)
-        handler.go          # All endpoints, @mention routing (O(1) map → 15+ aliases / 6 V5.2 workflows)
-        sse.go              # SSE handler (SetBodyStreamWriter + SSEHub)
-        command_center_test.go
+      web/                      # HTTP handlers (Fiber + HTMX + SSE)
+        handler.go              # All endpoints, workspace routing
+        sse.go                  # SSE handler
         templates/
-          command_center.html
-          partials/         # HTMX partials (workspace screens + ontology setup wizard partials)
-      agents/               # Go agent definitions
-      config/               # LLM configuration
-      db/                   # sqlc generated code
-      database/             # Connection utilities
-      temporal/             # Temporal client (SignalWorkflow, ExecuteWorkflow)
-      workflow/             # Temporal workflows & stubs
-    sqlc.yaml               # sqlc configuration
-  ai/                       # Python AI Worker
+          workspaces/           # Decision Workspace views
+            ceo.html
+            cfo.html
+            cto.html
+            product.html
+            ops.html
+          partials/             # HTMX partials
+      agents/                   # Go agent stubs
+      config/                   # LLM configuration
+      db/                       # sqlc generated code
+      database/                 # Connection utilities
+      temporal/                 # Temporal client
+      workflow/                 # Temporal workflow stubs
+  ai/                           # Python AI Worker
     src/
-      ontology/             # V5.2 — Object Types, Link Types, Action Types, Workflow Drafts, Governance, Evidence
-        object_types.py     # 6 canonical types
-        link_types.py       # 11 link types
-        action_types.py     # PlannedAction + registry
-        workflow_drafts.py  # ExecutableWorkflowDraft (source of truth)
-        adapter.py          # mission_state_to_ontology (read-only bridge)
-        governance.py       # @governed_write + OBJECT_WRITE_POLICY
-        evidence.py         # Evidence provenance model — source, confidence, evidence_id, timestamp, extraction_method
-        capability_catalogue.py # Registry of enterprise capabilities mapped to solution patterns
-        solution_recommendation.py # Solution recommendation engine — maps validated knowledge to architectures
-      schemas/              # Pydantic models (engagement_state, specialist_response, workflow_spec, sop, executable_workflow_draft)
-        ontology_setup_state.py # OntologySetupState + SetupStep enum + step data models (28 state model tests)
-      workflows/            # Temporal workflow definitions (6 V5.2 canonical)
-        chief_of_staff_workflow.py   # @workflow.defn(name="ChiefOfStaffWorkflow")
-        discovery_workflow.py        # @workflow.defn(name="DiscoveryWorkflow")
-        ontology_mapping_workflow.py # @workflow.defn(name="OntologyMappingWorkflow")
-        knowledge_validation_workflow.py # @workflow.defn(name="KnowledgeValidationWorkflow")
-        solution_architect_workflow.py   # @workflow.defn(name="SolutionArchitectWorkflow")
-        governance_workflow.py       # @workflow.defn(name="GovernanceWorkflow")
-      runtime/              # Deterministic compilers (optional export targets) + artifact export
-        base.py                 # RuntimeCompiler ABC
-        n8n_compiler.py         # n8n JSON compiler (canonical optional export)
-        n8n_client.py           # n8n REST API client
-        adk_go_compiler.py      # ADK-Go: generates main.go + tools.go
-        pydantic_ai_compiler.py # PydanticAI: generates agent.py w/ BaseModel
-        python_agent_compiler.py# smolagents: generates CodeAgent worker.py
-        custom_agent_compiler.py# Legacy agent config compiler
-        artifact_export.py      # Artifact export service
-      session/              # EngagementState store (canonical) + mission_state read bridge
-      memory/               # Graphiti, Qdrant, spine
-      integrations/         # Stripe, Plaid, Slack, ERPNext, HubSpot, QuickBooks
-      services/             # Evidence layer, trust battery, provenance validation
-        engagement_state_store.py # Async PostgreSQL CRUD (asyncpg) for EngagementState
-      activities/           # Temporal activity definitions
-      worker.py             # Registers all workflows (6 V5.2 canonical + legacy V4.1) + activities
-    tests/                  # Pytest suite (1286 passing / 32 skipped + V5.2 suites)
-    pyproject.toml          # Python dependencies
+      connectors/               # V6 — MVP connector implementations
+        base.py                 # Connector ABC
+        notion.py
+        slack.py
+        jira_linear.py
+        salesforce.py
+      evidence/                 # V6 — Evidence ingestion and parsing
+        parser.py               # Input parser (chat, upload, transcript, etc.)
+        evidence_store.py       # Evidence persistence
+        normalizer.py           # Normalize and dedupe
+      ontology/                 # V6 — Canonical data model
+        entities.py             # 22 entity types
+        relationships.py        # Entity relationship definitions
+        knowledge_graph.py      # Graph operations
+        adapter.py              # Read/write bridge
+      pipeline/                 # V6 — Knowledge Pipeline stages
+        ingest.py
+        parse.py
+        normalize.py
+        dedupe.py
+        alias_resolve.py
+        entity_build.py
+        conflict_detection.py
+        graph_update.py
+        gap_analysis.py
+        decision_analysis.py
+        feasibility_scoring.py
+        artifact_projection.py
+        validation.py
+        publish.py
+      artifacts/                # V6 — Artifact generation
+        templates/              # 18 artifact templates
+        composer.py             # Template-driven artifact generation
+        external/               # 12 external artifacts
+        internal/               # 6 internal artifacts
+      feasibility/              # V6 — Feasibility engine
+        scorer.py               # 8-dimension scoring
+        gates.py                # Decision Readiness Gates
+      decision/                 # V6 — Decision analysis
+        workspace.py            # Decision Workspace contract
+        stakeholder_view.py     # Stakeholder-specific projections
+      validation/               # V6 — Validation engine
+        rules.py                # Validation rules
+        gates.py                # Publication gates
+      agents/                   # V6 — Agent roster
+        chief_of_staff.py
+        ingestion_parser.py
+        knowledge_mapper.py
+        conflict_resolver.py
+        feasibility_analyst.py
+        decision_analyst.py
+        artifact_composer.py
+        governance_agent.py
+        evaluation_agent.py
+      governance/               # V6 — Governance agent
+        guardrails.py           # Guardrail enforcement
+        approval.py             # HITL approval flows
+        audit.py                # Audit event logging
+      workflows/                # Temporal workflow definitions
+        ingestion_workflow.py
+        knowledge_workflow.py
+        feasibility_workflow.py
+        artifact_workflow.py
+        governance_workflow.py
+      session/                  # Engagement and workspace state
+      memory/                   # Graphiti, Qdrant, spine
+      services/                 # Evidence layer, trust battery
+      worker.py                 # Temporal worker registration
+    tests/                      # Pytest test suite
 ```
 
 ---
@@ -485,30 +442,28 @@ apps/
 
 ### Prerequisites
 
-- **Docker** (Temporal, Qdrant, PostgreSQL, Neo4j)
+- **Docker** (Temporal, Qdrant, PostgreSQL, Neo4j/Graphiti)
 - **Go 1.24**
 - **Python 3.13** with [`uv`](https://github.com/astral-sh/uv)
 
 ### Quickstart
 
 ```bash
-# 1. Start infrastructure (Temporal, Qdrant, PostgreSQL, Neo4j)
+# 1. Start infrastructure
 make up
 
-# 2. Run the Go server (HTTP + HTMX + SSE workspace)
+# 2. Run the Go server
 cd apps/core && go run cmd/server/main.go
 
-# 3. Run the Go Temporal worker (in a second terminal)
+# 3. Run the Go Temporal worker
 cd apps/core && go run cmd/worker/main.go
 
-# 4. Install Python deps and run the Python Temporal worker (third terminal)
+# 4. Install Python deps and run the Python worker
 cd apps/ai && uv sync
 cd apps/ai && uv run python -m src.worker
 
-# 5. Open the workspace landing page
+# 5. Open a Decision Workspace
 #    http://localhost:8080
-#    The workspace presents a guided discovery flow: frame a problem, add evidence,
-#    review the business map, validate knowledge, explore solution recommendations.
 ```
 
 ### Run the tests
@@ -517,19 +472,17 @@ cd apps/ai && uv run python -m src.worker
 # Go — all packages
 cd apps/core && go test ./...
 
-# Go — web handlers only
-cd apps/core && go test ./internal/web/... -v
-
-# Python — full suite (1286 passing / 32 skipped + V5.2 schema/workflow/governance/export suites)
+# Python — full suite
 cd apps/ai && uv run pytest tests/ -v
 
-# Python — ontology TDD suites
-cd apps/ai && uv run pytest tests/test_ontology_schema.py tests/test_link_and_action_registry.py tests/test_engagement_state.py tests/test_executable_workflow_draft.py -v
+# Python — specific V6 suites
+cd apps/ai && uv run pytest tests/test_pipeline/ -v
+cd apps/ai && uv run pytest tests/test_connectors/ -v
+cd apps/ai && uv run pytest tests/test_feasibility/ -v
+cd apps/ai && uv run pytest tests/test_validation/ -v
 ```
 
-### Environment variables (LLM providers + legacy modules)
-
-The system uses the official OpenAI-compatible SDK, auto-detecting the configured provider:
+### Environment variables
 
 | Provider | Variables |
 |----------|-----------|
@@ -540,140 +493,77 @@ The system uses the official OpenAI-compatible SDK, auto-detecting the configure
 
 | Control | Variable | Default |
 |---------|----------|---------|
-| Temporal task queue | `ONTOLOGYAI-MAIN-QUEUE` (fallback `TRACKGUARD-MAIN-QUEUE`) | `TRACKGUARD-MAIN-QUEUE` |
-| Legacy FDE modules | `LEGACY_FDE_MODULES=on` | off (gated) |
+| Temporal task queue | `ONTOLOGYAI-MAIN-QUEUE` | `TRACKGUARD-MAIN-QUEUE` |
 
-Secrets live in a local `.env` file (never committed). See `internal/config/llm.go` for auto-detection logic.
+Secrets live in a local `.env` file (never committed).
+
+---
+
+## Key Metrics
+
+V6 measures success across **12 evaluation dimensions**:
+
+| Metric | Description |
+|--------|-------------|
+| **Parser Accuracy** | % of raw input correctly parsed into typed Evidence |
+| **Entity Merge Accuracy** | % of entity merges that are correct (precision/recall) |
+| **Conflict Detection Rate** | % of true conflicts detected |
+| **Evidence Coverage** | % of entities with ≥1 evidence link |
+| **Traceability Coverage** | % of claims with traceable evidence chain |
+| **Artifact Completeness** | % of required sections populated in generated artifacts |
+| **Decision Readiness** | % of workspaces meeting the Decision Workspace Contract |
+| **Feasibility Calibration** | Correlation between feasibility scores and actual outcomes |
+| **Human Override Rate** | % of gated decisions that humans override |
+| **Stakeholder Usefulness** | NPS or satisfaction score from workspace consumers |
+| **Regeneration Correctness** | % of regenerated artifacts that match prior versions |
+| **Freshness** | Age of evidence underpinning published artifacts |
+
+---
+
+## V6 Summary
+
+| Dimension | V6 |
+|-----------|-----|
+| **Vision** | Decision Intelligence Platform |
+| **Connectors** | 4 MVP (Notion, Slack, Jira/Linear, Salesforce) |
+| **Canonical Entities** | 22 (Evidence, Stakeholder, Decision, KPI, etc.) |
+| **Pipeline Stages** | 14 (Ingest → Parse → ... → Publish) |
+| **Agents** | 9 (ChiefOfStaff, IngestionParser, ..., EvaluationAgent) |
+| **External Artifacts** | 12 (Executive Brief, PRD, RTM, Delivery Plan, etc.) |
+| **Internal Artifacts** | 6 (Evidence Register, Conflict Log, etc.) |
+| **Feasibility Dimensions** | 8 (Business Value, Technical Complexity, etc.) |
+| **Decision Gates** | 4 tiers (85–100 publish, <60 block) |
+| **Orchestration** | Temporal (replay-safe, deterministic, continue-as-new) |
+| **Guardrails** | No evidence = no artifact; unresolved conflict = reject |
+
+---
+
+## Test Coverage
+
+| Suite | Scope |
+|-------|-------|
+| **Unit Tests** | Parsers, merge logic, scoring, template rendering, validators |
+| **Integration Tests** | Connectors, evidence flow, artifact projection, approval gates |
+| **Temporal Tests** | Replay, pause/resume, retries, signals, updates, continue-as-new |
+| **Adversarial Tests** | Conflicting sources, missing fields, duplicates, stale data, prompt injection, malformed files, inconsistent numbers |
+| **End-to-End Tests** | Executive Brief → PRD → Architecture → RTM → Delivery Plan → Measurement Pack |
+| **Go Build** | ✅ Clean |
+| **Python Unit Tests** | ✅ Baseline + V6 suites |
 
 ---
 
 ## Architecture Decision Records
 
-These ADRs capture the load-bearing architectural decisions. Each follows an RFC 2119-style **Status / Context / Decision / Consequences** structure.
+Key ADRs governing V6 design:
 
-### ADR-001: Rebrand TrackGuard / Sarthi → OntologyAI
-
-- **Status:** Accepted
-- **Context:** The product was known as *TrackGuard* / *Sarthi*. As the scope expanded from alert-tracking to a full business Ontology with governed specialist agents, the old name no longer reflected the product. A rebrand risked breaking existing deployments, chat aliases, migration filenames, and Docker/container names that external tooling depended on.
-- **Decision:** Rebrand the product to **OntologyAI** across all user-facing surfaces (page titles, display names, documentation). To preserve compatibility we **MUST** keep:
-  - the `@sarthi` chat alias (and `@agent`, `@qa`, `@ask`) routing to `ChiefOfStaffWorkflow`;
-  - SQL migration filenames and Docker service/container names (e.g. `iterateswarm-api`);
-  - the Temporal task queue constant `TRACKGUARD-MAIN-QUEUE` (now the fallback default for `ONTOLOGYAI-MAIN-QUEUE`).
-  Internal Pydantic `Sarthi*` types were fully renamed to `OntologyAI*` with zero dangling references.
-- **Consequences:**
-  - *Positive:* A name that matches the product's actual scope; clean, consistent branding for newcomers.
-  - *Negative:* Two names coexist in the codebase (product = OntologyAI; some infra identifiers retain the legacy name), which must be documented to avoid confusion (see [V5.2 Active Roster vs Legacy Compatibility](#v52-active-roster-vs-legacy-compatibility)).
-
-### ADR-002: Six frozen canonical workflows with O(1) `@mention` map routing
-
-- **Status:** Accepted
-- **Context:** V4.2 froze a 5-specialist roster (`ChiefOfStaffWorkflow`, `FPAWorkflow`, `GrowthAnalyticsWorkflow`, `ReliabilityWorkflow`, `CommsWorkflow`) with O(1) map routing. V5.1 reframes the product as a self-serve FDE companion + multi-agent FDE operating system, replacing the domain-specialist roster with a discovery-to-deployment workflow roster.
-- **Decision:** Freeze **six** canonical workflows — `ChiefOfStaffWorkflow` (control-plane orchestrator), `DiscoveryWorkflow`, `OntologyMappingWorkflow`, `TruthAnalysisWorkflow`, `WorkflowBuilderWorkflow`, `GovernanceWorkflow` — and keep the declarative `map[string]specialistRoute` providing O(1) lookup. The control-plane alias set (`@ontologyai`, `@agent`, `@ask`, `@chief`, `@sarthi`) routes to `ChiefOfStaffWorkflow`; specialist aliases (`@discover`, `@map`, `@truth`, `@build`, `@govern`) route to the five specialists. Adding a workflow is now **one map entry + one Python workflow class**; no handler changes.
-- **Consequences:**
-  - *Positive:* O(1) routing; new workflows are data-driven; the roster is stable and documented; the control plane cleanly separates orchestration from domain work.
-  - *Negative:* Workflow type strings are not compile-time checked — a typo fails at runtime. Mitigated by a test that verifies every route's workflow name matches a registered Temporal workflow.
-
-### ADR-003: Governance exclusivity — only `GovernanceWorkflow` finalizes external execution
-
-- **Status:** Accepted
-- **Context:** Specialists can propose writes with real-world impact (change money state, send a message, activate a workflow). Unbounded autonomous writes are unsafe for a founder/client-facing product. V4.2 introduced `@governed_write` routing consequential mutations through a `PlannedAction`; V5.1 extends this so that *no* workflow except `GovernanceWorkflow` may set `status=activated`, `executing`, `completed`, or `exported` on external side effects.
-- **Decision:** Keep `@governed_write` plus an `OBJECT_WRITE_POLICY` registry. A write is blocked and routed through a `PlannedAction` (requiring human approval) when either (a) the property is `requires_approval=True`, or (b) its effective blast radius is at/above a configurable threshold (default `"medium"`; `"low"` writes proceed). Additionally, `GovernanceWorkflow` is the sole executor of final external side effects; `ExecutableWorkflowDraft.status="activated"` may only be set by `GovernanceWorkflow`. The decorator mirrors the Temporal HITL pattern: it returns the `PlannedAction` and intentionally does **not** execute the underlying write.
-- **Consequences:**
-  - *Positive:* Consequential writes are never silent; a single, overridable policy source governs blast radius; governance is the single gate before any side effect; the contract is unit-testable in isolation.
-  - *Negative:* Every governed write adds a round-trip (propose → approve → execute); the policy source must be kept in sync with the actual specialist actions.
-
-### ADR-004: Deterministic compiler / export purity rule
-
-- **Status:** Accepted
-- **Context:** V5.1 must generate deployable `ExecutableWorkflowDraft` artifacts for n8n and custom-agent runtimes. Letting the LLM freehand the export payload risks malformed, unvalidated, or unsafe automation. The thin-LLM / fat-deterministic-core principle forbids the LLM from generating export payloads directly.
-- **Decision:** All compilers (n8n, ADK-Go, PydanticAI, smolagents) are **pure, deterministic functions** extending a `RuntimeCompiler` ABC with a `compile(draft: dict) -> dict` contract. The LLM may propose workflow *structure* (steps, decision points, approvals) but **must never write `export_payload`**. `export_payload` is only populated by the compiler code; this is enforced by a model validator in `workflow_drafts.py` and asserted in `test_runtime_compilers.py` / `test_n8n_compiler.py`.
-- **Consequences:**
-  - *Positive:* Byte-stable, validated, inspectable exports; the LLM is kept in its safe lane (ambiguity, synthesis, narrative); exports are reproducible and testable.
-  - *Negative:* Compiler logic must be maintained for each runtime target; structure proposed by the LLM must be normalized by the compiler before export.
-
-### ADR-005: `EngagementState` as canonical shared state (with `mission_states` read-only bridge)
-
-- **Status:** Accepted
-- **Context:** V4.2 used `MissionState` as the operational state store. V5.1 needs a richer, phase-aware shared state (`EngagementState`) covering discovery notes, ontology objects/links, truth findings, workflow specs, executable drafts, and planned actions — with `workspace_mode` and `phase` as first-class fields. Deleting `mission_states` outright would break the existing read path and downstream consumers.
-- **Decision:** Make `EngagementState` the **canonical write target** (persisted in `engagement_states`). Keep `mission_states` as a **read-only bridge for one version**; `mission_state_to_ontology` remains callable until the adapter is fully migrated to `MoneyEvent`. All specialist workflows read `EngagementState` first and write back a typed, deterministically-merged patch; unknown keys are rejected and merge conflicts log + preserve provenance. `workspace_mode` is immutable after creation unless explicitly migrated.
-- **Consequences:**
-  - *Positive:* One shared, typed source of truth; no agent owns a private model of the business; clean migration path without breaking existing infra.
-  - *Negative:* Two state shapes coexist for one version; the bridge adds a small maintenance burden until `mission_states` is retired.
-
-### ADR-006: SSE + HTMX `SetBodyStreamWriter` for streaming chat
-
-- **Status:** Accepted
-- **Context:** The original client used raw JavaScript `EventSource` with client-side DOM construction for every chat bubble — duplicating template logic and adding ~40 lines of reconnect/parse JS. Synchronous `run.Get()` in the HTTP handler also blocked responses for up to 60s.
-- **Decision:** Stream chat over Server-Sent Events using Fiber's `SetBodyStreamWriter` with a `*bufio.Writer`, and let HTMX's `hx-ext="sse"` manage the connection lifecycle declaratively (`sse-connect` / `sse-swap` / `hx-swap`). The server renders chat bubbles as HTML fragments (`renderChatBubble()`) and pushes them as named SSE events (`event: chat`); all user/LLM text is `html.EscapeString()`-escaped. An `SSEHub` provides event-type-filtered, per-subscriber fan-out (buffered 64).
-- **Consequences:**
-  - *Positive:* ~40 fewer lines of JS; auto-reconnect built in; single source of truth for HTML; XSS-safe; immediate "Thinking…" feedback via non-blocking `tryBroadcast()`.
-   - *Negative:* HTML fragments over SSE inflate bandwidth vs JSON; harder to integrate non-HTMX clients; error handling moves into goroutine closures (log-based monitoring required).
-
-### ADR-007: Reuse n8n as the invisible execution runtime; build the OntologyAI canvas on the canonical model
-
-- **Status:** Accepted (locked V5.1, PR #33, branch `feature/ontologyai-v5.1`)
-- **Context:** V5.1 already ships the canonical `ExecutableWorkflowDraft` model, deterministic compilers (`runtime/n8n_compiler.py`, `runtime/custom_agent_compiler.py`, `runtime/artifact_export.py`), 6 active workflows, and `EngagementState` with deterministic `merge_patch`. The open question was whether to build a workflow engine/canvas from scratch or reuse an existing one. Building from scratch would duplicate mature execution/integration/retry/scheduling/credential tooling and slow "finishing the product."
-- **Decision:** **Do NOT build the workflow engine or canvas from scratch.** Reuse **n8n** as the execution/runtime layer, but build **OntologyAI's own client-facing AI workspace and live workflow canvas** on top of the canonical `ExecutableWorkflowDraft` model. The final split:
-
-  | Layer | Decision | Why |
-  |-------|----------|-----|
-  | Client experience | Build your own | Differentiation: conversation, transcript extraction, evidence, AI suggestions, FDE collaboration, governance, pilot creation |
-  | Workflow data model | Build your own typed canonical model | Lets the AI generate/validate/explain/version/govern workflows deterministically |
-  | Execution runtime | Reuse n8n first | n8n provides execution, integrations, retries, scheduling, credentials, ops tooling |
-  | Agent orchestration | Keep existing Temporal/Python | 6 workflow roles, typed shared state, governance, deterministic compilers already exist |
-  | Agent framework | Use one, not two | Do not add ADK merely because fashionable; smolagents only sandboxed utility |
-
-  **Licensing constraint:** the native n8n editor is **NOT** exposed to clients in the first release (n8n OEM/Embed license required). The OntologyAI canvas *looks and behaves like* a simplified n8n canvas; every edit is saved into `ExecutableWorkflowDraft`; approved drafts compile to n8n JSON and deploy to the client's own n8n instance or a managed n8n runtime only after the appropriate commercial agreement. Run state, errors, and activation status are reflected back into OntologyAI read-only.
-
-  **Stack ownership:** OntologyAI owns the workspace, ingestion, evidence, ontology/truth generation, canvas, governance UI, versioning, and the compile/export button. n8n owns execution, connectors, scheduling/retries, and credential handling on the client instance. Python owns extraction, retrieval, validation, deterministic compilation, policy/approval gates, agent coordination, and audit trail.
-
-  **Multi-runtime compilers (ADR-008):** Four deterministic compilers now exist behind a `RuntimeCompiler` ABC: n8n (automation), ADK-Go (Go-native agents), PydanticAI (typed Python agents), and smolagents/python_agent (sandboxed utility). Runtime selection is deterministic based on workflow traits. See [`ADR-008`](#adr-008-multi-runtime-compiler-architecture).
-
-  **ADK vs smolagents:** Temporal + typed Python = backbone; ADK = optional orchestration enhancement only (not added merely because fashionable); smolagents = sandboxed utility worker (document exploration, safe data transforms, connector research, isolated code analysis) — agent-generated code must NOT access production network, credentials, database, or the n8n instance.
-
-  **Canonical node vocabulary (12 nodes):** Trigger, Human input/form, AI extraction or classification, Condition/branch, HTTP/API action, Send message, Create/update record, Approval gate, Delay/schedule, Transform data, Error/fallback, End/success metric. These map to n8n during compilation; new integrations/bespoke nodes come later.
-- **Consequences:**
-  - *Positive:* No duplicated execution engine; fast path to a finished product; clear differentiation in the client experience; deterministic, governed, versioned workflow authoring; n8n's ops tooling reused for free.
-   - *Negative:* A license boundary must be respected (no exposed n8n editor in first release); the OntologyAI canvas must stay in sync with `ExecutableWorkflowDraft`; deployment to a managed n8n runtime is gated on a commercial agreement.
-
-### ADR-008: Multi-Runtime Compiler Architecture
-
-- **Status:** Accepted
-- **Context:** V5.1 originally shipped two deterministic compilers (`n8n`, `custom_agent`). As three agent-runtime patterns emerged (typed Python, Go-native, sandboxed utility), a single monolith compiler became untenable. The product director confirmed LangGraph + OntologyAI stays the single control plane.
-- **Decision:** Create a `RuntimeCompiler` ABC with a `get_compiler()` factory. Four deterministic compilers each produce a runtime-specific artifact from the canonical `ExecutableWorkflowDraft`: n8n (JSON), ADK-Go (Go source), PydanticAI (Python agent), smolagents (sandboxed worker). Runtime selection is deterministic based on workflow traits.
-- **Consequences:**
-  - *Positive:* Each compiler is isolated, testable, and swappable without changing the product brain.
-  - *Positive:* 15 TDD tests cover all 4 targets + ABC + factory — byte-stable, reproducible exports.
-  - *Negative:* Each new runtime target requires a new compiler module; generated code must be reviewed by client teams.
-
-### ADR-009: Windmill replaces n8n as primary execution runtime
-
-- **Status:** DEPRECATED / Superseded (V5.2 reframing — Windmill was a transitional target; n8n remains canonical optional export)
-- **Context:** n8n served as the execution runtime throughout V5.1 development. Windmill emerged as a better fit for execution (native Python/TypeScript scripts, built-in approvals, AGPL license) and was adopted as a transitional primary target during V5.1.
-- **Decision:** Windmill is **DEPRECATED** as of V5.2. The product reframes from "deployment & execution" to "discovery, knowledge validation, and solution design." Runtime compilation is now an **optional export** target only. n8n remains the canonical optional export target for clients that require deployable workflow artifacts. No runtime is required to use OntologyAI V5.2.
-- **Consequences:**
-  - *Positive:* Simplified architecture — no Windmill dependency, no deployment gate, no runtime credential management.
-  - *Negative:* Clients requiring deployable workflow artifacts use n8n compiler export (canonical optional target).
-
----
-
-## V5.2 Active Roster vs Legacy Compatibility
-
-The default active V5.2 Temporal worker registers exactly **6 canonical workflows**:
-
-| # | Workflow | Role | Category |
-|---|----------|------|----------|
-| 1 | `ChiefOfStaffWorkflow` | Control-plane orchestrator | V5.2 canonical |
-| 2 | `DiscoveryWorkflow` | Evidence intake & fact extraction | V5.2 canonical |
-| 3 | `OntologyMappingWorkflow` | Object/link type population | V5.2 canonical |
-| 4 | `KnowledgeValidationWorkflow` | Cross-source truth diagnosis & provenance validation | V5.2 canonical |
-| 5 | `SolutionArchitectWorkflow` | Capability mapping & solution recommendation | V5.2 canonical |
-| 6 | `GovernanceWorkflow` | Approval gate & Enterprise Architecture Pack generation | V5.2 canonical |
-
-**Legacy V4.1 workflows** (Pulse, Investor, FPA, GrowthAnalytics, etc.) — gated behind `LEGACY_FDE_MODULES=on`. Default: off.
-
-When `LEGACY_FDE_MODULES=on` is set:
-- All 11 legacy V4.1 workflows are added alongside the active roster
+- **ADR-001**: Evidence-first pipeline — no artifact without evidence chain
+- **ADR-002**: Temporal as single orchestration backbone — activities are deterministic and replayable
+- **ADR-003**: Governance exclusivity — only GovernanceAgent finalizes side effects
+- **ADR-004**: Template-driven artifacts — LLM fills fields, never invents sections
+- **ADR-005**: Decision Readiness Gates — publication is gated by scored readiness
+- **ADR-006**: Connector interface — abstract adapter pattern for all future connectors beyond the MVP 4
+- **ADR-007**: Context engineering — layered context assembly never passes raw unbounded history
+- **ADR-008**: 22-entity canonical model — single source of truth for all projections
 
 ---
 
@@ -683,25 +573,5 @@ When `LEGACY_FDE_MODULES=on` is set:
 - **Conventional Commits:** `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`.
 - **Never commit to `main`.** Open a PR from your feature branch.
 - **Secrets:** use a local `.env` file; never commit secrets.
-- **Agent guidelines:** full coding standards, build/test commands, and the specialist route-map pattern live in [`AGENTS.md`](./AGENTS.md) at the repo root.
-- **Database:** use `sqlc` for type-safe SQL; regenerate generated code after schema changes.
-
----
-
-## Test Coverage
-
-| Suite | Tests | Status |
-|-------|-------|--------|
-| Python Unit Tests | 1286 passing / 32 skipped (baseline + V5.2 schema/workflow/governance suites) | ✅ |
-| V5.2 Schema & State | object_types, link_types, action_types, engagement_state, specialist_response, workflow_spec, sop, executable_workflow_draft | ✅ |
-| V5.2 Workflows (6 workflows) | Discovery, Ontology Mapping, Knowledge Validation, Solution Architect, Governance + workflow_names | ✅ |
-| V5.2 Multi-Runtime Compilers | n8n, ADK-Go, PydanticAI, smolagents + ABC + factory | ✅ |
-| V5.2 Compilers / Export | n8n, custom_agent compile + export tests | ✅ |
-| V5.2 Governance / HITL | Governance workflow (17 tests), HITL signals | ✅ |
-| **V5.2 Ontology Setup Wizard** | Setup state models (28 tests), Go handler (17 tests), ChiefOfStaff wizard routing (52 tests) — **97 total** | ✅ |
-| **V5.2 Infra & Registration** | Worker registration (5 tests), EngagementStateStore (8 tests) | ✅ |
-| V5.2 ChiefOfStaff routing | Route map (15+ aliases), intent classification, specialist routing — integration tested | ✅ |
-| Go HTMX Web Handlers + Wizard | Route map (15+ aliases), workspace panels, ontology setup wizard (17 tests) | ✅ |
-| Go Build | Clean | ✅ Binary compiles |
-| E2E Smoke Test | 9/9 | ✅ Real Docker + real LLM |
-| DB Tests | — | 🟡 Skip (requires PostgreSQL container) |
+- **Agent guidelines:** full coding standards and build/test commands in [`AGENTS.md`](./AGENTS.md).
+- **Definition of Done:** A feature is done only when it updates the canonical model, survives validation, appears correctly in all affected workspaces, passes tests, carries traceability, and can be replayed from evidence.

@@ -3,6 +3,10 @@
 Provides common agent facilities:
 - AgentResult dataclass (simplified, no legacy copilot fields)
 - BaseAgent class with send()/receive() for peer-to-peer messaging
+
+Note: Agents are implementation details *inside* runtimes, not top-level
+architectural concepts. The 9-runtime model is the primary architectural
+framing; agents are the execution units that operate within each runtime.
 """
 
 from __future__ import annotations

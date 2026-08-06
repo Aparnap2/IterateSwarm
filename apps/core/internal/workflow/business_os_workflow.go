@@ -341,7 +341,7 @@ type BusinessOSState struct {
 }
 
 // BusinessOSWorkflow is the parent router — spawns child workflows, never executes SOP logic
-// It receives events via signals and spawns agent workflows for each unique event.
+// It receives events via signals and spawns runtime workflows for each unique event.
 // Accepts BusinessOSState to preserve SeenKeys across Continue-As-New cycles.
 func BusinessOSWorkflow(ctx workflow.Context, st BusinessOSState) error {
 	if st.SeenKeys == nil {
@@ -383,7 +383,7 @@ func BusinessOSWorkflow(ctx workflow.Context, st BusinessOSState) error {
 		st.EventsProcessed++
 
 		// ── Spawn child workflow: parent NEVER executes SOP logic
-		// v1.0: AgentName determines which agent handles the event
+		// v1.0: RuntimeName determines which runtime handles the event
 		childCtx := workflow.WithChildOptions(ctx, workflow.ChildWorkflowOptions{
 			WorkflowID:        fmt.Sprintf("agent:%s:%s", envelope.EventType, envelope.TenantID),
 			TaskQueue:         AITaskQueue,
@@ -394,7 +394,7 @@ func BusinessOSWorkflow(ctx workflow.Context, st BusinessOSState) error {
 		_ = workflow.ExecuteChildWorkflow(childCtx, SOPExecutorWorkflow, envelope)
 
 		workflow.GetLogger(ctx).Info(
-			"Spawned agent workflow",
+			"Spawned runtime workflow",
 			"event_type", envelope.EventType,
 			"tenant_id", envelope.TenantID,
 		)
@@ -404,7 +404,7 @@ func BusinessOSWorkflow(ctx workflow.Context, st BusinessOSState) error {
 // SOPExecutorWorkflow executes a single SOP via Python gRPC activity (v1.0)
 func SOPExecutorWorkflow(ctx workflow.Context, envelope events.EventEnvelope) error {
 	logger := workflow.GetLogger(ctx)
-	logger.Info("Starting agent execution", "event_type", envelope.EventType, "tenant_id", envelope.TenantID)
+	logger.Info("Starting runtime execution", "event_type", envelope.EventType, "tenant_id", envelope.TenantID)
 
 	// Set activity options with retry policy
 	ao := workflow.ActivityOptions{

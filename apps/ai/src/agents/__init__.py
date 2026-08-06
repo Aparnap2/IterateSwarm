@@ -1,7 +1,11 @@
 """
 OntologyAI v1.0 Agents — Agent Packages.
 
-Core agents:
+Agents are implementation details *inside* runtimes, not top-level
+architectural concepts. The 9-runtime model is the primary architectural
+framing; agents are the execution units that operate within each runtime.
+
+Core agents (implementation details inside runtimes):
   - pulse:        PulseAgent — health monitoring, anomaly detection
   - anomaly:      AnomalyAgent — deep anomaly investigation
   - investor:     InvestorAgent — investor updates, milestone tracking
@@ -9,7 +13,7 @@ Core agents:
   - cofounder:    CofounderAgent — orchestrates employee agents
   - guardian:     GuardianAgent — alert generation and management
 
-Specialist agents:
+Specialist agents (implementation details inside runtimes):
   - finance:      FinanceGraph — @finance Q&A (burn rate, runway, revenue)
   - data:         DataGraph — @data Q&A (engagement, cohorts, churn, KPIs)
   - ops:          OpsGraph — @ops Q&A (hiring, vendors, compliance, SOPs)

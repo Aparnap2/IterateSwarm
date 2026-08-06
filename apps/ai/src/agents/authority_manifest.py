@@ -1,10 +1,15 @@
-"""Agent Authority Manifest — V5.2 canonical agent roster.
+"""Agent Authority Manifest — V6 canonical agent roster.
 
 Defines each agent's domain, tool permissions, escalation tier, triggers,
 and EngagementState fields it is allowed to write. Used by HITL routing,
 tool execution guards, and EngagementState write-path validation.
 
-V5.2: Six canonical agents replacing the legacy V4.1 roster.
+V6: The 9-runtime model supersedes the legacy 6-agent roster.
+Agents are implementation details *inside* runtimes, not top-level
+architectural concepts. The runtime is the primary architectural unit;
+agents are the execution agents that operate within each runtime.
+
+Canonical agents (implementation details inside runtimes):
 - ChiefOfStaff (control_plane) — orchestrator / intent classifier
 - Discovery (discovery) — evidence gathering
 - OntologyMapper (ontology_mapping) — typed object materialization

@@ -427,9 +427,9 @@ class TestTemporalWorkflowWrapper:
     def test_chief_of_staff_has_run_method(self):
         from src.workflows import ACTIVE_WORKFLOWS
         wf_cls = ACTIVE_WORKFLOWS["ChiefOfStaffWorkflow"]
-        # V5.1 contract: all canonical workflows expose run().
+        # 9-runtime contract: all canonical workflows expose run().
         assert hasattr(wf_cls, "run"), (
-            "ChiefOfStaffWorkflow should have run() (V5.1 contract)"
+            "ChiefOfStaffWorkflow should have run() (9-runtime contract)"
         )
 
     def test_chief_of_staff_has_core_methods(self):

@@ -21,7 +21,7 @@ func (h *Handler) APICommandMissionState(c *fiber.Ctx) error {
 	}
 	healthScore := 72
 	riskLevel := "MEDIUM"
-	var lastUpdateReason, lastChangedFields, activeAgentRoles sql.NullString
+	var lastUpdateReason, lastChangedFields, activeRuntimeRoles sql.NullString
 
 	if h.db != nil {
 		var trustScore sql.NullInt32
@@ -55,7 +55,7 @@ func (h *Handler) APICommandMissionState(c *fiber.Ctx) error {
 		`).Scan(&trustScore, &burnAlert, &burnSev, &mrrTrend,
 			&churnRate, &errorSpike, &activeAlerts, &founderFocus,
 			&burnMult, &mrr, &runwayDays,
-			&lastUpdateReason, &lastChangedFields, &activeAgentRoles)
+			&lastUpdateReason, &lastChangedFields, &activeRuntimeRoles)
 		if err == nil {
 			if trustScore.Valid {
 				healthScore = int(trustScore.Int32)
@@ -120,7 +120,7 @@ func (h *Handler) APICommandMissionState(c *fiber.Ctx) error {
 	return Render(c, "partials/command_mission_state", fiber.Map{
 		"Signals": signals, "HealthScore": healthScore, "RiskLevel": riskLevel,
 		"LastUpdateReason": lastUpdateReason.String, "LastChangedFields": lastChangedFields.String,
-		"ActiveAgentRoles": activeAgentRoles.String,
+		"ActiveRuntimeRoles": activeRuntimeRoles.String,
 	})
 }
 

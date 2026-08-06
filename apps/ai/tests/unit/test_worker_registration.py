@@ -1,6 +1,6 @@
-"""Tests for worker.py / workflows.__init__ V5.1 workflow registration.
+"""Tests for worker.py / workflows.__init__ 9-runtime workflow registration.
 
-Asserts the V5.1 default contract: exactly 6 canonical workflows.
+Asserts the 9-runtime default contract: exactly 9 canonical workflows.
 V6 StrategyWorkflow is gated behind ``ENABLE_V6_WORKFLOWS=on``.
 """
 from __future__ import annotations
@@ -11,9 +11,9 @@ import pytest
 
 
 class TestWorkerRegistration:
-    """Verify the V5.1 active workflow roster contract."""
+    """Verify the 9-runtime active workflow roster contract."""
 
-    # V5.1 canonical roster: exactly 6 (PRD §7).
+    # 9-runtime canonical roster: exactly 9 (PRD §7).
     CANONICAL_V51 = {
         "ChiefOfStaffWorkflow",
         "DiscoveryWorkflow",
@@ -21,22 +21,25 @@ class TestWorkerRegistration:
         "KnowledgeValidationWorkflow",
         "SolutionArchitectWorkflow",
         "GovernanceWorkflow",
+        "DecisionWorkflow",
+        "ExecutionWorkflow",
+        "EvaluationWorkflow",
     }
 
     V6_WORKFLOWS = {"StrategyWorkflow"}
 
     ALL_V51_PLUS_V6 = CANONICAL_V51 | V6_WORKFLOWS
 
-    def test_default_roster_is_exactly_6(self):
-        """Default ACTIVE_WORKFLOWS (no flags) has exactly 6 entries."""
+    def test_default_roster_is_exactly_9(self):
+        """Default ACTIVE_WORKFLOWS (no flags) has exactly 9 entries."""
         from src.workflows import ACTIVE_WORKFLOWS
 
-        assert len(ACTIVE_WORKFLOWS) == 6, (
-            f"V5.1 contract requires exactly 6 active workflows, got {len(ACTIVE_WORKFLOWS)}: "
+        assert len(ACTIVE_WORKFLOWS) == 9, (
+            f"9-runtime contract requires exactly 9 active workflows, got {len(ACTIVE_WORKFLOWS)}: "
             f"{sorted(ACTIVE_WORKFLOWS.keys())}"
         )
         assert set(ACTIVE_WORKFLOWS.keys()) == self.CANONICAL_V51, (
-            f"V5.1 roster mismatch. Expected: {sorted(self.CANONICAL_V51)}, "
+            f"9-runtime roster mismatch. Expected: {sorted(self.CANONICAL_V51)}, "
             f"Got: {sorted(ACTIVE_WORKFLOWS.keys())}"
         )
 
@@ -66,7 +69,7 @@ class TestWorkerRegistration:
 
         active = _build_active_workflows()
         assert "StrategyWorkflow" in active
-        assert len(active) == 7
+        assert len(active) == 10
 
         route_map = _build_route_map()
         assert "@strategy" in route_map
@@ -80,7 +83,7 @@ class TestWorkerRegistration:
         )
 
     def test_v51_workflows_importable(self):
-        """All 6 V5.1 canonical workflows can be imported from their modules."""
+        """All 9 canonical workflows can be imported from their modules."""
         from src.workflows.discovery_workflow import DiscoveryWorkflow
         from src.workflows.ontology_mapping_workflow import (
             OntologyMappingWorkflow,
@@ -98,7 +101,7 @@ class TestWorkerRegistration:
         assert ChiefOfStaffWorkflow is not None
 
     def test_v51_workflows_have_run_method(self):
-        """Every V5.1 canonical workflow has a ``run()`` method."""
+        """Every canonical workflow has a ``run()`` method."""
         from src.workflows import ACTIVE_WORKFLOWS
 
         for name, wf_cls in ACTIVE_WORKFLOWS.items():
@@ -106,7 +109,7 @@ class TestWorkerRegistration:
             assert callable(wf_cls.run), f"{name}.run() is not callable"
 
     def test_worker_py_default_roster_ast(self):
-        """Verify worker.py's _build_workflow_list has exactly 6 V5.1 defaults."""
+        """Verify worker.py's _build_workflow_list has exactly 9 defaults."""
         import ast
 
         worker_path = "src/worker.py"
@@ -136,7 +139,7 @@ class TestWorkerRegistration:
 
 
 class TestActivityRegistration:
-    """Verify the V5.2 activity roster contract in worker.py.
+    """Verify the 9-runtime activity roster contract in worker.py.
 
     Default: 6 base activities.
     Legacy V4.1 gated behind ``LEGACY_FDE_MODULES=on``.

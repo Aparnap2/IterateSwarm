@@ -1,4 +1,4 @@
-"""TDD tests for Governance Gate — OntologyAI V5.1 (PRD §10.7, §12.7, §18).
+"""TDD tests for Governance Gate — OntologyAI 9-runtime (PRD §10.7, §12.7, §18).
 
 Tests the HITL governance enforcement mechanisms:
 

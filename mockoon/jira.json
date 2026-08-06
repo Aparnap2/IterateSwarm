@@ -1,0 +1,302 @@
+{
+  "uuid": "835ff490-0bed-45ac-9f81-41ee97d91db5",
+  "lastMigration": 33,
+  "name": "Jira Mock API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3003,
+  "hostname": "0.0.0.0",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "76a3eca1-6715-43d4-ac2a-0d0ce23d5ca8",
+      "type": "http",
+      "documentation": "Search issues",
+      "method": "get",
+      "endpoint": "rest/api/3/search",
+      "responses": [
+        {
+          "uuid": "245891a0-4508-44a2-ba39-67db444ba6c5",
+          "body": "{\"total\": 8, \"startAt\": 0, \"maxResults\": 50, \"issues\": [{\"id\": \"10001\", \"key\": \"PORTAL-1\", \"fields\": {\"summary\": \"Customer Portal MVP\", \"description\": \"Build customer portal with SSO, knowledge base, and ticket tracking.\", \"status\": {\"name\": \"In Progress\"}, \"priority\": {\"name\": \"High\"}, \"assignee\": {\"displayName\": \"Alice Chen\"}, \"labels\": [\"frontend\", \"portal\"], \"project\": {\"key\": \"PORTAL\", \"name\": \"Customer Portal\"}, \"created\": \"2026-06-01T08:00:00Z\", \"issuetype\": {\"name\": \"Epic\"}}}, {\"id\": \"10002\", \"key\": \"PORTAL-2\", \"fields\": {\"summary\": \"SSO Integration\", \"description\": \"Implement SSO with OIDC for customer portal.\", \"status\": {\"name\": \"In Progress\"}, \"priority\": {\"name\": \"High\"}, \"assignee\": {\"displayName\": \"Alice Chen\"}, \"labels\": [\"auth\", \"security\"], \"project\": {\"key\": \"PORTAL\"}, \"created\": \"2026-06-05T09:00:00Z\", \"issuetype\": {\"name\": \"Story\"}, \"parent\": {\"key\": \"PORTAL-1\"}}}, {\"id\": \"10003\", \"key\": \"PORTAL-3\", \"fields\": {\"summary\": \"Design knowledge base UI\", \"description\": \"Design wireframes for the knowledge base section.\", \"status\": {\"name\": \"Done\"}, \"priority\": {\"name\": \"Medium\"}, \"assignee\": {\"displayName\": \"James Wilson\"}, \"labels\": [\"design\"], \"project\": {\"key\": \"PORTAL\"}, \"created\": \"2026-06-10T10:00:00Z\", \"issuetype\": {\"name\": \"Story\"}, \"parent\": {\"key\": \"PORTAL-1\"}}}, {\"id\": \"10004\", \"key\": \"PORTAL-4\", \"fields\": {\"summary\": \"Fix login redirect bug\", \"description\": \"Users are redirected to wrong page after SSO login.\", \"status\": {\"name\": \"In Review\"}, \"priority\": {\"name\": \"Critical\"}, \"assignee\": {\"displayName\": \"Alice Chen\"}, \"labels\": [\"bug\", \"auth\", \"critical\"], \"project\": {\"key\": \"PORTAL\"}, \"created\": \"2026-07-15T14:00:00Z\", \"issuetype\": {\"name\": \"Bug\"}, \"parent\": {\"key\": \"PORTAL-2\"}}}, {\"id\": \"10005\", \"key\": \"PORTAL-5\", \"fields\": {\"summary\": \"API rate limiting middleware\", \"description\": \"Implement rate limiting for the public API endpoints.\", \"status\": {\"name\": \"To Do\"}, \"priority\": {\"name\": \"Medium\"}, \"assignee\": {\"displayName\": \"David Kim\"}, \"labels\": [\"backend\", \"api\"], \"project\": {\"key\": \"PORTAL\"}, \"created\": \"2026-07-20T11:00:00Z\", \"issuetype\": {\"name\": \"Task\"}, \"parent\": {\"key\": \"PORTAL-1\"}}}, {\"id\": \"10006\", \"key\": \"PORTAL-6\", \"fields\": {\"summary\": \"Database migration script\", \"description\": \"Write migration for new customer schema.\", \"status\": {\"name\": \"To Do\"}, \"priority\": {\"name\": \"High\"}, \"assignee\": {\"displayName\": \"David Kim\"}, \"labels\": [\"database\", \"devops\"], \"project\": {\"key\": \"PORTAL\"}, \"created\": \"2026-07-22T09:00:00Z\", \"issuetype\": {\"name\": \"Task\"}, \"parent\": {\"key\": \"PORTAL-1\"}}}, {\"id\": \"10007\", \"key\": \"PORTAL-7\", \"fields\": {\"summary\": \"Update Node.js dependencies\", \"description\": \"Security patches for express, lodash, axios.\", \"status\": {\"name\": \"In Progress\"}, \"priority\": {\"name\": \"Low\"}, \"assignee\": {\"displayName\": \"Mike Liu\"}, \"labels\": [\"security\", \"dependencies\"], \"project\": {\"key\": \"PORTAL\"}, \"created\": \"2026-07-18T16:00:00Z\", \"issuetype\": {\"name\": \"Subtask\"}, \"parent\": {\"key\": \"PORTAL-2\"}}}, {\"id\": \"10008\", \"key\": \"OPS-1\", \"fields\": {\"summary\": \"Production monitoring setup\", \"description\": \"Set up Grafana dashboards for production monitoring.\", \"status\": {\"name\": \"Done\"}, \"priority\": {\"name\": \"High\"}, \"assignee\": {\"displayName\": \"David Kim\"}, \"labels\": [\"devops\", \"monitoring\"], \"project\": {\"key\": \"OPS\", \"name\": \"Operations\"}, \"created\": \"2026-05-20T08:00:00Z\", \"issuetype\": {\"name\": \"Task\"}}}]}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Search issues",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "e356e6ae-df4a-411c-a102-e0b9d08f308d",
+          "callbacks": []
+        },
+        {
+          "uuid": "00fff82b-de97-4ea8-aa7d-b052fbe78642",
+          "body": "{\"errorMessages\": [\"Invalid JQL\"]}",
+          "latency": 0,
+          "statusCode": "400",
+          "label": "Bad request",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "trigger",
+              "value": "error",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "8439819f-e92e-4d29-bfaa-117e7999e1af",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "606df517-e6f4-4621-b867-29028e9a2615",
+      "type": "http",
+      "documentation": "List projects",
+      "method": "get",
+      "endpoint": "rest/api/3/project",
+      "responses": [
+        {
+          "uuid": "975e262b-1e46-48f3-8e2e-8766e8c12591",
+          "body": "[{\"key\": \"PORTAL\", \"name\": \"Customer Portal\", \"lead\": {\"displayName\": \"Alice Chen\"}}, {\"key\": \"OPS\", \"name\": \"Operations\", \"lead\": {\"displayName\": \"David Kim\"}}]",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "List projects",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "88938287-3b32-439a-bfe7-9bd0fa869cf8",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "954606aa-a46d-42bf-a933-133d162dba65",
+      "type": "http",
+      "documentation": "Rate limit",
+      "method": "get",
+      "endpoint": "rest/api/3/issue/RATE-LIMITED-1",
+      "responses": [
+        {
+          "uuid": "bcc1edff-5de5-43f2-aa9f-cd1cd95691e3",
+          "body": "{\"errorMessages\": [\"Rate limit exceeded\"]}",
+          "latency": 0,
+          "statusCode": "429",
+          "label": "Rate limit",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Retry-After",
+              "value": "30"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "d2fb1e2f-fff8-49af-bf69-e6beeb0a0b94",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "8bd73fac-b9fb-4754-b64b-a4cbc8ea1bff",
+      "type": "http",
+      "documentation": "Get issue",
+      "method": "get",
+      "endpoint": "rest/api/3/issue/:issueIdOrKey",
+      "responses": [
+        {
+          "uuid": "f6639054-9f78-4a29-a440-77a1ce57b619",
+          "body": "{\"id\": \"10001\", \"key\": \"PORTAL-1\", \"fields\": {\"summary\": \"Customer Portal MVP\", \"description\": \"Build customer portal with SSO, knowledge base, and ticket tracking.\", \"status\": {\"name\": \"In Progress\"}, \"priority\": {\"name\": \"High\"}, \"assignee\": {\"displayName\": \"Alice Chen\"}, \"labels\": [\"frontend\", \"portal\"], \"project\": {\"key\": \"PORTAL\", \"name\": \"Customer Portal\"}, \"created\": \"2026-06-01T08:00:00Z\", \"issuetype\": {\"name\": \"Epic\"}}}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Get issue",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "dd08ff41-dffa-4970-8c49-b2c7e3b1d675",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "87a06c1d-3360-4f2d-99d2-2b243632fe8d",
+      "type": "http",
+      "documentation": "Create issue",
+      "method": "post",
+      "endpoint": "rest/api/3/issue",
+      "responses": [
+        {
+          "uuid": "b23f837f-19f0-4ab0-9923-ba1ed60c0a92",
+          "body": "{\"id\": \"10009\", \"key\": \"PORTAL-9\", \"self\": \"https://mockoon.jira/rest/api/3/issue/10009\"}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Create issue",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "031e68de-cd94-4113-b6d2-6887b80f0417",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "uuid": "c1ebc6dd-e974-48cb-83c5-0720f5ef01a8",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "70dcfd67-5194-4210-90a2-1ceb86b89d5e",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "55aabdb3-a841-4ef1-9824-fd6cc1737163",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "bf0a45a5-2d8c-410b-8349-72cd29b4ff0b",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "2aacb154-0199-4b85-97f9-c5bf5f15912f",
+      "type": "route",
+      "path": ""
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "proxyReqHeaders": [],
+  "proxyResHeaders": [],
+  "data": [],
+  "callbacks": [],
+  "https": false,
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "rules": [],
+  "rulesOperator": "OR",
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "folderChildComparator": "default"
+}

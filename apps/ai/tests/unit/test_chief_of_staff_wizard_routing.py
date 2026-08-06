@@ -1,4 +1,4 @@
-"""Tests for OntologyAI V5.1 — ChiefOfStaff wizard intent routing (PRD §25.2).
+"""Tests for OntologyAI 9-runtime — ChiefOfStaff wizard intent routing (PRD §25.2).
 
 Tests verify that the ontology setup wizard intents are correctly:
 1. Classified by ``classify_intent()``
