@@ -30,7 +30,6 @@ services:
       retries: 10
     restart: unless-stopped
 
-services:
   # ===========================================
   # Temporal - Workflow Orchestration
   # ===========================================
@@ -96,7 +95,7 @@ services:
     ports:
       - "19092:9092"  # Kafka API (internal)
       - "9094:9094"   # Kafka API (external - for local dev)
-      - "8081:8081"   # Schema Registry
+      - "18081:8081"  # Schema Registry (remapped: 8081 used by MiniSky)
       - "8082:8082"   # REST Proxy
       - "33145:33145" # RPC
       - "9644:9644"   # Admin API

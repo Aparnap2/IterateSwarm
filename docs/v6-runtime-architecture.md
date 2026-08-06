@@ -1,10 +1,11 @@
 # OntologyAI V6 — Enterprise Decision Runtime Architecture
 
 **Status:** FROZEN (architecture decision — implementation must conform)
-**Version:** 2.0
-**Date:** 2026-08-05
+**Version:** 3.0
+**Date:** 2026-08-06
 **Author:** Solution Architecture
-**Supersedes:** Version 1.0 (`docs/v6-runtime-architecture.md` v1.0, 2026-08-05). The v1 "6-runtime / 6-agent" framing is replaced by the frozen 9-runtime model below. The entity/edge taxonomy in `V6_DOMAIN_SPEC.md` §1–§3 remains authoritative and unchanged.
+**Supersedes:** Version 2.0 (`docs/v6-runtime-architecture.md` v2.0, 2026-08-05). The v1 "6-runtime / 6-agent" framing is replaced by the frozen 9-runtime model below. The entity/edge taxonomy in `V6_DOMAIN_SPEC.md` §1–§3 remains authoritative and unchanged.
+**Platform Freeze (v3.0):** The platform infrastructure stack is now FROZEN (see §3.1 "Platform Stack (Frozen)" and `docs/ADR-009-platform-runtime-freeze.md`). Production runs on Google Cloud (Cloud Run + managed services); local development uses **MiniSky** as the local GCP control plane plus Docker Compose and Mockoon. **pgvector is the primary vector store** (Qdrant removed for MVP); **MinIO, Spark, Cloud SQL, and Cloud Workflows are removed** from the stack. From this point the platform architecture must not change.
 **Constitution:** This document is the single source of truth for the V6 runtime model. It does not modify production code.
 
 ---
@@ -181,6 +182,47 @@ Every runtime respects this contract. The Policy Runtime and Action Runtime are 
 
 ---
 
+## 3.1 Platform Stack (Frozen)
+
+The platform infrastructure is **frozen** (see `docs/ADR-009-platform-runtime-freeze.md`). Production runs on Google Cloud with managed services; local development is free (no cloud spend) and mirrors production through **MiniSky** as the local GCP control plane. **pgvector is the primary vector store**; Qdrant is removed for MVP. **MinIO, Spark, Cloud SQL, and Cloud Workflows are removed** from the stack. The transformation engine is abstracted — it may be backed by Polars (preferred) or Spark (very large datasets only) later.
+
+### 3.1.1 Production (Google Cloud)
+
+| Concern | Component | Notes |
+|---|---|---|
+| Runtime | **Cloud Run** | Serverless containers; FastAPI API |
+| API | **FastAPI** | Preserved core |
+| Workflow | **Temporal** | NOT Cloud Workflows; 3 queues + retry/DLQ/idempotency + `continueAsNew` |
+| Streaming | **Redpanda** | NOT Pub/Sub — code already uses it |
+| Object storage | **Cloudflare R2** | NOT GCS; GCS supported later via adapter |
+| Relational (OLTP) | **Neon PostgreSQL** | Transactional system of record |
+| Analytics | **BigQuery Sandbox** | Analytics/KPI/historical reporting/dashboards ONLY — never the app DB |
+| Graph | **Neo4j Aura** | Never self-host in prod |
+| Vector | **pgvector** (primary) | Qdrant REMOVED for MVP; optional later behind the same interface if a dedicated vector-engine comparison is needed |
+| Search | **Enterprise Retrieval** | BM25 + pgvector + Neo4j traversal + metadata filters + reranking |
+| AI | **Gemini, Groq, OpenRouter** | OpenRouter as fallback |
+| OCR | **Sarvam OCR**, Docling fallback | |
+| Monitoring | **OpenTelemetry → Langfuse → Sentry** | Cloud Monitoring optional |
+| Feature flags | **Flagsmith** | |
+| Auth | **Better Auth** | |
+| Email | **Resend** | |
+
+### 3.1.2 Local Development (MiniSky + Docker + Mockoon)
+
+Free, no cloud spend. Everything through `localhost:8080` exactly like production.
+
+| Component | Local | Notes |
+|---|---|---|
+| GCP control plane | **MiniSky** | Already running: API gateway `http://localhost:8080`, console `http://localhost:8081`. Emulates Cloud Storage, Pub/Sub, BigQuery, IAM, LRO, Cloud Run API |
+| Docker Compose (non-GCP) | **Neo4j, Postgres, Temporal, Redpanda, Redis, Langfuse** | NOT MinIO (MiniSky covers local GCS); NOT Qdrant (pgvector primary) |
+| SaaS mocks | **Mockoon** (cli, ports 3001–3004) | Mocks Slack/Jira/Salesforce/Notion |
+
+**Explicitly removed from the stack:** MinIO, Qdrant (MVP), Spark, Cloud SQL, Cloud Workflows.
+
+**Deferred to V6.5 (NOT part of MVP):** Decision Store, Feature Store, Knowledge Cache. MVP core loop stays **Evidence → Knowledge → Decision → Workspace**.
+
+---
+
 ## 4. Reuse > Rewrite (frozen)
 
 | Preserve (production runtime) | Replace (business-intelligence layer only) | Add (Decision Intelligence layer) |
@@ -196,8 +238,12 @@ Every runtime respects this contract. The Policy Runtime and Action Runtime are 
 | Observability, circuit breakers, retry, DLQ, idempotency | — | — |
 | SSEHub event-type filtering + `SignalWorkflow("hitl-approval")` | — | — |
 | Core Platform (FastAPI, Temporal, Redpanda, Retry, DLQ, Circuit Breaker, Governance, Observability, Connector SDK, Workspace Store, Evidence SDK, Validation Framework) | — | — |
+| Data platform (Neon PostgreSQL + **pgvector** primary, Cloudflare R2, BigQuery Sandbox, Neo4j Aura) | — | — |
+| **Enterprise Retrieval** (BM25 + pgvector + Neo4j traversal + metadata filters + reranking) | — | — |
 
-**Core Platform (NEVER rewrite):** FastAPI, Temporal, Redpanda, Retry, DLQ, Circuit Breaker, Governance, Observability, Connector SDK, Workspace Store, Evidence SDK, Validation Framework. Only the Business Layer [Evidence→Knowledge→Decision→Workspace] is rewritten.
+**Core Platform (NEVER rewrite):** FastAPI, Temporal, Redpanda, Retry, DLQ, Circuit Breaker, Governance, Observability, Connector SDK, Workspace Store, Evidence SDK, Validation Framework, plus the frozen platform stack — **Neon PostgreSQL, Cloudflare R2, BigQuery Sandbox, pgvector, Neo4j Aura, Redpanda, Temporal, Langfuse, Sentry, Flagsmith, Better Auth, Resend**. Only the Business Layer [Evidence→Knowledge→Decision→Workspace] is rewritten.
+
+> **Removed from the stack (not preserved):** MinIO, Qdrant (MVP), Spark, Cloud SQL, Cloud Workflows. **pgvector is the primary vector store**; **Enterprise Retrieval** = BM25 + pgvector + Neo4j traversal + metadata filters + reranking. The transformation engine is abstracted (Polars preferred; Spark only for very large datasets).
 
 ---
 
@@ -279,11 +325,12 @@ flowchart TB
     subgraph Infra["INFRASTRUCTURE"]
         TEMP["Temporal<br/>(pipeline · agent · validation queues)"]
         RP["Redpanda"]
-        PG["PostgreSQL<br/>(transactional system of record)"]
-        NEO["Neo4j 5 + APOC<br/>(entity · relationship · evidence · decision graph)"]
-        QD["Qdrant<br/>(evidence + capability embeddings)"]
-        OBS["Observability<br/>(Prometheus · Grafana · tracing)"]
-        TEMP --- RP --- PG --- NEO --- QD --- OBS
+        PG["Neon PostgreSQL + pgvector<br/>(transactional system of record + vector embeddings)"]
+        NEO["Neo4j Aura<br/>(entity · relationship · evidence · decision graph)"]
+        R2["Cloudflare R2<br/>(object storage)"]
+        BQ["BigQuery Sandbox<br/>(analytics · KPI · dashboards only)"]
+        OBS["Observability<br/>(OpenTelemetry → Langfuse → Sentry)"]
+        TEMP --- RP --- PG --- NEO --- R2 --- BQ --- OBS
     end
 
     EvidenceRuntime --> KnowledgeRuntime
@@ -307,6 +354,8 @@ flowchart TB
     APPROVALS --> GOV
     UI --> EvidenceRuntime
 ```
+
+> **Local development note:** In local dev, the INFRASTRUCTURE band is provided by **MiniSky** (local GCP control plane at `http://localhost:8080`, console `http://localhost:8081`) for the GCP-emulated services (Cloud Storage, Pub/Sub, BigQuery, IAM, LRO, Cloud Run API), plus Docker Compose for Neo4j, Postgres, Temporal, Redpanda, Redis, and Langfuse, and Mockoon (cli, ports 3001–3004) for the SaaS connector mocks. **pgvector** (in Postgres) is the primary vector store; Qdrant is removed for MVP. See §3.1.
 
 ---
 
@@ -347,11 +396,11 @@ The regeneration is a new decision node (append-only), never an in-place mutatio
 | Concern | Requirement |
 |---|---|
 | Security | Tenant isolation enforced at every store boundary (`tenant_id` on all queries); secrets only in `.env`/secret manager; no connector stores credentials; prompt-injection-resistant: LLM output never executes and never writes to deterministic stores ungoverned |
-| Scalability | Evidence Runtime scales horizontally on the pipeline queue; Decision Context Runtime scales with LLM latency; Policy Runtime and Action Runtime are lightweight and scale independently (ADR-007 preserved) |
+| Scalability | Evidence Runtime scales horizontally on the pipeline queue; Decision Context Runtime scales with LLM latency; Policy Runtime and Action Runtime are lightweight and scale independently (ADR-007 preserved). Services run on **Cloud Run** (serverless, per-request scaling); **pgvector** is the primary vector store (no separate vector engine to operate); **Neo4j Aura** is fully managed |
 | Maintainability | 9 runtimes, not 20; each runtime is a bounded module; adding a capability = one graph edge + one Knowledge Runtime mapping, not a new agent |
 | Reliability | Temporal retries + DLQ + idempotency preserved; circuit breakers on all external calls (LLM, connectors, stores) |
 | Explainability | Every Decision Context field carries provenance (evidence/score/policy); every artifact claim traces to evidence or computed score (V002); every Policy Runtime decision is logged as an `AuditEvent` |
-| Cost | Decision Context Runtime enforces a token budget per decision (see `docs/decision-context-runtime.md`) — the runtime never ships the whole knowledge graph to an LLM |
+| Cost | Decision Context Runtime enforces a token budget per decision (see `docs/decision-context-runtime.md`) — the runtime never ships the whole knowledge graph to an LLM. Infrastructure cost is minimized: **Cloud Run** (serverless, no idle compute), **Cloudflare R2** (egress-free object storage), **pgvector** in Neon (no separate vector engine), **BigQuery Sandbox** (analytics only, never the app DB), and **Neo4j Aura** (managed). Local dev is free via **MiniSky** + Docker + Mockoon |
 
 ---
 

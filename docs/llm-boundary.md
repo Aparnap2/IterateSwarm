@@ -133,7 +133,17 @@ The following call sites exist in the current codebase and must be brought under
 
 ---
 
-## 5. Enforcement checklist
+## 5. Vector store (pgvector) — deterministic retrieval
+
+The vector store is **pgvector** (primary; Qdrant removed for MVP). It is kept behind a `VectorStore` abstraction with a single pgvector implementation for MVP. Vector retrieval is **deterministic** and is part of the **Decision Context Runtime** retrieval (see `docs/agents-and-prompt-contracts.md` §4).
+
+- **Retrieval is deterministic.** pgvector similarity search is a pure, deterministic operation executed by the Decision Context Runtime — it is not an LLM step. The LLM consumes the *result* of retrieval (as `EvidenceRef`s in the `DecisionContext`), never the raw vector store.
+- **The LLM never does vector-store writes.** Embeddings are generated deterministically (a deterministic embedding-model call) and stored via the `VectorStore` abstraction. The LLM has no write path to the vector store.
+- **Embeddings are deterministic.** The embedding model call is a deterministic function of the input text; the resulting vector is stored via the `VectorStore` abstraction. This keeps the vector path replay-safe (see `docs/replay-engine.md`).
+
+---
+
+## 6. Enforcement checklist
 
 - [ ] Every LLM call site returns JSON only, parsed before any branch.
 - [ ] Every LLM payload passes a strict Pydantic contract (`extra="forbid"`, `strict=True`) from `src/decision/contracts.py`.

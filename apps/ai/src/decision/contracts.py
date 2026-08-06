@@ -49,6 +49,17 @@ The 9 Runtimes
 The V6 architecture is organised into 9 runtimes, each encapsulating a
 distinct execution domain. Agents are implementation details *inside*
 runtimes, not top-level architectural concepts.
+
+Platform freeze (ADR-009)
+-------------------------
+The 9 runtimes documented here are UNCHANGED by the platform freeze
+(``docs/ADR-009-platform-runtime-freeze.md``). No schema fields in this
+module are modified. Vector retrieval is **deterministic**: the vector
+store is **pgvector** (primary; Qdrant removed for MVP), kept behind a
+``VectorStore`` abstraction. Retrieval is a deterministic Decision Context
+Runtime step; the LLM never writes to the vector store, and embeddings are
+generated deterministically (embedding-model call) and stored via the
+``VectorStore`` abstraction.
 """
 
 from __future__ import annotations

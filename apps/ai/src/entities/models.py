@@ -67,6 +67,7 @@ class EvidenceRecord(OntologyBaseModel):
         "screenshot",
         "api",
     ]
+    schema_version: str = "v1"  # Evidence schema version (e.g. "slack.v1", "salesforce.v1")
     timestamp: datetime
     confidence: float = Field(ge=0.0, le=1.0)
     provenance: Provenance
