@@ -13,7 +13,7 @@ from uuid import uuid4
 from src.activities.run_investor_agent import run_investor_agent
 from src.activities.check_relationship_health import check_relationship_health
 from src.activities.send_slack_message import send_slack_message
-from src.events.bus import emit
+from src.events import emit
 from src.db import db
 
 log = logging.getLogger(__name__)

@@ -26,8 +26,8 @@ func TestCommandCenter_ServesPage(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 	bodyStr := string(body)
 
-	if !strings.Contains(bodyStr, "OntologyAI Command Center") {
-		t.Errorf("FAIL: Expected page title 'OntologyAI Command Center', got: %q", bodyStr)
+	if !strings.Contains(bodyStr, "OntologyAI Workspace Command Center") {
+		t.Errorf("FAIL: Expected page title 'OntologyAI Workspace Command Center', got: %q", bodyStr)
 	}
 	if !strings.Contains(bodyStr, "htmx.org") {
 		t.Errorf("FAIL: Expected HTMX script, got: %q", bodyStr)
@@ -177,7 +177,7 @@ func TestCommandAgentFleet_ReturnsAgents(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 	bodyStr := string(body)
 
-	checks := []string{"Chief of Staff", "FP&A", "Growth Analytics", "Reliability & Delivery"}
+	checks := []string{"Workspace Guide", "FP&A", "Growth Analytics", "Reliability & Delivery"}
 	for _, check := range checks {
 		if !strings.Contains(bodyStr, check) {
 			t.Errorf("FAIL: Expected agent '%s' in response, got: %q", check, bodyStr)
@@ -800,20 +800,40 @@ func TestRouteMap_HasFiveCanonicalSpecialists(t *testing.T) {
 }
 
 func TestRouteMap_AllAliasesResolve(t *testing.T) {
-	app := fiber.New()
-	h := NewHandler(nil, nil)
-	app.Post("/api/command/chat/send", h.APICommandChatSend)
+	t.Run("canonical", func(t *testing.T) {
+		app := fiber.New()
+		h := NewHandler(nil, nil)
+		app.Post("/api/command/chat/send", h.APICommandChatSend)
 
-	aliases := []string{"@sarthi", "@agent", "@qa", "@ask", "@finance", "@fpa", "@data", "@growth", "@ops", "@comms"}
-	for _, alias := range aliases {
-		req := httptest.NewRequest("POST", "/api/command/chat/send",
-			strings.NewReader(fmt.Sprintf("message=hello&mention=%s", alias)))
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		_, err := app.Test(req)
-		if err != nil {
-			t.Errorf("Alias %s failed: %v", alias, err)
+		aliases := []string{"@sarthi", "@agent", "@qa", "@ask", "@chief", "@ontologyai", "@discover", "@map", "@truth", "@build", "@govern", "@strategy"}
+		for _, alias := range aliases {
+			req := httptest.NewRequest("POST", "/api/command/chat/send",
+				strings.NewReader(fmt.Sprintf("message=hello&mention=%s", alias)))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			_, err := app.Test(req)
+			if err != nil {
+				t.Errorf("Alias %s failed: %v", alias, err)
+			}
 		}
-	}
+	})
+
+	t.Run("legacy_fde_modules", func(t *testing.T) {
+		t.Setenv("LEGACY_FDE_MODULES", "on")
+		app := fiber.New()
+		h := NewHandler(nil, nil)
+		app.Post("/api/command/chat/send", h.APICommandChatSend)
+
+		aliases := []string{"@finance", "@fpa", "@data", "@growth", "@ops", "@comms"}
+		for _, alias := range aliases {
+			req := httptest.NewRequest("POST", "/api/command/chat/send",
+				strings.NewReader(fmt.Sprintf("message=hello&mention=%s", alias)))
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			_, err := app.Test(req)
+			if err != nil {
+				t.Errorf("Alias %s failed: %v", alias, err)
+			}
+		}
+	})
 }
 
 func TestRouteMap_HiringRemoved(t *testing.T) {
@@ -923,11 +943,8 @@ func TestCommandCenter_TitleContainsOntologyAI(t *testing.T) {
 	}
 	body, _ := io.ReadAll(resp.Body)
 	bodyStr := string(body)
-	if strings.Contains(bodyStr, "OntologyAI") {
-		t.Errorf("FAIL: Page title should not contain 'OntologyAI', got: %q", bodyStr[:200])
-	}
-	if !strings.Contains(bodyStr, "OntologyAI") {
-		t.Errorf("FAIL: Page title should contain 'OntologyAI', got: %q", bodyStr[:200])
+	if !strings.Contains(bodyStr, "OntologyAI Workspace") {
+		t.Errorf("FAIL: Page title should contain 'OntologyAI Workspace', got: %q", bodyStr[:200])
 	}
 }
 
@@ -942,8 +959,8 @@ func TestCommandCenter_AgentFleetShowsChiefOfStaff(t *testing.T) {
 	resp, _ := app.Test(req)
 	body, _ := io.ReadAll(resp.Body)
 	bodyStr := string(body)
-	if !strings.Contains(bodyStr, "Chief of Staff") {
-		t.Errorf("FAIL: Expected 'Chief of Staff' in agent fleet, got: %q", bodyStr[:500])
+	if !strings.Contains(bodyStr, "Workspace Guide") {
+		t.Errorf("FAIL: Expected 'Workspace Guide' in agent fleet, got: %q", bodyStr[:500])
 	}
 	// Also verify old names are not present
 	if strings.Contains(bodyStr, "OntologyAI") {

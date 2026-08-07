@@ -14,7 +14,38 @@ from src.schemas.desk_results import (
     DeskResult,
 )
 
+from src.schemas.engagement_state import EngagementState, merge_patch
 from src.schemas.specialist_response import SpecialistResponse
+from src.schemas.workflow_spec import WorkflowSpec
+from src.schemas.sop import SOP, SOPStep
+from src.schemas.ba_artifact import BaseArtifact, ArtifactLifecycleStatus
+from src.schemas.strategy_artifacts import (
+    BusinessObjectives,
+    ChangeStrategy,
+    CurrentStateDescription,
+    RiskAnalysisResults,
+    SolutionEvaluationReport,
+)
+from src.schemas.semantic_layer import (
+    CanonicalEntity,
+    EntityAlias,
+    EntityLineage,
+    AttributeConflict,
+    ResolutionTier,
+    ConflictStatus,
+)
+from src.schemas.capability import (
+    Capability,
+    CapabilityRelationship,
+)
+from src.schemas.knowledge_catalog import (
+    KnowledgeCatalogEntry,
+    CatalogCapability,
+    CatalogDecision,
+    CatalogRisk,
+    CatalogRelationship,
+    CatalogSearchQuery,
+)
 
 __all__ = [
     "HitlRisk",
@@ -25,5 +56,31 @@ __all__ = [
     "ITRiskAlert",
     "KnowledgeManagerResult",
     "DeskResult",
+    "EngagementState",
+    "merge_patch",
     "SpecialistResponse",
+    "WorkflowSpec",
+    "SOP",
+    "SOPStep",
+    "BaseArtifact",
+    "ArtifactLifecycleStatus",
+    "BusinessObjectives",
+    "ChangeStrategy",
+    "CurrentStateDescription",
+    "RiskAnalysisResults",
+    "SolutionEvaluationReport",
+    "CanonicalEntity",
+    "EntityAlias",
+    "EntityLineage",
+    "AttributeConflict",
+    "ResolutionTier",
+    "ConflictStatus",
+    "Capability",
+    "CapabilityRelationship",
+    "KnowledgeCatalogEntry",
+    "CatalogCapability",
+    "CatalogDecision",
+    "CatalogRisk",
+    "CatalogRelationship",
+    "CatalogSearchQuery",
 ]

@@ -251,6 +251,13 @@ func NewReflectionHandler(pool *pgxpool.Pool, producer EventProducer) *Reflectio
 	}
 }
 
+// FounderDashboard serves the founder dashboard page (Handler method)
+func (h *Handler) FounderDashboard(c *fiber.Ctx) error {
+	return Render(c, "founder_dashboard", fiber.Map{
+		"Title": "OntologyAI Workspace — Your Patterns",
+	})
+}
+
 // SubmitReflection handles POST /founder/reflection.
 func (h *ReflectionHandler) SubmitReflection(c *fiber.Ctx) error {
 	founderID := c.Locals("founder_id").(string)

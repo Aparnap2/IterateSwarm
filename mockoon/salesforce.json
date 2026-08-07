@@ -1,0 +1,340 @@
+{
+  "uuid": "e705f9ae-8e31-4829-a61e-23f61d5ef9cc",
+  "lastMigration": 33,
+  "name": "Salesforce Mock API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3004,
+  "hostname": "0.0.0.0",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "c9178fd3-9902-4499-9992-739c9874131e",
+      "type": "http",
+      "documentation": "SOQL Query",
+      "method": "get",
+      "endpoint": "services/data/v58.0/query",
+      "responses": [
+        {
+          "uuid": "b809566f-5d29-4a93-8609-78722e901fcb",
+          "body": "[{\"errorCode\": \"MALFORMED_QUERY\", \"message\": \"Invalid SOQL\"}]",
+          "latency": 0,
+          "statusCode": "400",
+          "label": "Malformed query",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "trigger",
+              "value": "400",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "03c6ad90-9311-4398-a177-6313078e1372",
+          "callbacks": []
+        },
+        {
+          "uuid": "1a8b4fd8-db5b-4179-87bd-55ae7bc96fb1",
+          "body": "[{\"errorCode\": \"INVALID_SESSION_ID\", \"message\": \"Session expired or invalid\"}]",
+          "latency": 0,
+          "statusCode": "401",
+          "label": "Auth error",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "trigger",
+              "value": "401",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "0575265b-219f-4461-865e-ebe621e0a7b3",
+          "callbacks": []
+        },
+        {
+          "uuid": "a98a88e5-ed86-48f5-9a42-4e51c3ef9929",
+          "body": "[{\"errorCode\": \"REQUEST_LIMIT_EXCEEDED\", \"message\": \"API rate limit exceeded\"}]",
+          "latency": 0,
+          "statusCode": "429",
+          "label": "Rate limit",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Sforce-Limit-Info",
+              "value": "api-usage=15000/15000"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "trigger",
+              "value": "429",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "ca0ed21d-6583-4c45-bc86-6de59534bd9b",
+          "callbacks": []
+        },
+        {
+          "uuid": "e8e9fcd8-f208-4d38-86c4-fcf1ce350661",
+          "body": "{\"totalSize\": 5, \"done\": true, \"records\": [{\"Id\": \"casA\", \"Subject\": \"Cannot access knowledge base\", \"Status\": \"New\", \"Priority\": \"High\", \"AccountId\": \"001A\"}, {\"Id\": \"casB\", \"Subject\": \"SSO login timeout\", \"Status\": \"In Progress\", \"Priority\": \"Critical\", \"AccountId\": \"001B\"}, {\"Id\": \"casC\", \"Subject\": \"Data export failing\", \"Status\": \"Escalated\", \"Priority\": \"High\", \"AccountId\": \"001C\"}, {\"Id\": \"casD\", \"Subject\": \"Feature request: dark mode\", \"Status\": \"Closed\", \"Priority\": \"Low\", \"AccountId\": \"001A\"}, {\"Id\": \"casE\", \"Subject\": \"Billing discrepancy\", \"Status\": \"New\", \"Priority\": \"Medium\", \"AccountId\": \"001B\"}]}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "SOQL Cases",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "q",
+              "value": ".*FROM Case",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "af1e80e2-7289-4a71-824b-3a1e3fedd4d0",
+          "callbacks": []
+        },
+        {
+          "uuid": "45eb1639-0669-454b-9cb1-53a11ba6f238",
+          "body": "{\"totalSize\": 7, \"done\": true, \"records\": [{\"Id\": \"oppA\", \"Name\": \"Acme Corp \\u2014 Q3 Renewal\", \"StageName\": \"Negotiation\", \"Amount\": 500000, \"CloseDate\": \"2026-09-30\"}, {\"Id\": \"oppB\", \"Name\": \"GlobalTech \\u2014 Expansion\", \"StageName\": \"Discovery\", \"Amount\": 250000, \"CloseDate\": \"2026-10-15\"}, {\"Id\": \"oppC\", \"Name\": \"TechCorp \\u2014 New Business\", \"StageName\": \"Proposal\", \"Amount\": 750000, \"CloseDate\": \"2026-08-30\"}, {\"Id\": \"oppD\", \"Name\": \"MegaCorp \\u2014 Partnership\", \"StageName\": \"Closed Won\", \"Amount\": 1000000, \"CloseDate\": \"2026-07-01\"}, {\"Id\": \"oppE\", \"Name\": \"SmallBiz \\u2014 Q3\", \"StageName\": \"Closed Lost\", \"Amount\": 50000, \"CloseDate\": \"2026-06-15\"}, {\"Id\": \"oppF\", \"Name\": \"Acme Corp \\u2014 Upsell\", \"StageName\": \"Negotiation\", \"Amount\": 200000, \"CloseDate\": \"2026-11-30\"}, {\"Id\": \"oppG\", \"Name\": \"GlobalTech \\u2014 Renewal\", \"StageName\": \"Discovery\", \"Amount\": 180000, \"CloseDate\": \"2026-12-31\"}]}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "SOQL Opportunities",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "q",
+              "value": ".*FROM Opportunity",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "b24c3e27-7f91-4c0a-91d9-563b196abb00",
+          "callbacks": []
+        },
+        {
+          "uuid": "0f9f7e27-a442-4426-bb5b-ffbbf96cb05d",
+          "body": "{\"totalSize\": 5, \"done\": true, \"records\": [{\"attributes\": {\"type\": \"Account\"}, \"Id\": \"001A\", \"Name\": \"Acme Corp\", \"Type\": \"Customer\", \"Status__c\": \"Active\"}, {\"attributes\": {\"type\": \"Account\"}, \"Id\": \"001B\", \"Name\": \"GlobalTech Inc\", \"Type\": \"Customer\", \"Status__c\": \"At Risk\"}, {\"attributes\": {\"type\": \"Account\"}, \"Id\": \"001C\", \"Name\": \"TechCorp Solutions\", \"Type\": \"Customer\", \"Status__c\": \"Active\"}, {\"attributes\": {\"type\": \"Account\"}, \"Id\": \"001D\", \"Name\": \"MegaCorp\", \"Type\": \"Partner\", \"Status__c\": \"Active\"}, {\"attributes\": {\"type\": \"Account\"}, \"Id\": \"001E\", \"Name\": \"StartupXYZ\", \"Type\": \"Customer\", \"Status__c\": \"Churned\"}]}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "SOQL Accounts",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "0e7e8000-56c1-425d-a6ce-475eff42449d",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "bdfff4d8-4ca7-4264-8bd6-64e87620e286",
+      "type": "http",
+      "documentation": "Get record",
+      "method": "get",
+      "endpoint": "services/data/v58.0/sobjects/:objectName/:id",
+      "responses": [
+        {
+          "uuid": "d5ea592c-0677-420e-96f3-df7a19927ec2",
+          "body": "{\"Id\": \"001A\", \"Name\": \"Acme Corp\", \"Type\": \"Customer\", \"Status__c\": \"Active\"}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Get record",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "604b15ec-3867-474e-b831-9828bb60d56f",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "fee59a5d-d032-46c6-bef9-ebcffb5df061",
+      "type": "http",
+      "documentation": "Create record",
+      "method": "post",
+      "endpoint": "services/data/v58.0/sobjects/:objectName",
+      "responses": [
+        {
+          "uuid": "c86f29d8-c357-4b1d-887a-165c96f6cff3",
+          "body": "{\"id\": \"001F\", \"success\": true, \"errors\": []}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Create record",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "d5f29c22-0533-45ac-9c1c-a2b917dfb146",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "uuid": "a6628ad0-851c-4340-8eb0-6df8bf7bcb1d",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "3684b921-c7e0-4f42-941b-62763b67ff7b",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "ec35b466-7201-47ab-918c-13f41f817dd6",
+      "type": "route",
+      "path": ""
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "proxyReqHeaders": [],
+  "proxyResHeaders": [],
+  "data": [],
+  "callbacks": [],
+  "https": false,
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "rules": [],
+  "rulesOperator": "OR",
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "folderChildComparator": "default"
+}

@@ -31,6 +31,7 @@
 | Governed Writes | ✅ | `@governed_write` decorator in `apps/ai/src/ontology/governance.py` |
 | Authority Manifest | ✅ | 5 agents with role/permissions/tool allowlists |
 | E2E Smoke Test | ✅ | Real Docker + real LLM |
+| Knowledge Catalog | ✅ | 10-category schema + 11 link tables in `apps/core/migrations/011_knowledge_catalog.sql` |
 | DB Tests | 🟡 Skip | Requires PostgreSQL container |
 
 ---
@@ -247,6 +248,7 @@ apps/
       integrations/  # Stripe, Plaid, Slack, ERPNext, HubSpot, QuickBooks
       memory/        # Graphiti, Qdrant, spine
       schemas/       # Pydantic models
+        knowledge_catalog.py  # V6 NEW — Knowledge Catalog schema (10 categories + 11 link types)
       events/        # Redis Streams event bus
     tests/           # Pytest test suite (319+ tests)
     pyproject.toml   # Python dependencies

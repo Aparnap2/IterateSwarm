@@ -26,7 +26,7 @@ from src.llmops.tracer import traced
 from src.activities.run_finance_rules import run_finance_rules
 from src.activities.run_guardrails import run_guardrails
 from src.activities.send_slack_message import send_slack_message
-from src.events.bus import emit
+from src.events import emit
 from src.hitl.manager import HITLManager
 from src.schemas.event_envelope import EventEnvelope
 from src.schemas.guardian import AlertDecision

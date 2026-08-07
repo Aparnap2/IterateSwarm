@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from src.activities.run_pulse_agent import run_pulse_agent
 from src.activities.send_slack_message import send_slack_message
-from src.events.bus import emit
+from src.events import emit
 
 log = logging.getLogger(__name__)
 

@@ -85,43 +85,50 @@ def get_hubspot_snapshot(tenant_id: str) -> Dict[str, Any]:
 
     client = HubSpot(access_token=token)
 
-    def _fetch_crm_data() -> tuple:
-        """Single attempt to pull deals + companies from HubSpot."""
+    # ------------------------------------------------------------------
+    # Fetch deals + companies in a single attempt
+    # ------------------------------------------------------------------
+    try:
         deals = client.crm.deals.get_all(
             properties=["dealname", "amount", "dealstage", "closedate", "createdate"]
         )
+    except Exception as exc:
+        logger.error("Failed to fetch HubSpot deals: %s", exc)
+        deals = []
+
+    try:
         companies = client.crm.companies.get_all(
             properties=["name", "domain", "industry"]
         )
+    except Exception as exc:
+        logger.error("Failed to fetch HubSpot companies: %s", exc)
+        companies = []
 
-        total_deals_cents = 0
-        won_deals_30d_cents = 0
-        pipeline_cents = 0
-        thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+    total_deals_cents = 0
+    won_deals_30d_cents = 0
+    pipeline_cents = 0
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
 
-        for deal in all_deals:
-            props = getattr(deal, "properties", {}) or {}
-            amount_cents = _parse_amount_cents(props.get("amount"))
-            dealstage = (props.get("dealstage", "") or "").lower()
-            closedate_str = props.get("closedate", "") or ""
+    for deal in deals:
+        props = getattr(deal, "properties", {}) or {}
+        amount_cents = _parse_amount_cents(props.get("amount"))
+        dealstage = (props.get("dealstage", "") or "").lower()
+        closedate_str = props.get("closedate", "") or ""
 
-            total_deals_cents += amount_cents
+        total_deals_cents += amount_cents
 
-            if "closedwon" in dealstage or dealstage == "closed_won":
-                if closedate_str:
-                    try:
-                        closedate = datetime.fromisoformat(closedate_str.replace("Z", "+00:00"))
-                        if closedate >= thirty_days_ago:
-                            won_deals_30d_cents += amount_cents
-                    except (ValueError, TypeError):
+        if "closedwon" in dealstage or dealstage == "closed_won":
+            if closedate_str:
+                try:
+                    closedate = datetime.fromisoformat(closedate_str.replace("Z", "+00:00"))
+                    if closedate >= thirty_days_ago:
                         won_deals_30d_cents += amount_cents
-            else:
-                won_deals_30d_cents += amount_cents
-
+                except (ValueError, TypeError):
+                    won_deals_30d_cents += amount_cents
         if not any(s in dealstage for s in ["closedwon", "closed_won", "closedlost", "closed_lost"]):
             pipeline_cents += amount_cents
 
-    active_customers = sum(1 for _ in all_companies)
+    active_customers = sum(1 for _ in companies)
 
     result = {
         "revenue_total_deals_cents": total_deals_cents,

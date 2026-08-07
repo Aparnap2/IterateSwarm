@@ -9,12 +9,21 @@ from __future__ import annotations
 import json
 import logging
 import os
+import warnings as _warnings
 from datetime import datetime
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import redis.asyncio as redis
 
 log = logging.getLogger(__name__)
+
+if os.getenv("ENABLE_REDIS_STREAMS") != "on":
+    _warnings.warn(
+        "Redis Streams bus is deprecated. Use Redpanda (canonical Go↔Python bus). "
+        "Set ENABLE_REDIS_STREAMS=on to silence this warning.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
 MAX_STREAM_LENGTH = 1000

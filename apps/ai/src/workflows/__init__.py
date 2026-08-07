@@ -1,43 +1,148 @@
-"""Temporal Workflows for OntologyAI AI Agents — V4.1 Canonical Names."""
+"""OntologyAI V5.2 — Workflow registry (PRD §7 / §25).
 
-# New canonical workflow imports
+Default roster is EXACTLY 6 V5.2 canonical workflows:
+    ChiefOfStaffWorkflow, DiscoveryWorkflow, OntologyMappingWorkflow,
+    KnowledgeValidationWorkflow, SolutionArchitectWorkflow, GovernanceWorkflow
+
+V6 StrategyWorkflow is gated behind ``ENABLE_V6_WORKFLOWS=on`` and is
+lazily imported (not loaded at module level) to keep the V5.1 contract clean.
+
+Legacy FDE modules (Pulse/Investor/FPA/GrowthAnalytics/Reliability/Comms/etc.)
+are gated behind ``LEGACY_FDE_MODULES=on``.
+"""
+from __future__ import annotations
+
+import os
+
+# ── Workflow imports (always importable at module level) ─────────────────
 from src.workflows.chief_of_staff_workflow import ChiefOfStaffWorkflow
-from src.workflows.fpa_workflow import FPAWorkflow
-from src.workflows.growth_analytics_workflow import GrowthAnalyticsWorkflow
-from src.workflows.reliability_workflow import ReliabilityWorkflow
-from src.workflows.comms_workflow import CommsWorkflow
+from src.workflows.discovery_workflow import DiscoveryWorkflow
+from src.workflows.ontology_mapping_workflow import OntologyMappingWorkflow
+from src.workflows.knowledge_validation_workflow import KnowledgeValidationWorkflow
+from src.workflows.solution_architect_workflow import SolutionArchitectWorkflow
+from src.workflows.governance_workflow import GovernanceWorkflow
 
-# Legacy backward compat aliases (deprecated)
-from src.workflows.qa_workflow import QAWorkflow  # compat -> ChiefOfStaffWorkflow
-from src.workflows.finance_workflow import FinanceWorkflow  # compat -> FPAWorkflow
-from src.workflows.data_workflow import DataWorkflow  # compat -> GrowthAnalyticsWorkflow
-from src.workflows.ops_workflow import OpsWorkflow  # compat -> ReliabilityWorkflow
 
-# Other existing workflows
-from src.workflows.pulse_workflow import PulseWorkflow
-from src.workflows.investor_workflow import InvestorWorkflow
-from src.workflows.self_analysis_workflow import SelfAnalysisWorkflow
-from src.workflows.eval_loop_workflow import EvalLoopWorkflow
-from src.workflows.compression_workflow import CompressionWorkflow
-from src.workflows.weight_decay_workflow import WeightDecayWorkflow
-from src.workflows.memory_maintenance_workflow import MemoryMaintenanceWorkflow
+def _build_active_workflows() -> dict[str, type]:
+    """Build the active workflow roster based on env flags.
+
+    Default: exactly 6 V5.2 canonical workflows.
+    V6 (StrategyWorkflow) added when ``ENABLE_V6_WORKFLOWS=on``.
+    """
+    base: dict[str, type] = {
+        "ChiefOfStaffWorkflow": ChiefOfStaffWorkflow,
+        "DiscoveryWorkflow": DiscoveryWorkflow,
+        "OntologyMappingWorkflow": OntologyMappingWorkflow,
+        "KnowledgeValidationWorkflow": KnowledgeValidationWorkflow,
+        "SolutionArchitectWorkflow": SolutionArchitectWorkflow,
+        "GovernanceWorkflow": GovernanceWorkflow,
+    }
+    if os.getenv("ENABLE_V6_WORKFLOWS") == "on":
+        from src.workflows.strategy_workflow import StrategyWorkflow  # noqa: PLC0415
+
+        base["StrategyWorkflow"] = StrategyWorkflow
+    return base
+
+
+# Active roster: dynamically built. Default = 6 entries.
+ACTIVE_WORKFLOWS: dict[str, type] = _build_active_workflows()
+
+# Alias used by some call sites / tests.
+WORKFLOW_REGISTRY: dict[str, type] = dict(ACTIVE_WORKFLOWS)
+
+# Agent registry: maps agent display names to their workflow classes.
+# Used by AgentBus for peer-to-peer dispatch in ChiefOfStaff inbox drain.
+AGENT_REGISTRY: dict[str, type] = {
+    "ChiefOfStaff": ChiefOfStaffWorkflow,
+    "Discovery": DiscoveryWorkflow,
+    "OntologyMapper": OntologyMappingWorkflow,
+    "KnowledgeValidator": KnowledgeValidationWorkflow,
+    "SolutionArchitect": SolutionArchitectWorkflow,
+    "Governance": GovernanceWorkflow,
+}
+
+
+def _build_route_map() -> dict[str, type]:
+    """Build route map. V6 aliases included only when ENABLE_V6_WORKFLOWS=on."""
+    base: dict[str, type] = {
+        "@ontologyai": ChiefOfStaffWorkflow,
+        "@agent": ChiefOfStaffWorkflow,
+        "@ask": ChiefOfStaffWorkflow,
+        "@chief": ChiefOfStaffWorkflow,
+        "@discover": DiscoveryWorkflow,
+        "@map": OntologyMappingWorkflow,
+        "@truth": KnowledgeValidationWorkflow,
+        "@build": SolutionArchitectWorkflow,
+        "@govern": GovernanceWorkflow,
+        "@sarthi": ChiefOfStaffWorkflow,
+    }
+    if os.getenv("ENABLE_V6_WORKFLOWS") == "on":
+        from src.workflows.strategy_workflow import StrategyWorkflow  # noqa: PLC0415
+
+        base["@strategy"] = StrategyWorkflow
+    return base
+
+
+ROUTE_MAP: dict[str, type] = _build_route_map()
 
 __all__ = [
-    "PulseWorkflow",
-    "InvestorWorkflow",
     "ChiefOfStaffWorkflow",
-    "FPAWorkflow",
-    "GrowthAnalyticsWorkflow",
-    "ReliabilityWorkflow",
-    "CommsWorkflow",
-    "SelfAnalysisWorkflow",
-    "EvalLoopWorkflow",
-    "CompressionWorkflow",
-    "WeightDecayWorkflow",
-    "MemoryMaintenanceWorkflow",
-    # Legacy backward compat
-    "QAWorkflow",
-    "FinanceWorkflow",
-    "DataWorkflow",
-    "OpsWorkflow",
+    "DiscoveryWorkflow",
+    "OntologyMappingWorkflow",
+    "KnowledgeValidationWorkflow",
+    "SolutionArchitectWorkflow",
+    "GovernanceWorkflow",
+    "ACTIVE_WORKFLOWS",
+    "WORKFLOW_REGISTRY",
+    "AGENT_REGISTRY",
+    "ROUTE_MAP",
 ]
+
+
+# ── Legacy FDE modules (gated, not in active roster) ─────────────────────
+# These are preserved (not deleted) but only imported when the operator
+# explicitly enables them via LEGACY_FDE_MODULES=on. This keeps the repo's
+# other modules importable without polluting the active V5.1 roster.
+_LEGACY_MODULES = [
+    "pulse_workflow",
+    "investor_workflow",
+    "fpa_workflow",
+    "growth_analytics_workflow",
+    "reliability_workflow",
+    "comms_workflow",
+    "qa_workflow",
+    "finance_workflow",
+    "data_workflow",
+    "ops_workflow",
+    "self_analysis_workflow",
+    "eval_loop_workflow",
+    "compression_workflow",
+    "weight_decay_workflow",
+    "memory_maintenance_workflow",
+]
+
+
+def _load_legacy() -> dict[str, type]:
+    """Lazily import legacy workflow modules when enabled.
+
+    Returns a name->class dict. Raises nothing; missing modules are skipped.
+    """
+    if os.getenv("LEGACY_FDE_MODULES") != "on":
+        return {}
+    legacy: dict[str, type] = {}
+    import importlib
+
+    for mod in _LEGACY_MODULES:
+        try:
+            m = importlib.import_module(f"src.workflows.{mod}")
+            for attr in dir(m):
+                obj = getattr(m, attr)
+                if isinstance(obj, type) and attr.endswith("Workflow"):
+                    legacy[attr] = obj
+        except Exception:
+            continue
+    return legacy
+
+
+# Expose legacy workflows only when the flag is set (lazy, non-breaking).
+LEGACY_WORKFLOWS: dict[str, type] = _load_legacy()

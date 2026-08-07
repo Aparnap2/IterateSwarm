@@ -1,0 +1,270 @@
+{
+  "uuid": "3db8f99e-245e-45a8-ad29-349b45dc4235",
+  "lastMigration": 33,
+  "name": "Notion Mock API",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3001,
+  "hostname": "0.0.0.0",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "b74e3cec-9704-45f6-8773-df8253c4b940",
+      "type": "http",
+      "documentation": "List pages",
+      "method": "get",
+      "endpoint": "pages",
+      "responses": [
+        {
+          "uuid": "0f376d99-d370-4b84-b6e9-86cf31997eb8",
+          "body": "{\"results\": [{\"id\": \"page-eng-wiki\", \"title\": \"Engineering Wiki\", \"last_edited_time\": \"2026-07-20T10:00:00Z\", \"properties\": {\"status\": \"published\", \"owner\": \"Alice Chen\", \"tags\": [\"engineering\", \"docs\"]}}, {\"id\": \"page-sales-playbook\", \"title\": \"Sales Playbook\", \"last_edited_time\": \"2026-07-22T14:30:00Z\", \"properties\": {\"status\": \"published\", \"owner\": \"Bob Martinez\", \"tags\": [\"sales\", \"playbook\"]}}, {\"id\": \"page-hiring\", \"title\": \"Hiring Process v4\", \"last_edited_time\": \"2026-07-21T09:00:00Z\", \"properties\": {\"status\": \"draft\", \"owner\": \"Carol Williams\", \"tags\": [\"hr\", \"hiring\"]}}, {\"id\": \"page-adrs\", \"title\": \"Architecture ADRs\", \"last_edited_time\": \"2026-07-19T16:45:00Z\", \"properties\": {\"status\": \"published\", \"owner\": \"David Kim\", \"tags\": [\"engineering\", \"architecture\"]}}, {\"id\": \"page-postmortem\", \"title\": \"Incident Postmortem \\u2014 July 15 Outage\", \"last_edited_time\": \"2026-07-18T11:20:00Z\", \"properties\": {\"status\": \"published\", \"owner\": \"David Kim\", \"tags\": [\"engineering\", \"incident\"]}}, {\"id\": \"page-okrs\", \"title\": \"Q3 OKRs\", \"last_edited_time\": \"2026-07-25T08:00:00Z\", \"properties\": {\"status\": \"published\", \"owner\": \"CEO\", \"tags\": [\"strategic\", \"okrs\"]}}], \"next_cursor\": null, \"has_more\": false, \"page_size\": 10}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "List pages",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "efc47eec-2e79-4a2f-aca7-5346be94fc4f",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "ede322ee-99e8-4f09-aa7f-a364f8cf631c",
+      "type": "http",
+      "documentation": "401 Unauthorized",
+      "method": "get",
+      "endpoint": "pages/error-401",
+      "responses": [
+        {
+          "uuid": "f8f279a2-6bfc-412d-9a81-d24e23ffd454",
+          "body": "{\"error\": \"unauthorized\", \"message\": \"Invalid or expired API token\"}",
+          "latency": 0,
+          "statusCode": "401",
+          "label": "401 Unauthorized",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "faa76ed5-012a-4583-9895-f49c3464c9c1",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "2188b57f-b62e-4059-82c0-95e7d3bc03d9",
+      "type": "http",
+      "documentation": "429 Rate Limited",
+      "method": "get",
+      "endpoint": "pages/error-429",
+      "responses": [
+        {
+          "uuid": "13f1ece2-5d67-41e9-a13a-6c7917b61b22",
+          "body": "{\"error\": \"rate_limited\", \"message\": \"Too many requests\"}",
+          "latency": 0,
+          "statusCode": "429",
+          "label": "429 Rate Limited",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Retry-After",
+              "value": "30"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "725d7616-f16a-48b7-adc4-77648124901a",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "317d48ca-ce5f-49b2-8835-326fd239278c",
+      "type": "http",
+      "documentation": "Page detail",
+      "method": "get",
+      "endpoint": "pages/:id",
+      "responses": [
+        {
+          "uuid": "17485dee-37c6-46a3-84fd-1cce5f8ae160",
+          "body": "{\"id\": \"page-eng-wiki\", \"title\": \"Engineering Wiki\", \"properties\": {\"status\": \"published\", \"owner\": \"Alice Chen\"}, \"blocks\": [{\"id\": \"b1\", \"type\": \"heading_1\", \"text\": \"Engineering Wiki\"}, {\"id\": \"b2\", \"type\": \"paragraph\", \"text\": \"This wiki documents our engineering practices and architecture decisions.\"}, {\"id\": \"b3\", \"type\": \"heading_2\", \"text\": \"Tech Stack\"}, {\"id\": \"b4\", \"type\": \"bulleted_list_item\", \"text\": \"Backend: Go 1.24, Temporal, PostgreSQL, Neo4j\"}, {\"id\": \"b5\", \"type\": \"bulleted_list_item\", \"text\": \"AI: Python 3.13, LangGraph, OpenAI-compatible LLMs\"}, {\"id\": \"b6\", \"type\": \"heading_2\", \"text\": \"Key Decisions\"}, {\"id\": \"b7\", \"type\": \"paragraph\", \"text\": \"We chose Temporal over Airflow for its deterministic replay guarantees.\"}, {\"id\": \"b8\", \"type\": \"paragraph\", \"text\": \"Neo4j was selected because enterprise relationships are fundamentally graph-shaped.\"}, {\"id\": \"b9\", \"type\": \"heading_2\", \"text\": \"Runbook\"}, {\"id\": \"b10\", \"type\": \"paragraph\", \"text\": \"All incidents get a postmortem within 48 hours in the #incidents channel.\"}]}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Page detail",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "7dacc911-5e3c-42a6-be78-77b7d0147c96",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "1f8c3467-4d46-4363-a47b-962d061de296",
+      "type": "http",
+      "documentation": "Search",
+      "method": "post",
+      "endpoint": "search",
+      "responses": [
+        {
+          "uuid": "a97c1641-2101-4650-a4df-c11677412304",
+          "body": "{\"results\": [{\"id\": \"page-eng-wiki\", \"title\": \"Engineering Wiki\", \"last_edited_time\": \"2026-07-20T10:00:00Z\", \"properties\": {\"status\": \"published\", \"owner\": \"Alice Chen\", \"tags\": [\"engineering\", \"docs\"]}}, {\"id\": \"page-sales-playbook\", \"title\": \"Sales Playbook\", \"last_edited_time\": \"2026-07-22T14:30:00Z\", \"properties\": {\"status\": \"published\", \"owner\": \"Bob Martinez\", \"tags\": [\"sales\", \"playbook\"]}}, {\"id\": \"page-hiring\", \"title\": \"Hiring Process v4\", \"last_edited_time\": \"2026-07-21T09:00:00Z\", \"properties\": {\"status\": \"draft\", \"owner\": \"Carol Williams\", \"tags\": [\"hr\", \"hiring\"]}}], \"has_more\": false}",
+          "latency": 0,
+          "statusCode": "200",
+          "label": "Search",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "717792f3-828b-470b-859b-c620fc47d0e2",
+          "callbacks": []
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false,
+      "folderChildren": [],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "uuid": "2e660c92-7d92-4e94-a358-e498cda19080",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "943e599d-361e-4bcf-b989-d22e0902795e",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "d304519e-b928-4f6c-87d4-99df36f6cd2f",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "40bdb97d-0ed0-4b31-8e38-6ef85eeb71e1",
+      "type": "route",
+      "path": ""
+    },
+    {
+      "uuid": "6cdaf6af-41e1-41d9-9e82-3cff14ac17c0",
+      "type": "route",
+      "path": ""
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "proxyReqHeaders": [],
+  "proxyResHeaders": [],
+  "data": [],
+  "callbacks": [],
+  "https": false,
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "rules": [],
+  "rulesOperator": "OR",
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "folderChildComparator": "default"
+}

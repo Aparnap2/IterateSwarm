@@ -1,99 +1,121 @@
 #!/usr/bin/env bash
-# Start Mockoon CLI for OntologyAI v1.0 testing
-# Usage: bash scripts/start-mockoon.sh
-# Stop:  bash scripts/stop-mockoon.sh
-
+# Start Mockoon CLI for OntologyAI V6 — one process per connector.
+# Directive: mockoon-cli (NOT docker). Ports :3001-:3004, one config per connector.
+# Usage:  bash scripts/start-mockoon.sh
+# Stop:   bash scripts/stop-mockoon.sh
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-MOCK_DATA="${PROJECT_ROOT}/config/mockoon-ontology_ai.json"
-MOCK_PORT="${MOCK_PORT:-3000}"
+MOCK_DIR="${PROJECT_ROOT}/mockoon"
+
+# Per-connector config + port mapping (must match V6 connector base URLs).
+declare -a CONFIGS=(
+  "notion:3001:${MOCK_DIR}/notion.json"
+  "slack:3002:${MOCK_DIR}/slack.json"
+  "jira:3003:${MOCK_DIR}/jira.json"
+  "salesforce:3004:${MOCK_DIR}/salesforce.json"
+)
+
+PIDS_DIR="/tmp/ontologyai-mockoon-pids"
+mkdir -p "$PIDS_DIR"
 
 stop_existing() {
-    if pgrep -f "mockoon-cli.*${MOCK_PORT}" > /dev/null 2>&1; then
-        echo "Stopping existing Mockoon process..."
-        pkill -f "mockoon-cli.*${MOCK_PORT}" || true
-        sleep 2
+    if [ -d "$PIDS_DIR" ] && ls "$PIDS_DIR"/*.pid >/dev/null 2>&1; then
+        echo "Stopping existing Mockoon CLI processes..."
+        for pidfile in "$PIDS_DIR"/*.pid; do
+            [ -f "$pidfile" ] || continue
+            local pid; pid=$(cat "$pidfile" 2>/dev/null || true)
+            if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                kill "$pid" 2>/dev/null || true
+            fi
+            rm -f "$pidfile"
+        done
+        sleep 1
+        pkill -f "mockoon-cli.*--port 300[1-4]" 2>/dev/null || true
+        sleep 1
     fi
 }
 
-start_mockoon() {
-    echo "╔══════════════════════════════════════════════════════════╗"
-    echo "║     SARTHI v1.0 — MOCKOON CLI STARTING                   ║"
-    echo "╚══════════════════════════════════════════════════════════╝"
-    echo ""
-    
-    # Check if mockoon-cli is installed
+check_mockoon_installed() {
     if ! command -v mockoon-cli &> /dev/null; then
-        echo "Installing Mockoon CLI..."
-        npm install -g @mockoon/cli --quiet 2>/dev/null || {
-            echo "❌ Failed to install @mockoon/cli"
-            echo "   Run: npm install -g @mockoon/cli"
-            exit 1
+        echo "mockoon-cli not found; installing @mockoon/cli..."
+        npm install -g @mockoon/cli --quiet || {
+            echo "FAIL: npm install -g @mockoon/cli"; exit 1
         }
     fi
-    
-    # Verify data file exists
-    if [ ! -f "$MOCK_DATA" ]; then
-        echo "❌ Mock data file not found: $MOCK_DATA"
-        exit 1
+}
+
+start_one() {
+    local name="$1" port="$2" datafile="$3"
+    if [ ! -f "$datafile" ]; then
+        echo "FAIL: $datafile missing"; return 1
     fi
-    
-    echo "Starting Mockoon CLI..."
-    echo "  Data file: $MOCK_DATA"
-    echo "  Port:      $MOCK_PORT"
-    echo ""
-    
-    # Start Mockoon in background
+
+    # mockoon-cli: start --data <file> --port <port> --hostname <host> [--cors] [--log-transaction]
     mockoon-cli start \
-      --data "$MOCK_DATA" \
-      --port "$MOCK_PORT" \
-      --hostname "0.0.0.0" \
-      --log-transaction \
-      &
-    
-    MOCKOON_PID=$!
-    echo $MOCKOON_PID > /tmp/sarthi-mockoon.pid
-    
-    # Wait for Mockoon to be ready
-    echo "Waiting for Mockoon to start..."
-    for i in {1..15}; do
-        if curl -sf "http://localhost:${MOCK_PORT}/health" > /dev/null 2>&1; then
-            echo ""
-            echo "✅ Mockoon ready on port ${MOCK_PORT}"
-            echo ""
-            echo "Available endpoints:"
-            echo "  GET  http://localhost:${MOCK_PORT}/health"
-            echo "  POST http://localhost:${MOCK_PORT}/internal/hitl/investigate"
-            echo "  POST http://localhost:${MOCK_PORT}/internal/hitl/dismiss"
-            echo "  POST http://localhost:${MOCK_PORT}/internal/query"
-            echo "  POST http://localhost:${MOCK_PORT}/bot:test-token/sendMessage"
-            echo "  POST http://localhost:${MOCK_PORT}/bot:test-token/sendPhoto"
-            echo ""
-            echo "Process ID: ${MOCKOON_PID}"
-            echo "Log file:   /tmp/mockoon-ontology_ai.log"
+        --data "$datafile" \
+        --port "$port" \
+        --hostname "0.0.0.0" \
+        --log-transaction \
+        > "/tmp/mockoon-${name}.log" 2>&1 &
+    local pid=$!
+    echo "$pid" > "${PIDS_DIR}/${name}.pid"
+    echo "  $name -> :$port (pid $pid)"
+}
+
+healthcheck() {
+    local port="$1"
+    # Every config has at least one GET route; /health is not guaranteed across configs.
+    # Use a tolerant check: any HTTP response (incl. 404) means the server is listening.
+    for i in $(seq 1 15); do
+        local code
+        code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${port}/" 2>/dev/null || echo "000")
+        if [ "$code" != "000" ]; then
             return 0
         fi
         sleep 1
     done
-    
-    echo "❌ Mockoon failed to start within 15 seconds"
-    cat /tmp/mockoon-ontology_ai.log 2>/dev/null || true
     return 1
 }
 
 stop_existing
-start_mockoon
+check_mockoon_installed
 
-# Save log to file
-mockoon-cli start \
-  --data "$MOCK_DATA" \
-  --port "$MOCK_PORT" \
-  --hostname "0.0.0.0" \
-  --log-transaction \
-  > /tmp/mockoon-ontology_ai.log 2>&1 &
-
-echo $! > /tmp/sarthi-mockoon.pid
+echo "╔══════════════════════════════════════════════════════════╗"
+echo "║     OntologyAI V6 — MOCKOON CLI (4 connectors)          ║"
+echo "╚══════════════════════════════════════════════════════════╝"
 echo ""
-echo "✅ Mockoon started (PID: $(cat /tmp/sarthi-mockoon.pid))"
+
+for entry in "${CONFIGS[@]}"; do
+    IFS=':' read -r name port datafile <<< "$entry"
+    start_one "$name" "$port" "$datafile"
+done
+
+echo ""
+echo "Waiting for Mockoon APIs to be ready..."
+FAIL=0
+for entry in "${CONFIGS[@]}"; do
+    IFS=':' read -r name port datafile <<< "$entry"
+    if healthcheck "$port"; then
+        echo "  ✅ $name healthy on :$port"
+    else
+        echo "  ❌ $name NOT healthy on :$port"
+        FAIL=1
+    fi
+done
+
+if [ "$FAIL" -ne 0 ]; then
+    echo ""
+    echo "One or more Mockoon APIs failed to start. Logs:"
+    for f in /tmp/mockoon-*.log; do echo "--- $f"; tail -5 "$f" 2>/dev/null; done
+    exit 1
+fi
+
+echo ""
+echo "✅ All 4 Mockoon APIs healthy on :3001-:3004"
+echo ""
+echo "  notion    -> http://localhost:3001  (/pages)"
+echo "  slack     -> http://localhost:3002  (/conversations.list)"
+echo "  jira      -> http://localhost:3003  (/rest/api/3/search)"
+echo "  salesforce-> http://localhost:3004  (/services/data/v58.0/query)"

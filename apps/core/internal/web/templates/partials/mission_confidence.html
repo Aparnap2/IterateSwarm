@@ -1,0 +1,9 @@
+{{/* Confidence fragment — swapped into the card's confidence target on
+     `confidence-<id>` SSE events. InnerHTML of the target div is replaced. */}}
+<div class="flex items-center justify-between text-[10px] mb-1">
+    <span style="color:var(--text-muted)">Confidence</span>
+    <span class="font-mono tabular-nums" style="color:var(--text)">{{pct .Card.Confidence}}%</span>
+</div>
+<div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.06)">
+    <div class="h-full rounded-full transition-all duration-500" style="width:{{pct .Card.Confidence}}%;background:var(--accent-blue);box-shadow:0 0 8px rgba(125,211,252,0.4)"></div>
+</div>

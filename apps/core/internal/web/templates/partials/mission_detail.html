@@ -1,0 +1,102 @@
+{{/* Mission Detail — drill-in view for a single mission. Rendered by
+     /api/missions/:id; refreshes after actions and polls every 10s so new
+     timeline activity appears. */}}
+<div class="fade-in">
+    <div class="flex items-start justify-between gap-2 mb-3">
+        <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="status-dot {{statusClass .Mission.Status}}"></span>
+                <h3 class="font-semibold text-sm md:text-base truncate" style="color:var(--text)">{{.Mission.Name}}</h3>
+            </div>
+            <p class="text-xs truncate" style="color:var(--text-secondary)">{{.Mission.Directive}}</p>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 {{statusPill .Mission.Status}}">{{statusLabel .Mission.Status}}</span>
+    </div>
+
+    {{/* Overview */}}
+    <div class="grid grid-cols-2 gap-2 mb-3">
+        <div class="rounded-lg p-2.5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)">
+            <div class="text-[10px]" style="color:var(--text-muted)">Owner</div>
+            <div class="text-xs font-medium truncate" style="color:var(--text)">{{.Mission.Owner}}</div>
+        </div>
+        <div class="rounded-lg p-2.5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)">
+            <div class="text-[10px]" style="color:var(--text-muted)">Handled by</div>
+            <div class="text-xs font-medium truncate" style="color:var(--text)">{{workerLabel .Mission.Worker}}</div>
+        </div>
+        <div class="rounded-lg p-2.5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)">
+            <div class="text-[10px]" style="color:var(--text-muted)">Priority</div>
+            <div class="text-xs font-medium capitalize truncate" style="color:var(--text)">{{.Mission.Priority}}</div>
+        </div>
+        <div class="rounded-lg p-2.5" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)">
+            <div class="text-[10px]" style="color:var(--text-muted)">Epoch</div>
+            <div class="text-xs font-mono font-medium" style="color:var(--text)">{{.Mission.Epoch}}</div>
+        </div>
+    </div>
+
+    {{/* Confidence */}}
+    <div class="mb-3">
+        <div class="flex items-center justify-between text-[10px] mb-1">
+            <span class="uppercase tracking-wide" style="color:var(--text-muted)">Confidence</span>
+            <span class="font-mono tabular-nums" style="color:var(--text)">{{pct .Mission.Confidence}}%</span>
+        </div>
+        <div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.06)">
+            <div class="h-full rounded-full transition-all duration-500" style="width:{{pct .Mission.Confidence}}%;background:var(--accent-blue);box-shadow:0 0 8px rgba(125,211,252,0.4)"></div>
+        </div>
+    </div>
+
+    {{/* Evidence */}}
+    <div class="mb-3">
+        <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] uppercase tracking-wide" style="color:var(--text-muted)">Evidence</span>
+            <span class="text-[10px] font-mono" style="color:var(--text)">{{.Mission.EvidenceCount}} items</span>
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap">
+            {{range sequence .Mission.EvidenceCount}}
+            <span class="w-2 h-2 rounded-full" style="background:var(--accent-blue);box-shadow:0 0 4px rgba(125,211,252,0.4)"></span>
+            {{end}}
+            {{if lt .Mission.EvidenceCount 1}}
+            <span class="text-[11px]" style="color:var(--text-muted)">No evidence collected yet</span>
+            {{end}}
+        </div>
+    </div>
+
+    {{/* Actions */}}
+    <div class="mb-3">
+        <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] uppercase tracking-wide" style="color:var(--text-muted)">Actions</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button class="btn btn-approve" hx-post="/api/missions/{{.Mission.MissionID}}/event" hx-swap="none"
+                hx-vals='{"type":"mission_escalated","status":"executing","summary":"Escalated for immediate attention"}'>Escalate</button>
+            <button class="btn btn-hold" hx-post="/api/missions/{{.Mission.MissionID}}/event" hx-swap="none"
+                hx-vals='{"type":"mission_replanned","status":"replanning","summary":"Replan requested"}'>Replan</button>
+            <button class="btn btn-primary" hx-post="/api/missions/{{.Mission.MissionID}}/event" hx-swap="none"
+                hx-vals='{"type":"new_evidence","evidence_count":13,"summary":"New evidence applied to this mission"}'>Add evidence</button>
+        </div>
+    </div>
+
+    {{/* Timeline / Activity */}}
+    <div class="mb-1">
+        <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] uppercase tracking-wide" style="color:var(--text-muted)">Activity</span>
+            <span class="text-[10px]" style="color:var(--text-muted)">{{len .Timeline}} events</span>
+        </div>
+        {{if .Timeline}}
+        <div class="space-y-0.5 max-h-[280px] overflow-y-auto">
+        {{range .Timeline}}
+            <div class="flex items-start gap-2 py-2 px-2 rounded-lg transition-colors hover:bg-white/[0.02]" style="border-bottom:1px solid rgba(255,255,255,0.04)">
+                <span class="text-[10px] font-mono flex-shrink-0 w-10 pt-0.5" style="color:var(--text-muted)">{{shortTime .At}}</span>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs font-medium" style="color:var(--text)">{{.Summary}}</div>
+                    <div class="text-[10px] font-mono mt-0.5 truncate" style="color:var(--text-muted)">{{.EventType}}</div>
+                </div>
+            </div>
+        {{end}}
+        </div>
+        {{else}}
+        <div class="text-xs py-6 text-center" style="color:var(--text-muted)">
+            No activity yet — actions taken on this mission appear here
+        </div>
+        {{end}}
+    </div>
+</div>

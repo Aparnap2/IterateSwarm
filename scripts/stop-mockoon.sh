@@ -1,26 +1,36 @@
 #!/usr/bin/env bash
-# Stop Mockoon CLI for OntologyAI v1.0
-# Usage: bash scripts/stop-mockoon.sh
-
+# Stop Mockoon CLI for OntologyAI V6 (all 4 connectors on :3001-3004).
+# Usage:  bash scripts/stop-mockoon.sh
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PIDS_DIR="/tmp/ontologyai-mockoon-pids"
 
 echo "Stopping Mockoon CLI..."
 
-if [ -f /tmp/sarthi-mockoon.pid ]; then
-    PID=$(cat /tmp/sarthi-mockoon.pid)
-    if kill -0 "$PID" 2>/dev/null; then
-        kill "$PID"
-        echo "✅ Mockoon stopped (PID: ${PID})"
-        rm /tmp/sarthi-mockoon.pid
-    else
-        echo "⚠️  Mockoon process not running (stale PID file)"
-        rm /tmp/sarthi-mockoon.pid
-    fi
-else
-    # Fallback: kill by process name
-    if pkill -f "mockoon-cli.*3000" > /dev/null 2>&1; then
-        echo "✅ Mockoon stopped"
-    else
-        echo "ℹ️  No Mockoon process found"
-    fi
+stopped=0
+if [ -d "$PIDS_DIR" ] && ls "$PIDS_DIR"/*.pid >/dev/null 2>&1; then
+    for pidfile in "$PIDS_DIR"/*.pid; do
+        [ -f "$pidfile" ] || continue
+        local_pid=$(cat "$pidfile" 2>/dev/null || true)
+        if [ -n "$local_pid" ] && kill -0 "$local_pid" 2>/dev/null; then
+            kill "$local_pid" 2>/dev/null || true
+            echo "  ✅ stopped pid $local_pid ($(basename "$pidfile" .pid))"
+            stopped=$((stopped + 1))
+        fi
+        rm -f "$pidfile"
+    done
 fi
+
+# Fallback: kill any lingering mockoon-cli on the V6 ports.
+pkill -f "mockoon-cli.*--port 300[1-4]" 2>/dev/null && stopped=$((stopped + 1)) || true
+sleep 1
+
+if [ "$stopped" -gt 0 ]; then
+    echo ""
+    echo "✅ Mockoon stopped ($stopped process(es))."
+else
+    echo "ℹ️  No Mockoon process found."
+fi
+rm -rf "$PIDS_DIR"

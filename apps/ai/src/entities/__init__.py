@@ -1,0 +1,63 @@
+"""V6 OntologyAI entity models.
+
+All 24 canonical entity types plus the ``Provenance`` nested model used
+by ``EvidenceRecord``.
+"""
+
+from src.entities.models import (
+    Artifact,
+    ArtifactVersion,
+    Assumption,
+    AuditEvent,
+    BusinessRule,
+    Capability,
+    Conflict,
+    Constraint,
+    Decision,
+    EvidenceRecord,
+    FeasibilityScore,
+    KPI,
+    Option,
+    OrgUnit,
+    OntologyBaseModel,
+    Process,
+    Project,
+    Provenance,
+    Requirement,
+    Risk,
+    Source,
+    Stakeholder,
+    System,
+    TradeOff,
+    ValidationResult,
+    Workspace,
+)
+
+__all__ = [
+    "Artifact",
+    "ArtifactVersion",
+    "Assumption",
+    "AuditEvent",
+    "BusinessRule",
+    "Capability",
+    "Conflict",
+    "Constraint",
+    "Decision",
+    "EvidenceRecord",
+    "FeasibilityScore",
+    "KPI",
+    "Option",
+    "OrgUnit",
+    "OntologyBaseModel",
+    "Process",
+    "Project",
+    "Provenance",
+    "Requirement",
+    "Risk",
+    "Source",
+    "Stakeholder",
+    "System",
+    "TradeOff",
+    "ValidationResult",
+    "Workspace",
+]

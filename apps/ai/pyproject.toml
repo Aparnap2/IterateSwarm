@@ -56,6 +56,18 @@ dependencies = [
     "ollama>=0.6.2",
     "google-genai>=2.2.0",
     "hubspot-api-client",
+    "pytest>=8.0.0",
+    # V6 OntologyAI — Graph Database
+    "neo4j>=5.23.0",
+    # V6 Connectors — 4 MVP
+    "notion-client>=2.3.0",
+    "slack-sdk>=3.33.0",
+    "jira>=3.8.0",
+    "simple-salesforce>=1.12.0",
+    # V6 Artifact DSL
+    "Jinja2>=3.1.0",
+    # V6 Entity Validation
+    "ulid-py>=1.1.0",
 ]
 
 [project.optional-dependencies]
@@ -74,6 +86,9 @@ dev = [
 asyncio_mode = "auto"
 testpaths = ["tests"]
 addopts = ["-v", "--timeout=30"]
+markers = [
+    "integration: tests that require external services (Qdrant, etc.)",
+]
 
 [tool.pytest_env]
 # Enable running tests without Temporal connection
@@ -87,4 +102,5 @@ include = ["src*"]
 dev = [
     "langfuse>=4.6.1",
     "mypy>=1.19.1",
+    "pytest>=9.0.2",
 ]
