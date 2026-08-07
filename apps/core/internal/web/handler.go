@@ -19,7 +19,7 @@ var templatesFS embed.FS
 
 // Render renders a template with data
 func Render(c *fiber.Ctx, name string, data interface{}) error {
-	tmpl := template.New(name).Funcs(template.FuncMap{
+	funcs := template.FuncMap{
 		"upper": strings.ToUpper,
 		"sub": func(a, b int) int {
 			return a - b
@@ -60,7 +60,14 @@ func Render(c *fiber.Ctx, name string, data interface{}) error {
 				return strings.Title(sender)
 			}
 		},
-	})
+	}
+	// Merge the mission workspace template helpers (statusLabel, statusPill,
+	// pct, timeAgo, workerLabel, sequence, shortTime) so the Mission Dashboard
+	// and Mission Detail partials can use them through the shared Render path.
+	for k, v := range missionTemplateFuncs {
+		funcs[k] = v
+	}
+	tmpl := template.New(name).Funcs(funcs)
 	content, err := templatesFS.ReadFile("templates/" + name + ".html")
 	if err != nil {
 		return fmt.Errorf("failed to read template %s: %w", name, err)
@@ -82,6 +89,7 @@ type Handler struct {
 	wg            sync.WaitGroup
 	sseHub        *SSEHub
 	creds         *CredentialStore
+	missions      *MissionStore
 
 	// Data providers (default implementations used when a field is nil)
 	timeline     TimelineProvider
@@ -122,6 +130,7 @@ func NewHandler(db *sql.DB, temporalClient *temporal.Client, providerBundles ...
 		temporal:      temporalClient,
 		sseHub:        NewSSEHub(),
 		creds:         NewCredentialStore(),
+		missions:      NewMissionStore(),
 	}
 
 	// Wire providers — use DefaultProviders as fallback for any nil field
@@ -241,6 +250,9 @@ func (h *Handler) RegisterRoutes(app *fiber.App) {
 	// Chat panel partial — loads the chat HTML with HTMX SSE extension
 	// ── V5.2 Workspace Routes (gated by workspace_mode) ──
 	h.RegisterWorkspaceRoutes(app)
+
+	// ── Milestone 1.5 Mission Workspace Routes ──
+	h.RegisterMissionRoutes(app)
 
 	app.Get("/api/command/chat", func(c *fiber.Ctx) error {
 		type ChatMsg struct {

@@ -545,6 +545,10 @@ func (h *Handler) RegisterWorkspaceRoutes(app *fiber.App) {
 
 	// Live SSE
 	app.Get("/api/workspace/events", h.APIWorkspaceEvents)
+
+	// Workspace Schema (typed JSON contract from Python Decision Runtime)
+	app.Get("/api/workspace/schema", APIWorkspaceSchema)
+	app.Get("/api/workspace/render", APIWorkspaceRender)
 }
 
 // ensure strings import is used (defensive for future palette helpers)

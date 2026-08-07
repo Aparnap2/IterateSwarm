@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.2.1/dist/htmx-ext-sse.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-surface: #0f1117;
+            --bg-card: #1a1d27;
+            --bg-card-hover: #222637;
+            --border: #2a2e3a;
+            --text: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --text-muted: #6b7280;
+            --accent-blue: #7dd3fc;
+            --accent-green: #34d399;
+            --accent-yellow: #fbbf24;
+            --accent-red: #f87171;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--bg-surface);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .card:hover {
+            border-color: rgba(255,255,255,0.1);
+            box-shadow: 0 0 20px rgba(125,211,252,0.04);
+        }
+        .glow-accent { box-shadow: 0 0 20px rgba(125,211,252,0.06); }
+        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .status-dot.connected { background: var(--accent-green); box-shadow: 0 0 8px rgba(52,211,153,0.5); }
+        .status-dot.disconnected { background: var(--accent-red); box-shadow: 0 0 8px rgba(248,113,113,0.5); }
+        .status-dot.connecting { background: var(--accent-yellow); animation: dot-pulse 1.5s ease-in-out infinite; }
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 0.4; box-shadow: none; }
+            50% { opacity: 1; box-shadow: 0 0 8px rgba(251,191,36,0.5); }
+        }
+        .agent-pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        .agent-sarthi { background: rgba(125,211,252,0.15); color: var(--accent-blue); }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+            padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 500;
+            transition: all 0.15s ease; cursor: pointer; border: none;
+        }
+        .btn-primary { background: rgba(125,211,252,0.15); color: var(--accent-blue); border: 1px solid rgba(125,211,252,0.2); }
+        .btn-primary:hover { background: rgba(125,211,252,0.25); border-color: rgba(125,211,252,0.35); }
+        .btn-approve { background: rgba(52,211,153,0.15); color: var(--accent-green); border: 1px solid rgba(52,211,153,0.2); }
+        .btn-approve:hover { background: rgba(52,211,153,0.25); border-color: rgba(52,211,153,0.35); }
+        .btn-hold { background: rgba(251,191,36,0.15); color: var(--accent-yellow); border: 1px solid rgba(251,191,36,0.2); }
+        .btn-hold:hover { background: rgba(251,191,36,0.25); border-color: rgba(251,191,36,0.35); }
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+            border-radius: 0.375rem;
+        }
+        @keyframes skeleton-pulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .tooltip-trigger { display: inline-flex; align-items: center; position: relative; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        @media (max-width: 768px) {
+            .btn, button, [role="button"] { min-height: 44px; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-[1400px] mx-auto px-3 md:px-4 py-4">
+
+    <header class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl grid place-items-center font-bold text-base md:text-lg glow-accent" style="background:rgba(125,211,252,0.12);color:var(--accent-blue)">S</div>
+            <div>
+                <h1 class="text-base md:text-xl font-bold tracking-tight">Mission Workspace</h1>
+                <p class="text-[10px] md:text-xs" style="color:var(--text-muted)">Adaptive workspace driven by the Mission Orchestrator</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="/missions" class="btn btn-primary" style="text-decoration:none">Dashboard</a>
+            <span id="live-clock" class="font-mono text-[11px]" style="color:var(--text-secondary)"></span>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
+        <div class="lg:col-span-2" id="mission-dashboard"
+             hx-get="/api/missions/dashboard"
+             hx-trigger="load"
+             hx-swap="innerHTML">
+            <div class="card p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-sm md:text-base">Mission Dashboard</h3>
+                    <span class="text-[10px] md:text-xs" style="color:var(--text-muted)">Loading…</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="skeleton h-24 w-full"></div>
+                    <div class="skeleton h-24 w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1" id="mission-detail"
+             {{if .Active}}hx-get="/api/missions/{{.Active}}"{{end}}
+             hx-trigger="load, every 10s"
+             hx-swap="innerHTML">
+            {{if .Active}}
+            <div class="card p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-sm md:text-base">Mission Detail</h3>
+                    <span class="text-[10px] md:text-xs" style="color:var(--text-muted)">Loading…</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="skeleton h-8 w-full"></div>
+                    <div class="skeleton h-20 w-full"></div>
+                    <div class="skeleton h-20 w-full"></div>
+                </div>
+            </div>
+            {{else}}
+            <div class="card p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <h3 class="font-semibold text-sm md:text-base">Mission Detail</h3>
+                </div>
+                <p class="text-xs" style="color:var(--text-muted)">
+                    Select a mission card from the dashboard to open its detail view — overview, evidence, confidence, actions, and activity timeline.
+                </p>
+            </div>
+            {{end}}
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    'use strict';
+    function updateClock() {
+        const el = document.getElementById('live-clock');
+        if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+})();
+</script>
+</body>
+</html>
