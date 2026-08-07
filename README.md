@@ -429,11 +429,32 @@ apps/
         feasibility_workflow.py
         artifact_workflow.py
         governance_workflow.py
-      session/                  # Engagement and workspace state
-      memory/                   # Graphiti, Qdrant, spine
+      mission/                  # V4.2+ — mission state, decision engine, timeline
+        storage.py              # MissionStateStore (asyncpg, Go-mirrored DDL)
+        timeline.py             # Frozen MissionEventType + MissionTimeline + MissionSnapshotStore (diff)
+        decision.py             # MissionDecisionEngine (real LLM via src/config/llm.py)
+        runtime.py              # MissionRuntime + KPI writeback
+      observability/            # Hardening — typed E2E trace/correlation propagation
+        trace_context.py        # TraceContext (trace_id / correlation_id / tenant_id), contextvars
+        pipeline.py             # PipelineRun + run_stage (retry, latency, status)
+      workspace/                # Mission / Decision workspace schema
+      policy/                   # Governed policy runtime
+      goal/                     # Goal runtime + models
+      evaluation/               # Evaluation runtime
+      session/                  # Engagement and session-state
+      memory/                   # Knowledge graph, Qdrant, spine
       services/                 # Evidence layer, trust battery
       worker.py                 # Temporal worker registration
-    tests/                      # Pytest test suite
+    tests/
+      integration/              # Live infra suites (skip when DB/LLM absent)
+        test_mission_live_infra.py       # Postgres + real LLM (8 passing)
+        hardening/                       # E2E observability (live Postgres + Groq)
+          test_pipeline_e2e.py
+      test_mission_timeline.py   # Deterministic timeline/diff unit tests
+scripts/
+  hardening/                    # Chaos smoke + resource-limit documentation
+    chaos_smoke.sh              # Restart postgres+temporal, assert recovery
+    README.md
 ```
 
 ---
@@ -480,6 +501,11 @@ cd apps/ai && uv run pytest tests/test_pipeline/ -v
 cd apps/ai && uv run pytest tests/test_connectors/ -v
 cd apps/ai && uv run pytest tests/test_feasibility/ -v
 cd apps/ai && uv run pytest tests/test_validation/ -v
+
+# Python — hardening + live-infra suites (need Postgres up + GROQ_API_KEY)
+cd apps/ai && set -a && . ../../.env && set +a && \
+  uv run pytest tests/integration/hardening/test_pipeline_e2e.py -q -p no:cacheprovider
+cd apps/ai && uv run pytest tests/integration/test_mission_live_infra.py -q -p no:cacheprovider
 ```
 
 ### Environment variables
@@ -494,6 +520,7 @@ cd apps/ai && uv run pytest tests/test_validation/ -v
 | Control | Variable | Default |
 |---------|----------|---------|
 | Temporal task queue | `ONTOLOGYAI-MAIN-QUEUE` | `TRACKGUARD-MAIN-QUEUE` |
+| Live Postgres DSN | `ITERATESWARM_DATABASE_URL` | `postgresql://iterateswarm:iterateswarm@localhost:5433/iterateswarm` |
 
 Secrets live in a local `.env` file (never committed).
 
@@ -517,6 +544,23 @@ V6 measures success across **12 evaluation dimensions**:
 | **Stakeholder Usefulness** | NPS or satisfaction score from workspace consumers |
 | **Regeneration Correctness** | % of regenerated artifacts that match prior versions |
 | **Freshness** | Age of evidence underpinning published artifacts |
+
+---
+
+## Production Hardening (Sprints A–L)
+
+**Operating rule:** *No new business features until every stage is observable, typed, replayable, testable, recoverable.* The hardening sprints add operational qualities without new capabilities.
+
+| Sprint | Delivered |
+|--------|-----------|
+| **A — E2E Observability** | `src/observability/` — typed `TraceContext` (trace_id/correlation_id/tenant_id) + `PipelineRun`/`run_stage` (retry, latency, status). `tests/integration/hardening/test_pipeline_e2e.py` proves one event carries the ids through connector-event → evidence → mission → decision (real Groq) → snapshot → timeline, with idempotent de-duplication on re-delivery (2/2 passing against live Postgres + real LLM). |
+| **Timeline & Versioning** | `src/mission/timeline.py` — frozen `MissionEventType` verbs, append-only per-entity `timeline_events` (`UNIQUE (entity_type, entity_id, version)`), `mission_snapshots` (`UNIQUE (mission_id, version)`), and `MissionSnapshotStore.diff` (yesterday-vs-today, `confidence_delta`). |
+| **Mission Decisioning** | `src/mission/decision.py` — `MissionDecisionEngine` calls only through `src/config/llm.py` (`json_mode=True`), defensive JSON parsing, safe confidence clamping. |
+| **G — Lightweight Metrics** | **VictoriaMetrics** (single binary, Prometheus-compatible) added to `docker-compose.yml`. **No Prometheus / Grafana.** |
+| **J — Resource Limits** | Hard `deploy.resources.limits` on every service: neo4j 4G/2cpu, redpanda 2G/1cpu, temporal 1G/1cpu, postgres 512M/1cpu, qdrant 512M/1cpu, victoriametrics 256M/0.5cpu. |
+| **Chaos Smoke** | `scripts/hardening/chaos_smoke.sh` — restarts PostgreSQL + Temporal, waits up to 90s for `healthy`, exits non-zero on failure. |
+
+**Infra discipline (dev):** one container at a time — stop all others before testing a specific service; test, then stop. All containers use tight CPU/memory limits.
 
 ---
 
@@ -547,6 +591,7 @@ V6 measures success across **12 evaluation dimensions**:
 | **Temporal Tests** | Replay, pause/resume, retries, signals, updates, continue-as-new |
 | **Adversarial Tests** | Conflicting sources, missing fields, duplicates, stale data, prompt injection, malformed files, inconsistent numbers |
 | **End-to-End Tests** | Executive Brief → PRD → Architecture → RTM → Delivery Plan → Measurement Pack |
+| **Hardening Tests** | E2E observability (live Postgres + Groq), mission timeline/diff unit suites, Postgres live-infra suite (8 passing) |
 | **Go Build** | ✅ Clean |
 | **Python Unit Tests** | ✅ Baseline + V6 suites |
 
