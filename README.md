@@ -4,7 +4,7 @@
 <img width="200" height="200" alt="ki-logo-1784785049927" src="https://github.com/user-attachments/assets/dbcd807b-06f5-4fc8-a8f8-f33a429b1951" />
 </p>
 
-> **Convert fragmented enterprise evidence into a living Enterprise Knowledge Model and stakeholder-specific Decision Workspaces.** OntologyAI V6 ingests evidence from connected systems, builds a canonical knowledge graph, detects conflicts, scores feasibility, and projects decision-ready artifacts for every stakeholder — CEO to engineer — without autonomous side effects.
+> **OntologyAI builds a live Ontology of a small business from its existing tools, and lets AI specialists query and act on it — with every consequential action gated by human approval.** In V6 this becomes a living Enterprise Knowledge Model + stakeholder-specific Decision Workspaces, powered by observability-hardened mission pipelines.
 
 [![Build](https://img.shields.io/badge/build-clean-brightgreen)](#getting-started)
 [![Tests](https://img.shields.io/badge/tests-V6%20Decision%20Intelligence-blue)](#test-coverage)
