@@ -4,7 +4,7 @@
   "name": "OntologyAI Demo — Slack + Webhook Mock",
   "endpointPrefix": "",
   "latency": 0,
-  "port": 3001,
+  "port": 3010,
   "hostname": "0.0.0.0",
   "routes": [
     {
