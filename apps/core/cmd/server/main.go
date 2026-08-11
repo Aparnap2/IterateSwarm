@@ -189,6 +189,9 @@ func main() {
 	webHandler.RegisterRoutes(app)
 	webHandler.RegisterAdminRoutes(app)
 
+	// V6 routes (OntologyAI Virtual COO Office) — registry + Founder Workspace
+	webHandler.RegisterV6Routes(app)
+
 	// Founder Dashboard routes
 	if pool != nil {
 		founderDashboardHandler := web.NewFounderDashboardHandler(pool)
