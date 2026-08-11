@@ -425,7 +425,7 @@ async def handle_slack_message(
 
 # ── Demo delivery (Mockoon + capture sidecar) ────────────────────
 
-SLACK_DELIVERY_URL = os.environ.get("SLACK_DELIVERY_URL", "http://localhost:3001/slack/deliver")
+SLACK_DELIVERY_URL = os.environ.get("SLACK_DELIVERY_URL", "http://localhost:3010/slack/deliver")
 _CAPTURE_URL = "http://localhost:3002"
 
 

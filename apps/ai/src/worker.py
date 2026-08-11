@@ -21,6 +21,7 @@ from temporalio.client import Client
 from temporalio.worker import Worker
 
 from src.orchestration.queue import ONTOLOGYAI_MAIN_QUEUE, resolve_task_queue
+from src.integrations import legacy_integrations_enabled
 
 # ── V5.2 canonical workflow imports (always importable) ─────────────────
 from src.workflows.chief_of_staff_workflow import ChiefOfStaffWorkflow
@@ -37,6 +38,22 @@ from src.activities.compile_n8n_workflow import compile_n8n_workflow
 from src.activities.memory_maintenance import decay_memory_weights, expire_old_memories, optimize_memory_performance
 
 log = logging.getLogger("ontology_ai.worker")
+
+# ── Legacy V5.2 integration gate ─────────────────────────────────────
+# The V6 worker path must NOT import the 5 legacy V5.2 integrations
+# (stripe, plaid, erpnext, hubspot, quickbooks) by default. They are gated
+# behind LEGACY_INTEGRATIONS=1 and emit a deprecation warning when enabled.
+if legacy_integrations_enabled():
+    log.warning(
+        "DEPRECATION: legacy V5.2 integrations (stripe, plaid, erpnext, hubspot, quickbooks) "
+        "enabled via LEGACY_INTEGRATIONS=1. The V6 worker path runs without them by default."
+    )
+else:
+    log.info(
+        "V6 worker path running WITHOUT legacy V5.2 integrations "
+        "(stripe, plaid, erpnext, hubspot, quickbooks). "
+        "Set LEGACY_INTEGRATIONS=1 to re-enable."
+    )
 
 TEMPORAL_HOST = os.getenv("TEMPORAL_HOST", "localhost:7233")
 TASK_QUEUE = resolve_task_queue()

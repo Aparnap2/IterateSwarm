@@ -1,0 +1,82 @@
+# V6 Milestone #3 — Canonical Missions (minimal set).
+#
+# A mission is a business objective assigned to exactly one employee whose
+# ``mission_types`` allowlist admits it. The mission's default skill plan must
+# be a subset of the owning employee's skill allowlist. Milestone #3 ships the
+# config plumbing plus this minimal set; the full canonical 10 land in #4.
+#
+# Env-template pattern: ${VAR} placeholders are expanded at load time from the
+# environment (see src/mission/mission_config.py).
+
+missions:
+  - id: m-pipeline-health-01
+    title: "Pipeline health monitor"
+    description: "Assess the revenue pipeline, flag at-risk deals, and summarize health for the founder."
+    employee_role: revops
+    mission_type: pipeline_health_monitor
+    priority: high
+    kpi_ids: [pipeline_coverage, forecast_accuracy]
+    skill_plan: [pipeline_health, revenue_kpi_analysis]
+
+  - id: m-crm-hygiene-01
+    title: "CRM hygiene audit"
+    description: "Audit CRM records for staleness and correct the data that is safe to fix."
+    employee_role: revops
+    mission_type: crm_hygiene_audit
+    priority: medium
+    kpi_ids: [pipeline_coverage]
+    skill_plan: [crm_hygiene]
+
+  - id: m-revenue-kpi-01
+    title: "Revenue KPI review"
+    description: "Review revenue KPIs against targets and surface the biggest forecast deltas."
+    employee_role: revops
+    mission_type: revenue_kpi_review
+    priority: medium
+    kpi_ids: [deal_velocity, forecast_accuracy]
+    skill_plan: [revenue_kpi_analysis]
+
+  - id: m-blocked-work-01
+    title: "Blocked work review"
+    description: "Investigate blocked engineering work, identify the blocker, and recommend an unblock."
+    employee_role: productops
+    mission_type: blocked_work_review
+    priority: urgent
+    kpi_ids: [cycle_time, delivery_confidence]
+    skill_plan: [blocked_work_investigation, delivery_risk_analysis]
+
+  - id: m-sprint-health-01
+    title: "Sprint health review"
+    description: "Score sprint and roadmap health from Jira and flag delivery risk."
+    employee_role: productops
+    mission_type: sprint_health_review
+    priority: medium
+    kpi_ids: [sprint_velocity, delivery_confidence]
+    skill_plan: [sprint_health, roadmap_health]
+
+  - id: m-process-adherence-01
+    title: "Process adherence audit"
+    description: "Check that teams follow documented processes and sync docs where they drift."
+    employee_role: productops
+    mission_type: process_adherence_audit
+    priority: low
+    kpi_ids: [cycle_time]
+    skill_plan: [process_adherence, documentation_sync]
+
+  - id: m-decision-capture-01
+    title: "Decision capture review"
+    description: "Capture decisions from conversations into the knowledge base before they evaporate."
+    employee_role: orgint
+    mission_type: decision_capture_review
+    priority: high
+    kpi_ids: [decision_coverage]
+    skill_plan: [decision_capture]
+
+  - id: m-knowledge-gap-01
+    title: "Knowledge gap audit"
+    description: "Detect knowledge gaps and produce an organizational brief for the founder."
+    employee_role: orgint
+    mission_type: knowledge_gap_audit
+    priority: medium
+    kpi_ids: [knowledge_gap_index, sop_freshness]
+    skill_plan: [knowledge_gap_detection, organizational_brief]

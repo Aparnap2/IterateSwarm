@@ -1,0 +1,340 @@
+"""Capability Op Registry — the 10 frozen deterministic ops over 4 connectors.
+
+Employees never call connectors directly. They reach external systems ONLY
+through :class:`CapabilityOpRegistry` ops, which wrap the existing capability
+layer (``src/mission/capability.py`` → ``src/connectors``).
+
+The 10 ops are the frozen union of the three employee capability allowlists.
+The 5 write ops are routed through ``@governed_write`` (ontology governance)
+so every mutation is HITL-gated and auditable.
+"""
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from typing import Any, Callable
+
+from src.connectors.base import ConnectorConfig
+from src.mission.capability import CapabilityRegistry
+from src.ontology.governance import governed_write
+
+logger = logging.getLogger(__name__)
+
+
+class CapabilityOpError(Exception):
+    """Base error for the capability op layer."""
+
+
+class UnknownCapabilityOpError(CapabilityOpError):
+    """Raised when an op name is not registered."""
+
+
+class CapabilityNotAllowedError(CapabilityOpError):
+    """Raised when a role's capability allowlist does not admit an op."""
+
+
+def _config_for(tenant_id: str) -> ConnectorConfig:
+    """Build the connector config for a tenant (mock_mode for unconfigured envs)."""
+    return ConnectorConfig(tenant_id=tenant_id, mock_mode=True)
+
+
+def _resolve_capability(capability: str, config: ConnectorConfig) -> Any:
+    """Resolve a capability instance from the existing capability layer.
+
+    Falls back to an in-memory connector when no real connector is registered
+    for the capability (the connector registry only ships erp/accounting/
+    crm_mock/erp_mock). This keeps every op deterministic in unconfigured
+    environments and in tests; tests monkeypatch this seam to assert the
+    exact connector method each op wraps.
+    """
+    try:
+        return CapabilityRegistry.get_capability(capability, config)
+    except KeyError:
+        return _InMemoryCapability(capability, config)
+
+
+class _InMemoryCapability:
+    """Deterministic in-memory fallback capability (no network, no config).
+
+    Mirrors the method surface of the capability layer so every op stays
+    executable when no real connector is registered.
+    """
+
+    def __init__(self, capability: str, config: ConnectorConfig) -> None:
+        self.capability = capability
+        self.tenant_id = config.tenant_id
+
+    def get_customers(self) -> list[dict[str, Any]]:
+        return []
+
+    def get_deals(self) -> list[dict[str, Any]]:
+        return []
+
+    def update_deal(self, deal_id: str, fields: dict[str, Any]) -> dict[str, Any]:
+        return {"id": deal_id, **fields}
+
+    def get_messages(self, channel: str, **filters: Any) -> list[dict[str, Any]]:
+        return []
+
+    def send_message(self, channel: str, text: str) -> dict[str, Any]:
+        return {"ok": True, "channel": channel}
+
+    def get_issues(self, **filters: Any) -> list[dict[str, Any]]:
+        return []
+
+    def create_issue(self, data: dict[str, Any]) -> str:
+        return "X-1"
+
+    def update_issue(self, issue_id: str, fields: dict[str, Any]) -> dict[str, Any]:
+        return {"id": issue_id, **fields}
+
+    def get_pages(self, **filters: Any) -> list[dict[str, Any]]:
+        return []
+
+    def update_page(self, page_id: str, data: dict[str, Any]) -> dict[str, Any]:
+        return {"id": page_id, **data}
+
+
+@dataclass(frozen=True)
+class CapabilityOp:
+    """A frozen, deterministic op over a single capability method."""
+
+    name: str
+    capability: str
+    method: str
+    kind: str
+    connector_capability: str
+    governed: bool
+    execute: Callable[[dict[str, Any], str], dict[str, Any]]
+
+
+# ── Governed write closures (decorated so every mutation is HITL-gated) ────
+
+
+@governed_write(object_type="Opportunity", property_name="stage", requested_by="EmployeeRuntime")
+def _execute_salesforce_update(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
+    cap = _resolve_capability("crm", _config_for(tenant_id))
+    data = cap.update_deal(params.get("record_id", ""), params.get("fields", {}))
+    return {"op": "salesforce.update", "ok": True, "data": data}
+
+
+@governed_write(object_type="Message", property_name="text", requested_by="EmployeeRuntime")
+def _execute_slack_send(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
+    cap = _resolve_capability("messaging", _config_for(tenant_id))
+    data = cap.send_message(params.get("channel", ""), params.get("text", ""))
+    return {"op": "slack.send", "ok": True, "data": data}
+
+
+@governed_write(object_type="Issue", property_name="summary", requested_by="EmployeeRuntime")
+def _execute_jira_create(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
+    cap = _resolve_capability("project", _config_for(tenant_id))
+    data = cap.create_issue(
+        {
+            "project": params.get("project", ""),
+            "summary": params.get("summary", ""),
+            "description": params.get("description", ""),
+            "issue_type": params.get("issue_type", "Task"),
+        }
+    )
+    return {"op": "jira.create", "ok": True, "data": data}
+
+
+@governed_write(object_type="Issue", property_name="summary", requested_by="EmployeeRuntime")
+def _execute_jira_update(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
+    cap = _resolve_capability("project", _config_for(tenant_id))
+    data = cap.update_issue(params.get("issue_id", ""), params.get("fields", {}))
+    return {"op": "jira.update", "ok": True, "data": data}
+
+
+@governed_write(object_type="SOP", property_name="content", requested_by="EmployeeRuntime")
+def _execute_notion_update(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
+    cap = _resolve_capability("knowledge", _config_for(tenant_id))
+    data = cap.update_page(params.get("page_id", ""), params.get("data", {}))
+    return {"op": "notion.update", "ok": True, "data": data}
+
+
+def _build_ops() -> list[CapabilityOp]:
+    """Build the frozen 10-op set (5 read/search + 5 governed writes)."""
+
+    def _read_op(
+        name: str,
+        capability: str,
+        method: str,
+        connector_capability: str,
+        fn: Callable[[Any, dict[str, Any]], Any],
+    ) -> CapabilityOp:
+        def execute(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
+            cap = _resolve_capability(capability, _config_for(tenant_id))
+            data = fn(cap, params)
+            return {"op": name, "ok": True, "data": data}
+
+        return CapabilityOp(
+            name=name,
+            capability=capability,
+            method=method,
+            kind="read",
+            connector_capability=connector_capability,
+            governed=False,
+            execute=execute,
+        )
+
+    def _search_op(
+        name: str,
+        capability: str,
+        method: str,
+        connector_capability: str,
+        fn: Callable[[Any, dict[str, Any]], Any],
+    ) -> CapabilityOp:
+        def execute(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
+            cap = _resolve_capability(capability, _config_for(tenant_id))
+            data = fn(cap, params)
+            return {"op": name, "ok": True, "data": data}
+
+        return CapabilityOp(
+            name=name,
+            capability=capability,
+            method=method,
+            kind="search",
+            connector_capability=connector_capability,
+            governed=False,
+            execute=execute,
+        )
+
+    def _write_op(
+        name: str,
+        capability: str,
+        method: str,
+        connector_capability: str,
+        fn: Callable[[dict[str, Any], str], dict[str, Any]],
+    ) -> CapabilityOp:
+        return CapabilityOp(
+            name=name,
+            capability=capability,
+            method=method,
+            kind="write",
+            connector_capability=connector_capability,
+            governed=True,
+            execute=fn,
+        )
+
+    return [
+        # CRM (Salesforce)
+        _read_op(
+            "salesforce.read",
+            "crm",
+            "get_deals",
+            "salesforce",
+            lambda cap, params: (
+                cap.get_customers() if params.get("object_type") == "customer" else cap.get_deals()
+            ),
+        ),
+        _write_op(
+            "salesforce.update",
+            "crm",
+            "update_deal",
+            "salesforce",
+            _execute_salesforce_update,
+        ),
+        # Communication (Slack)
+        _search_op(
+            "slack.search",
+            "messaging",
+            "get_messages",
+            "slack",
+            lambda cap, params: cap.get_messages(
+                params.get("channel", ""),
+                query=params.get("query"),
+                limit=params.get("limit"),
+            ),
+        ),
+        _write_op("slack.send", "messaging", "send_message", "slack", _execute_slack_send),
+        # Project (Jira)
+        _search_op(
+            "jira.search",
+            "project",
+            "get_issues",
+            "jira",
+            lambda cap, params: cap.get_issues(
+                query=params.get("query"), limit=params.get("limit")
+            ),
+        ),
+        _read_op(
+            "jira.read",
+            "project",
+            "get_issues",
+            "jira",
+            lambda cap, params: cap.get_issues(jql=params.get("jql"), limit=params.get("limit")),
+        ),
+        _write_op("jira.create", "project", "create_issue", "jira", _execute_jira_create),
+        _write_op("jira.update", "project", "update_issue", "jira", _execute_jira_update),
+        # Knowledge (Notion)
+        _read_op(
+            "notion.read",
+            "knowledge",
+            "get_pages",
+            "notion",
+            lambda cap, params: cap.get_pages(
+                query=params.get("query"),
+                page_id=params.get("page_id"),
+                limit=params.get("limit"),
+            ),
+        ),
+        _write_op("notion.update", "knowledge", "update_page", "notion", _execute_notion_update),
+    ]
+
+
+class CapabilityOpRegistry:
+    """Registry of the 10 frozen capability ops."""
+
+    _ops: dict[str, CapabilityOp] = {}
+
+    @classmethod
+    def _ensure_loaded(cls) -> None:
+        if not cls._ops:
+            for op in _build_ops():
+                cls._ops[op.name] = op
+
+    @classmethod
+    def get(cls, name: str) -> CapabilityOp:
+        """Return the op for *name*, raising :class:`UnknownCapabilityOpError`."""
+        cls._ensure_loaded()
+        try:
+            return cls._ops[name]
+        except KeyError:
+            raise UnknownCapabilityOpError(f"unknown capability op: {name}") from None
+
+    @classmethod
+    def list_ops(cls) -> list[str]:
+        """Return the sorted names of all registered ops."""
+        cls._ensure_loaded()
+        return sorted(cls._ops)
+
+    @classmethod
+    def write_ops(cls) -> list[str]:
+        """Return the sorted names of the governed write ops."""
+        cls._ensure_loaded()
+        return sorted(name for name, op in cls._ops.items() if op.governed)
+
+    @classmethod
+    def assert_allowed(cls, name: str, role_caps: list[str] | None) -> None:
+        """Enforce the role capability allowlist (no-op when role_caps is None)."""
+        if role_caps is None:
+            return
+        if name not in role_caps:
+            raise CapabilityNotAllowedError(
+                f"op {name} not in role capability allowlist {role_caps}"
+            )
+
+    @classmethod
+    def execute(
+        cls,
+        name: str,
+        params: dict[str, Any],
+        tenant_id: str,
+        *,
+        role_caps: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Execute *name* with *params*, enforcing the role allowlist first."""
+        op = cls.get(name)
+        cls.assert_allowed(name, role_caps)
+        return op.execute(params, tenant_id)
