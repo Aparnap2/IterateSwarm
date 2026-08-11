@@ -7,6 +7,7 @@ field injection, and ``from_attributes=True`` for ORM compatibility.
 from __future__ import annotations
 
 from datetime import datetime
+from enum import Enum
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -139,14 +140,57 @@ class Capability(OntologyBaseModel):
 # ── Entity 6: Process ───────────────────────────────────────────────────
 
 
+class BusinessPillar(str, Enum):
+    """The four MVP business pillars (frozen V6 direction).
+
+    Exactly four pillars: Marketing, Sales, Operations, Finance.
+    """
+
+    MARKETING = "marketing"
+    SALES = "sales"
+    OPERATIONS = "operations"
+    FINANCE = "finance"
+
+
+class ProcessStep(OntologyBaseModel):
+    """A single step within a business process."""
+
+    id: str
+    tenant_id: str
+    process_id: str
+    name: str
+    description: str = ""
+    order_index: int = 0
+    owner_id: str | None = None
+    status: Literal["draft", "active", "deprecated"] = "draft"
+
+
 class Process(OntologyBaseModel):
-    """Business process mapped during discovery."""
+    """Business process mapped during discovery.
+
+    Extended for V6 with the operating-model fields: owner (Stakeholder ref),
+    objective, scope, decision rules, definition of done, KPIs, dependencies,
+    allowed actions, review cadence, pillar, process type, and steps.
+    """
 
     id: str
     tenant_id: str
     name: str
     description: str = ""
     status: Literal["mapped", "analyzed", "improved", "retired"] = "mapped"
+    owner_id: str | None = None
+    relationship_to_owner: Literal["owns", "sponsors", "operates", "supports"] | None = None
+    objective: str = ""
+    scope: str = ""
+    decision_rules: list[str] = Field(default_factory=list)
+    definition_of_done: list[str] = Field(default_factory=list)
+    kpi_ids: list[str] = Field(default_factory=list)
+    dependencies: list[str] = Field(default_factory=list)
+    allowed_actions: list[str] = Field(default_factory=list)
+    review_cadence: str | None = None
+    pillar: BusinessPillar | None = None
+    process_type: str = "core"
+    steps: list[ProcessStep] = Field(default_factory=list)
 
 
 # ── Entity 7: System ────────────────────────────────────────────────────
@@ -412,3 +456,191 @@ class Workspace(OntologyBaseModel):
     name: str
     purpose: str = ""
     status: Literal["active", "archived", "closed"] = "active"
+
+
+# ── V6 Domain entities ────────────────────────────────────────────────────
+
+
+class SOP(OntologyBaseModel):
+    """Standard Operating Procedure for a business process."""
+
+    id: str
+    tenant_id: str
+    name: str
+    process_id: str | None = None
+    objective: str = ""
+    scope: str = ""
+    owner_id: str | None = None
+    prerequisites: list[str] = Field(default_factory=list)
+    steps: list[str] = Field(default_factory=list)
+    decision_rules: list[str] = Field(default_factory=list)
+    definition_of_done: list[str] = Field(default_factory=list)
+    faq: list[str] = Field(default_factory=list)
+    linked_systems: list[str] = Field(default_factory=list)
+    revision_history: list[str] = Field(default_factory=list)
+    last_reviewed_at: datetime | None = None
+    status: Literal["draft", "active", "archived"] = "draft"
+    current_version_id: str | None = None
+
+
+class SOPVersion(OntologyBaseModel):
+    """A versioned snapshot of an SOP."""
+
+    id: str
+    tenant_id: str
+    sop_id: str
+    version: str
+    content_hash: str
+    changes: list[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    author: str
+    supersedes_id: str | None = None
+
+
+class Mission(OntologyBaseModel):
+    """A persistent business objective assigned to an AI employee."""
+
+    id: str
+    tenant_id: str
+    title: str
+    description: str = ""
+    owner_id: str | None = None
+    employee_role: str | None = None
+    status: Literal[
+        "pending", "active", "stalled", "completed", "failed", "archived"
+    ] = "pending"
+    priority: Literal["low", "medium", "high", "urgent"] = "medium"
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    kpi_ids: list[str] = Field(default_factory=list)
+    evidence_ids: list[str] = Field(default_factory=list)
+    knowledge_ids: list[str] = Field(default_factory=list)
+    decision_ids: list[str] = Field(default_factory=list)
+    process_ids: list[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class MissionEvent(OntologyBaseModel):
+    """An immutable, append-only event on a mission timeline."""
+
+    id: str
+    mission_id: str
+    version: int = 1
+    event_type: Literal[
+        "created", "started", "reviewed", "paused", "resumed", "replanned",
+        "redirected", "approved", "rejected", "executed", "confidence_changed",
+        "status_changed", "priority_changed", "evidence_added",
+        "recommendation_updated", "completed", "archived",
+    ]
+    actor: str | None = None
+    source: str | None = None
+    payload: dict = Field(default_factory=dict)
+    causation_id: str | None = None
+    correlation_id: str | None = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class MissionSnapshot(OntologyBaseModel):
+    """A point-in-time capture of a mission's composed state."""
+
+    id: str
+    mission_id: str
+    version: int = 1
+    snapshot_type: Literal["periodic", "on_change", "manual"] = "periodic"
+    body: dict = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Action(OntologyBaseModel):
+    """A governed, idempotent unit of work executed by an AI employee."""
+
+    id: str
+    tenant_id: str
+    mission_id: str
+    employee_role: str
+    capability: str
+    input_snapshot: dict = Field(default_factory=dict)
+    risk_tier: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = "LOW"
+    policy_tier: str | None = None
+    status: Literal[
+        "draft", "pending_approval", "approved", "rejected",
+        "executing", "completed", "failed",
+    ] = "draft"
+    idempotency_key: str
+    evidence_refs: list[str] = Field(default_factory=list)
+    reason: str = ""
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ActionResult(OntologyBaseModel):
+    """The result of executing an Action, with verification metadata."""
+
+    id: str
+    action_id: str
+    result_summary: str = ""
+    output_snapshot: dict = Field(default_factory=dict)
+    error: str | None = None
+    rollback_metadata: dict = Field(default_factory=dict)
+    verified: bool = False
+    verified_by: str | None = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class EmployeeDefinition(OntologyBaseModel):
+    """Static configuration of an AI employee role (config, not runtime)."""
+
+    id: str
+    tenant_id: str
+    role: str
+    goals: list[str] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
+    capabilities: list[str] = Field(default_factory=list)
+    permissions: list[str] = Field(default_factory=list)
+    policies: list[str] = Field(default_factory=list)
+    authority: dict = Field(default_factory=dict)
+    risk_threshold: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = "MEDIUM"
+    kpis: list[str] = Field(default_factory=list)
+    memory_namespace: str = ""
+    mission_types: list[str] = Field(default_factory=list)
+
+
+class EmployeeRun(OntologyBaseModel):
+    """Runtime state of an AI employee (state, not config)."""
+
+    id: str
+    tenant_id: str
+    employee_definition_id: str
+    role: str
+    status: Literal["idle", "active", "paused", "offline"] = "idle"
+    current_mission_id: str | None = None
+    active_mission_ids: list[str] = Field(default_factory=list)
+    memory_state: dict = Field(default_factory=dict)
+    last_active_at: datetime | None = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Outcome(OntologyBaseModel):
+    """The result of a mission, tied to evidence."""
+
+    id: str
+    tenant_id: str
+    mission_id: str
+    result: Literal["success", "partial", "failure", "na"] = "na"
+    evidence_refs: list[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Review(OntologyBaseModel):
+    """A scheduled review of a process, SOP, or other target."""
+
+    id: str
+    tenant_id: str
+    target_type: str
+    target_id: str
+    reviewer: str
+    cadence: str | None = None
+    last_reviewed_at: datetime | None = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
