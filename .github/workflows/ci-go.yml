@@ -19,6 +19,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    # Webhook tests (razorpay_test.go, telegram_test.go) expect
+    # postgres://postgres:postgres@localhost:5432/iterateswarm_test (see setupTestDB).
+    # Without this service they SKIP and total coverage falls below the 60% gate.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: iterateswarm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d iterateswarm_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,6 +49,8 @@ jobs:
 
       - name: Run Go unit tests
         working-directory: apps/core
+        env:
+          TEST_DATABASE_URL: "postgres://postgres:postgres@localhost:5432/iterateswarm_test?sslmode=disable"
         run: |
           go test ./... \
             -v \

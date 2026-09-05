@@ -32,7 +32,9 @@ jobs:
 
       - name: Install dependencies
         working-directory: apps/ai
-        run: uv sync --frozen
+        # pytest-cov lives in the dev extra; without it --cov* flags fail with
+        # "unrecognized arguments" (exit 4). Install the extra for this job.
+        run: uv sync --frozen --extra dev
 
       - name: Run unit tests (no services needed)
         working-directory: apps/ai
