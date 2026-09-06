@@ -28,7 +28,7 @@
             {{if .Description}}<p class="text-[11px] mt-1 line-clamp-2" style="color:var(--text-secondary)">{{.Description}}</p>{{end}}
             <div class="flex items-center justify-between mt-2 text-[10px]" style="color:var(--text-muted)">
                 <span>{{if .EmployeeRole}}{{.EmployeeRole}}{{else}}unassigned{{end}}</span>
-                <span class="tabular-nums">{{if gt .Confidence 0}}{{.Confidence}}% confidence{{else}}—{{end}}</span>
+                <span class="tabular-nums">{{if .Confidence}}{{.Confidence}}% confidence{{else}}—{{end}}</span>
             </div>
         </div>
     {{end}}

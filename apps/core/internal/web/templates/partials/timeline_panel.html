@@ -1,6 +1,9 @@
 {{/* Timeline — Milestone #5 operational workspace panel. Append-only MISSION_*
      event feed from mission_events. Live rows stream in via SSE; the sse-swap
-     listens for every MISSION_* event name plus the generic "timeline" refresh.
+     listens for every MISSION_* event name, the generic "timeline" refresh,
+     and the six-event workspace lifecycle contract (issue #61:
+     MISSION_UPDATED, ACTION_PROPOSED, ACTION_APPROVED, ACTION_EXECUTED,
+     ACTION_VERIFIED, MISSION_REPLANNED).
      Keep the row markup in sync with renderTimelineRowHTML in v6_workspace.go. */}}
 <div class="fade-in">
     <div class="flex items-center justify-between mb-3">
@@ -14,7 +17,7 @@
     <div id="v6-timeline-feed"
          hx-ext="sse"
          sse-connect="/v6/timeline/events?tenant_id={{.TenantID}}"
-         sse-swap="timeline,MISSION_CREATED,MISSION_STARTED,MISSION_REVIEWED,MISSION_PAUSED,MISSION_RESUMED,MISSION_REPLANNED,MISSION_REDIRECTED,MISSION_APPROVED,MISSION_REJECTED,MISSION_EXECUTED,MISSION_CONFIDENCE_CHANGED,MISSION_STATUS_CHANGED,MISSION_PRIORITY_CHANGED,MISSION_EVIDENCE_ADDED,MISSION_RECOMMENDATION_UPDATED,MISSION_COMPLETED,MISSION_ARCHIVED"
+         sse-swap="timeline,MISSION_CREATED,MISSION_STARTED,MISSION_REVIEWED,MISSION_PAUSED,MISSION_RESUMED,MISSION_REPLANNED,MISSION_REDIRECTED,MISSION_APPROVED,MISSION_REJECTED,MISSION_EXECUTED,MISSION_CONFIDENCE_CHANGED,MISSION_STATUS_CHANGED,MISSION_PRIORITY_CHANGED,MISSION_EVIDENCE_ADDED,MISSION_RECOMMENDATION_UPDATED,MISSION_COMPLETED,MISSION_ARCHIVED,MISSION_UPDATED,ACTION_PROPOSED,ACTION_APPROVED,ACTION_EXECUTED,ACTION_VERIFIED"
          hx-swap="afterbegin">
         {{if .EmptyState}}
         <div class="text-xs py-6 text-center" style="color:var(--text-muted)">

@@ -110,6 +110,108 @@ func missionSSEEventNames() []string {
 	return out
 }
 
+// ── Frozen workspace lifecycle SSE vocabulary (issue #61) ────────────────────
+//
+// Exactly these six events form the Founder Workspace live-update contract.
+// They are emitted where the backend lifecycle produces them and consumed via
+// the existing hx-ext="sse" declarative pattern (see timeline_panel.html
+// sse-swap). Do not extend without updating the timeline partial and the
+// subscription helpers below.
+var workspaceLifecycleEvents = []string{
+	"MISSION_UPDATED",
+	"ACTION_PROPOSED",
+	"ACTION_APPROVED",
+	"ACTION_EXECUTED",
+	"ACTION_VERIFIED",
+	"MISSION_REPLANNED",
+}
+
+// WorkspaceLifecycleEvents returns a copy of the frozen six-event vocabulary.
+func WorkspaceLifecycleEvents() []string {
+	out := make([]string, len(workspaceLifecycleEvents))
+	copy(out, workspaceLifecycleEvents)
+	return out
+}
+
+// missionEventToLifecycleEvent maps a mission_events.event_type to the
+// lifecycle contract: replanned → MISSION_REPLANNED, everything else →
+// MISSION_UPDATED (generic mission refresh).
+func missionEventToLifecycleEvent(eventType string) string {
+	if eventType == "replanned" {
+		return "MISSION_REPLANNED"
+	}
+	return "MISSION_UPDATED"
+}
+
+// actionStatusToLifecycleEvent maps an actions.status to the lifecycle
+// contract: pending_approval → ACTION_PROPOSED, approved → ACTION_APPROVED,
+// executing/completed → ACTION_EXECUTED. Statuses with no live-update contract
+// (draft, rejected, failed) return "" and stay quiet.
+func actionStatusToLifecycleEvent(status string) string {
+	switch status {
+	case "pending_approval":
+		return "ACTION_PROPOSED"
+	case "approved":
+		return "ACTION_APPROVED"
+	case "executing", "completed":
+		return "ACTION_EXECUTED"
+	default:
+		return ""
+	}
+}
+
+// v6MissionsSubscribedEvents is the SSEHub filter for the missions stream:
+// the legacy "mission" refresh plus the mission-scoped lifecycle events.
+func v6MissionsSubscribedEvents() []string {
+	return []string{"mission", "MISSION_UPDATED", "MISSION_REPLANNED"}
+}
+
+// v6ApprovalsSubscribedEvents is the SSEHub filter for the approvals stream:
+// the legacy "approval" refresh plus the action lifecycle events.
+func v6ApprovalsSubscribedEvents() []string {
+	return []string{"approval", "ACTION_PROPOSED", "ACTION_APPROVED", "ACTION_EXECUTED", "ACTION_VERIFIED"}
+}
+
+// v6TimelineSubscribedEvents is the SSEHub filter for the timeline stream:
+// the generic refresh, every MISSION_* name, plus the six lifecycle events.
+func v6TimelineSubscribedEvents() []string {
+	out := append([]string{"timeline"}, missionSSEEventNames()...)
+	return append(out, workspaceLifecycleEvents...)
+}
+
+// renderLifecycleFragment builds a minimal HTML fragment for a lifecycle
+// event. Every caller-supplied field is escaped with html.EscapeString
+// (project XSS rule); HTMX sse-swap renders the fragment directly.
+func renderLifecycleFragment(eventName, summary, detail string) string {
+	var b strings.Builder
+	b.WriteString(`<div data-lifecycle-event="`)
+	b.WriteString(html.EscapeString(eventName))
+	b.WriteString(`"><span>`)
+	b.WriteString(html.EscapeString(eventName))
+	b.WriteString(`</span><span>`)
+	b.WriteString(html.EscapeString(summary))
+	b.WriteString(`</span>`)
+	if detail != "" {
+		b.WriteString(`<span>`)
+		b.WriteString(html.EscapeString(detail))
+		b.WriteString(`</span>`)
+	}
+	b.WriteString(`</div>`)
+	return b.String()
+}
+
+// broadcastWorkspaceLifecycleEvent publishes a lifecycle event to a tenant's
+// SSE subscribers. Payload HTML is escaped at construction.
+func (h *Handler) broadcastWorkspaceLifecycleEvent(tenantID, eventName, summary, detail string) {
+	if h.sseHub == nil {
+		return
+	}
+	h.sseHub.Broadcast(tenantID, SSEEvent{
+		Type:    eventName,
+		Payload: renderLifecycleFragment(eventName, summary, detail),
+	})
+}
+
 // missionEventSummary builds a short human summary for a timeline row.
 func missionEventSummary(eventType, actor string) string {
 	verb := strings.ReplaceAll(eventType, "_", " ")
@@ -379,30 +481,39 @@ func (h *Handler) V6Timeline(c *fiber.Ctx) error {
 
 // ── SSE streams ──────────────────────────────────────────────────────────────
 
-// V6MissionsEvents streams mission events over SSE (event type "mission").
+// V6MissionsEvents streams mission events over SSE. It subscribes to the
+// legacy "mission" refresh plus the mission-scoped lifecycle events
+// (MISSION_UPDATED, MISSION_REPLANNED) so hx-ext="sse" consumers stay live.
 func (h *Handler) V6MissionsEvents(c *fiber.Ctx) error {
 	tenantID := c.Query("tenant_id", "default")
-	sub := h.sseHub.Subscribe(tenantID, "mission")
+	sub := h.sseHub.Subscribe(tenantID, v6MissionsSubscribedEvents()...)
 	defer h.sseHub.Unsubscribe(tenantID, sub.ID)
 	return h.streamSSE(c, sub)
 }
 
-// V6ApprovalsEvents streams approval events over SSE (event type "approval").
+// V6ApprovalsEvents streams approval events over SSE. It subscribes to the
+// legacy "approval" refresh plus the ACTION_* lifecycle events, and polls the
+// actions / action_results tables so real DB lifecycle transitions broadcast.
 func (h *Handler) V6ApprovalsEvents(c *fiber.Ctx) error {
 	tenantID := c.Query("tenant_id", "default")
-	sub := h.sseHub.Subscribe(tenantID, "approval")
+	sub := h.sseHub.Subscribe(tenantID, v6ApprovalsSubscribedEvents()...)
 	defer h.sseHub.Unsubscribe(tenantID, sub.ID)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go h.pollActionLifecycle(ctx, tenantID)
+
 	return h.streamSSE(c, sub)
 }
 
 // V6TimelineEvents streams MISSION_* timeline events over SSE. It subscribes
-// to "timeline" plus every MISSION_* event name so external publishers can
-// push either a generic refresh or a specific mission event, and it polls
-// mission_events for new rows so the feed is live with real data.
+// to "timeline" plus every MISSION_* event name plus the six lifecycle events
+// so external publishers can push either a generic refresh, a specific mission
+// event, or a lifecycle transition, and it polls mission_events for new rows
+// so the feed is live with real data.
 func (h *Handler) V6TimelineEvents(c *fiber.Ctx) error {
 	tenantID := c.Query("tenant_id", "default")
-	eventTypes := append([]string{"timeline"}, missionSSEEventNames()...)
-	sub := h.sseHub.Subscribe(tenantID, eventTypes...)
+	sub := h.sseHub.Subscribe(tenantID, v6TimelineSubscribedEvents()...)
 	defer h.sseHub.Unsubscribe(tenantID, sub.ID)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -514,6 +625,16 @@ func (h *Handler) pollMissionTimeline(ctx context.Context, tenantID string) {
 				Payload: renderTimelineRowHTML(e),
 			})
 
+			// Lifecycle contract (issue #61): every mission_events row also
+			// produces the mapped lifecycle event (replanned →
+			// MISSION_REPLANNED, all others → MISSION_UPDATED) with the same
+			// escaped row fragment, so hx-ext="sse" consumers of the six-event
+			// vocabulary stay live off real DB reads.
+			h.sseHub.Broadcast(tenantID, SSEEvent{
+				Type:    missionEventToLifecycleEvent(e.EventType),
+				Payload: renderTimelineRowHTML(e),
+			})
+
 			if len(seen) > 200 {
 				seen = map[string]bool{}
 			}
@@ -523,6 +644,90 @@ func (h *Handler) pollMissionTimeline(ctx context.Context, tenantID string) {
 		if maxTS.After(watermark) {
 			watermark = maxTS
 		}
+	}
+}
+
+// pollActionLifecycle polls the actions table for lifecycle transitions and
+// the action_results table for verifications, broadcasting the mapped
+// ACTION_* lifecycle events through the SSEHub. It mirrors pollMissionTimeline:
+// a recent-update window plus a last-broadcast map prevents replays. Only
+// statuses with a lifecycle contract broadcast (see
+// actionStatusToLifecycleEvent).
+func (h *Handler) pollActionLifecycle(ctx context.Context, tenantID string) {
+	if h.db == nil {
+		return
+	}
+	lastBroadcast := map[string]string{}
+	seenVerified := map[string]bool{}
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+
+		rows, err := h.db.QueryContext(ctx, `
+			SELECT id, status, COALESCE(employee_role, ''), COALESCE(capability, '')
+			FROM actions
+			WHERE tenant_id = $1 AND updated_at >= NOW() - INTERVAL '30 seconds'
+			ORDER BY updated_at ASC
+			LIMIT 20
+		`, tenantID)
+		if err != nil {
+			continue
+		}
+		for rows.Next() {
+			var id, status, role, capability string
+			if err := rows.Scan(&id, &status, &role, &capability); err != nil {
+				continue
+			}
+			evt := actionStatusToLifecycleEvent(status)
+			if evt == "" {
+				continue
+			}
+			if lastBroadcast[id] == evt {
+				continue
+			}
+			if len(lastBroadcast) > 500 {
+				lastBroadcast = map[string]string{}
+			}
+			lastBroadcast[id] = evt
+			summary := "Action " + strings.ToLower(strings.TrimPrefix(evt, "ACTION_")) + " · " + capability
+			if role != "" {
+				summary += " · " + role
+			}
+			h.broadcastWorkspaceLifecycleEvent(tenantID, evt, summary, id)
+		}
+		rows.Close()
+
+		vrows, err := h.db.QueryContext(ctx, `
+			SELECT action_id
+			FROM action_results
+			WHERE tenant_id = $1 AND verified = TRUE AND updated_at >= NOW() - INTERVAL '30 seconds'
+			ORDER BY updated_at ASC
+			LIMIT 20
+		`, tenantID)
+		if err != nil {
+			continue
+		}
+		for vrows.Next() {
+			var actionID string
+			if err := vrows.Scan(&actionID); err != nil {
+				continue
+			}
+			if seenVerified[actionID] {
+				continue
+			}
+			if len(seenVerified) > 500 {
+				seenVerified = map[string]bool{}
+			}
+			seenVerified[actionID] = true
+			h.broadcastWorkspaceLifecycleEvent(tenantID, "ACTION_VERIFIED", "Action verified", actionID)
+		}
+		vrows.Close()
 	}
 }
 
