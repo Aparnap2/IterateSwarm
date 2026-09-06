@@ -148,6 +148,28 @@ async def run_blocker_investigation_mission(
     """
     evidence = ingest_slack_event(slack_payload, tenant_id)
     checkpoint = build_context_checkpoint(onboarding, mission_id, [evidence])
+    role = make_blocker_investigation_role(role_caps)
+
+    # Typed deterministic context checkpoint (#63): the bounded context the
+    # analyst reasons from. The slice evidence timestamp is wall-clock text
+    # ("10:23"), so freshness is computed from an ISO-coerced COPY — the
+    # original Evidence (and its stable ID) is untouched.
+    from datetime import datetime, timezone
+
+    from src.context.assemble import assemble_checkpoint
+
+    now = datetime.now(timezone.utc)
+    typed_checkpoint = assemble_checkpoint(
+        checkpoint_id=f"cp-{mission_id}",
+        tenant_id=tenant_id,
+        mission_id=mission_id,
+        trigger_event_id=evidence.id,
+        evidence=[evidence.model_copy(update={"captured_at": now.isoformat()})],
+        now=now,
+        onboarding=onboarding,
+        allowed_capabilities=list(role.capabilities),
+    )
+    checkpoint_dict = typed_checkpoint.model_dump()
     timeline = BlockerInvestigationTimeline()
     timeline.append(MissionEventType.CREATED, {"mission_id": mission_id})
     timeline.append(MissionEventType.EVIDENCE_ADDED, {"evidence_id": evidence.id})
@@ -167,7 +189,6 @@ async def run_blocker_investigation_mission(
         blocker_ref=",".join(onboarding.issues),
         signal_handler=signal_handler,
     )
-    role = make_blocker_investigation_role(role_caps)
     runtime = EmployeeRuntime(tenant_id=tenant_id)
     plan = [
         PlanStep(
@@ -194,6 +215,28 @@ async def run_blocker_investigation_mission(
         timeline.append(MissionEventType.COMPLETED, {"mission_id": mission_id})
     else:
         timeline.append(MissionEventType.REVIEWED, {"outcome": obs.get("outcome", "")})
+
+    # Workspace-facing event payload the Go SSE hub consumes: the smallest
+    # seam between the headless slice and the live workspace.
+    permit = next(
+        (
+            e
+            for e in audit_mod.list_events()
+            if e.get("decision") == "permit:executed"
+            and e.get("mission_id") == mission_id
+        ),
+        {},
+    )
+    permit_intent = permit.get("intent", {}) if isinstance(permit, dict) else {}
+    workspace_event = {
+        "mission_id": mission_id,
+        "action_id": permit.get("action_id", obs.get("action_id", "")),
+        "status": "completed" if obs.get("verified") else "needs_review",
+        "verified": bool(obs.get("verified", False)),
+        "decision": obs.get("decision", obs.get("outcome", "")),
+        "target_reference": permit_intent.get("target_reference", ""),
+        "checkpoint_id": f"cp-{mission_id}",
+    }
     return {
         "result": result,
         "timeline": timeline.list(),
@@ -201,4 +244,6 @@ async def run_blocker_investigation_mission(
         "audit_events": audit_mod.list_events(),
         "memory": memory.get(mission_id),
         "handler": signal_handler,
+        "context_checkpoint": checkpoint_dict,
+        "workspace_event": workspace_event,
     }
