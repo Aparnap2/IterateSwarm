@@ -1,19 +1,18 @@
-"""Tests for worker.py / workflows.__init__ 9-runtime workflow registration.
+"""Tests for worker.py / workflows.__init__ 6-canonical workflow registration.
 
-Asserts the 9-runtime default contract: exactly 9 canonical workflows.
+Asserts the 6-canonical default contract: exactly 6 V5.2 workflows.
 V6 StrategyWorkflow is gated behind ``ENABLE_V6_WORKFLOWS=on``.
+Legacy FDE modules are gated behind ``LEGACY_FDE_MODULES=on``.
 """
 from __future__ import annotations
-
-import os
 
 import pytest
 
 
 class TestWorkerRegistration:
-    """Verify the 9-runtime active workflow roster contract."""
+    """Verify the 6-canonical active workflow roster contract."""
 
-    # 9-runtime canonical roster: exactly 9 (PRD §7).
+    # 6-canonical roster: exactly 6 V5.2 workflows.
     CANONICAL_V51 = {
         "ChiefOfStaffWorkflow",
         "DiscoveryWorkflow",
@@ -21,25 +20,22 @@ class TestWorkerRegistration:
         "KnowledgeValidationWorkflow",
         "SolutionArchitectWorkflow",
         "GovernanceWorkflow",
-        "DecisionWorkflow",
-        "ExecutionWorkflow",
-        "EvaluationWorkflow",
     }
 
     V6_WORKFLOWS = {"StrategyWorkflow"}
 
     ALL_V51_PLUS_V6 = CANONICAL_V51 | V6_WORKFLOWS
 
-    def test_default_roster_is_exactly_9(self):
-        """Default ACTIVE_WORKFLOWS (no flags) has exactly 9 entries."""
+    def test_default_roster_is_exactly_6(self):
+        """Default ACTIVE_WORKFLOWS (no flags) has exactly 6 entries."""
         from src.workflows import ACTIVE_WORKFLOWS
 
-        assert len(ACTIVE_WORKFLOWS) == 9, (
-            f"9-runtime contract requires exactly 9 active workflows, got {len(ACTIVE_WORKFLOWS)}: "
+        assert len(ACTIVE_WORKFLOWS) == 6, (
+            f"6-canonical contract requires exactly 6 active workflows, got {len(ACTIVE_WORKFLOWS)}: "
             f"{sorted(ACTIVE_WORKFLOWS.keys())}"
         )
         assert set(ACTIVE_WORKFLOWS.keys()) == self.CANONICAL_V51, (
-            f"9-runtime roster mismatch. Expected: {sorted(self.CANONICAL_V51)}, "
+            f"6-canonical roster mismatch. Expected: {sorted(self.CANONICAL_V51)}, "
             f"Got: {sorted(ACTIVE_WORKFLOWS.keys())}"
         )
 
@@ -69,7 +65,7 @@ class TestWorkerRegistration:
 
         active = _build_active_workflows()
         assert "StrategyWorkflow" in active
-        assert len(active) == 10
+        assert len(active) == 7
 
         route_map = _build_route_map()
         assert "@strategy" in route_map
@@ -83,7 +79,7 @@ class TestWorkerRegistration:
         )
 
     def test_v51_workflows_importable(self):
-        """All 9 canonical workflows can be imported from their modules."""
+        """All 6 canonical workflows can be imported from their modules."""
         from src.workflows.discovery_workflow import DiscoveryWorkflow
         from src.workflows.ontology_mapping_workflow import (
             OntologyMappingWorkflow,
