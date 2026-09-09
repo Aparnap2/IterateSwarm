@@ -49,30 +49,62 @@ def _config_for(tenant_id: str) -> ConnectorConfig:
 def _resolve_demo_capability(capability: str, config: ConnectorConfig) -> Any:
     """Resolve a demo-binding capability (real HTTP to local Mockoon).
 
-    Phase E P0 step 2 lands the Jira hero writes here; until then demo
-    fails closed with :class:`NotConfigured` instead of silently
-    downgrading to in-memory.
+    Only bridged capabilities resolve; anything else fails closed with
+    :class:`NotConfigured` instead of silently downgrading to in-memory.
     """
+    import os
+
+    from src.connectors.jira_client import JiraClient
     from src.mission.capability_binding import NotConfigured
 
+    if capability == "project":
+        base_url = os.environ.get("JIRA_MOCK_URL", "http://localhost:3003")
+        return JiraClient(base_url=base_url, tenant_id=config.tenant_id, demo=True)
     raise NotConfigured(
-        f"demo binding for capability {capability!r} is not implemented yet "
-        "(Phase E P0 step 2: Jira hero writes against local Mockoon)"
+        f"demo binding for capability {capability!r} is not bridged yet "
+        "(bridged: project)"
     )
 
 
 def _resolve_prod_capability(capability: str, config: ConnectorConfig) -> Any:
-    """Resolve a prod-binding capability (real SDK/HTTP where configured).
+    """Resolve a prod-binding capability (real endpoint where configured).
 
     Fails closed with :class:`NotConfigured` until credentials exist —
     never a silent in-memory fallback.
     """
+    import os
+
+    from src.connectors.jira_client import JiraClient
     from src.mission.capability_binding import NotConfigured
 
+    def _cred(name: str) -> str:
+        return os.environ.get(name, "") or config.credentials.get(name.lower(), "")
+
+    if capability == "project":
+        base_url = _cred("JIRA_BASE_URL")
+        username = _cred("JIRA_USERNAME")
+        api_token = _cred("JIRA_API_TOKEN")
+        missing = [
+            label
+            for label, value in (
+                ("JIRA_BASE_URL", base_url),
+                ("JIRA_USERNAME", username),
+                ("JIRA_API_TOKEN", api_token),
+            )
+            if not value
+        ]
+        if missing:
+            raise NotConfigured(
+                f"prod binding for capability {capability!r} has no credentials "
+                f"configured (tenant {config.tenant_id!r}): missing {missing}"
+            )
+        return JiraClient(
+            base_url=base_url, tenant_id=config.tenant_id,
+            username=username, api_token=api_token,
+        )
     raise NotConfigured(
-        f"prod binding for capability {capability!r} has no credentials "
-        "configured (tenant %r): set JIRA_BASE_URL/JIRA_USERNAME/JIRA_API_TOKEN "
-        "or connector credentials before using binding=prod" % config.tenant_id
+        f"prod binding for capability {capability!r} is not bridged yet "
+        "(bridged: project)"
     )
 
 

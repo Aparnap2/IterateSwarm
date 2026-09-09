@@ -68,12 +68,31 @@ class TestTestBindingPreserved:
 
 
 class TestNonTestBindingsFailClosed:
-    def test_demo_binding_raises_not_configured(self, monkeypatch):
-        """Demo without hero writes (step 2) fails closed, never in-memory."""
+    def test_demo_binding_resolves_jira_client(self, monkeypatch):
+        """Demo project resolves a real client (no network on construct)."""
+        from src.connectors.jira_client import JiraClient
+
+        monkeypatch.setenv("ONTOLOGY_CAPABILITY_BINDING", "demo")
+        cap = capability_ops._resolve_capability(
+            "project", ConnectorConfig(tenant_id="t1")
+        )
+        assert isinstance(cap, JiraClient)
+
+    def test_demo_binding_refuses_non_localhost(self, monkeypatch):
+        """Demo binding never points at a non-local host."""
+        monkeypatch.setenv("ONTOLOGY_CAPABILITY_BINDING", "demo")
+        monkeypatch.setenv("JIRA_MOCK_URL", "https://jira.evil.example")
+        with pytest.raises(ValueError, match="localhost"):
+            capability_ops._resolve_capability(
+                "project", ConnectorConfig(tenant_id="t1")
+            )
+
+    def test_demo_binding_unbridged_capability_raises(self, monkeypatch):
+        """Demo for unbridged capabilities fails closed, never in-memory."""
         monkeypatch.setenv("ONTOLOGY_CAPABILITY_BINDING", "demo")
         with pytest.raises(NotConfigured, match="demo binding"):
             capability_ops._resolve_capability(
-                "project", ConnectorConfig(tenant_id="t1")
+                "crm", ConnectorConfig(tenant_id="t1")
             )
 
     def test_prod_binding_raises_not_configured_without_creds(self, monkeypatch):
