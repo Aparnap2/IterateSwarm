@@ -25,7 +25,13 @@ class MissionNotAllowedError(KeyError):
 
 
 class MissionSpec(OntologyBaseModel):
-    """A validated mission definition from config/missions.yaml."""
+    """A validated mission definition from config/missions.yaml.
+
+    Only ``id``/``title``/``employee_role``/``mission_type`` are required;
+    every D2 field carries a default so existing configs load unchanged.
+    An empty ``allowed_skills`` inherits ``skill_plan``; empty
+    ``allowed_capabilities`` inherits the owning role's allowlist.
+    """
 
     id: str
     title: str
@@ -35,6 +41,30 @@ class MissionSpec(OntologyBaseModel):
     priority: Literal["low", "medium", "high", "urgent"] = "medium"
     kpi_ids: list[str] = Field(default_factory=list)
     skill_plan: list[str] = Field(default_factory=list)
+    trigger_types: list[str] = Field(default_factory=list)
+    goal: str = ""
+    required_context: list[str] = Field(default_factory=list)
+    allowed_skills: list[str] = Field(default_factory=list)
+    allowed_capabilities: list[str] = Field(default_factory=list)
+    success_criteria: list[str] = Field(default_factory=list)
+    action_constraints: list[str] = Field(default_factory=list)
+    approval_policy: Literal["auto", "approval_required", "read_only"] = "auto"
+
+    def effective_skills(self) -> list[str]:
+        """Skills this mission may run (explicit allowlist, else the plan)."""
+        return list(self.allowed_skills) if self.allowed_skills else list(self.skill_plan)
+
+    def effective_capabilities(self, role_capabilities: list[str]) -> list[str]:
+        """Capability allowlist (explicit, else inherited from the role)."""
+        return (
+            list(self.allowed_capabilities)
+            if self.allowed_capabilities
+            else list(role_capabilities)
+        )
+
+    def missing_context(self, provided: dict[str, object]) -> list[str]:
+        """Required context keys absent from *provided* (fail-closed input)."""
+        return [key for key in self.required_context if key not in provided]
 
 
 def _find_config(path: str | None = None) -> Path:
@@ -105,3 +135,10 @@ class MissionRegistry:
         if not cls._loaded:
             cls.load()
         return list(cls._missions.values())
+
+    @classmethod
+    def for_trigger(cls, event_type: str) -> list[MissionSpec]:
+        """Return specs whose ``trigger_types`` admit *event_type*."""
+        if not cls._loaded:
+            cls.load()
+        return [spec for spec in cls._missions.values() if event_type in spec.trigger_types]

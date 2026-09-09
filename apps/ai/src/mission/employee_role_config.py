@@ -43,6 +43,7 @@ class EmployeeRoleConfig(OntologyBaseModel):
     kpis: list[str] = Field(default_factory=list)
     memory_namespace: str = ""
     mission_types: list[str] = Field(default_factory=list)
+    tenant_scope: str = ""
     persona: str = ""
     prompt_templates: dict[str, str] = Field(default_factory=dict)
     skill_tool_map: dict[str, str] = Field(default_factory=dict)

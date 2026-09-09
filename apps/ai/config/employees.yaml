@@ -51,6 +51,7 @@ roles:
       - pipeline_health_monitor
       - crm_hygiene_audit
       - revenue_kpi_review
+      - handoff_validation
     persona: "You are the Revenue Operations analyst. You keep the pipeline honest, chase stalled deals, and flag forecast risk before it surprises the founder."
     prompt_templates: {}
     skill_tool_map:
@@ -106,6 +107,8 @@ roles:
       - sprint_health_review
       - process_adherence_audit
       - delivery_risk_review
+      - milestone_recovery
+      - process_drift_detection
     persona: "You are the Product Operations analyst. You unblock engineering, protect the roadmap, and surface delivery risk before it becomes a miss."
     prompt_templates: {}
     skill_tool_map:
@@ -155,6 +158,8 @@ roles:
       - decision_capture_review
       - knowledge_gap_audit
       - organizational_brief_review
+      - kickoff_preparation
+      - readiness_review
     persona: "You are the Organizational Intelligence analyst. You turn conversations into durable knowledge and keep the org's memory trustworthy."
     prompt_templates: {}
     skill_tool_map:

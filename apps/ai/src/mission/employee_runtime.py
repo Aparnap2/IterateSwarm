@@ -15,6 +15,21 @@ from src.mission.signal_handler import InMemorySignalHandler
 from src.mission.step_runners import RUNNERS, RunState, _build_skill_context
 from src.mission.skill_registry import SkillRegistry  # noqa: F401 — re-exported
 
+
+def _skill_can_write(skill_name: str) -> bool:
+    """True when a skill declares any non-read capability op."""
+    from src.mission.capability_ops import CapabilityOpRegistry
+
+    skill = SkillRegistry.get_skill(skill_name)
+    for op_name in skill.capability_ops:
+        try:
+            op = CapabilityOpRegistry.get(op_name)
+        except KeyError:
+            continue
+        if op.kind not in ("read", "search"):
+            return True
+    return False
+
 __all__ = [
     "EmployeeRuntime",
     "InMemorySignalHandler",
@@ -106,13 +121,43 @@ class EmployeeRuntime:
         )
 
     async def run_mission(self, spec: MissionSpec) -> MissionRunResult:
-        """Selection gate: verify the mission is admissible, then run it."""
+        """Selection gate: verify the mission is admissible, then run it.
+
+        Fail-closed allowlist chain: mission type ∈ role → plan ⊆ mission
+        allowlist ⊆ role skills → skill capability ops ⊆ effective
+        capabilities → read_only policy rejects write-capable skills.
+        """
         role = self.resolve_role(spec.employee_role)
         if spec.mission_type not in role.mission_types:
             raise MissionNotAllowedError(
                 f"mission {spec.id!r} type {spec.mission_type!r} not in "
                 f"role {spec.employee_role} mission_types {role.mission_types}"
             )
+        allowed = spec.effective_skills()
+        if not set(allowed) <= set(role.skills):
+            raise MissionNotAllowedError(
+                f"mission {spec.id!r} allowlist {allowed} outside "
+                f"role {spec.employee_role} skills"
+            )
+        if not set(spec.skill_plan) <= set(allowed):
+            raise MissionNotAllowedError(
+                f"mission {spec.id!r} plan {spec.skill_plan} outside "
+                f"mission allowlist {allowed}"
+            )
+        effective_caps = spec.effective_capabilities(role.capabilities)
+        for skill_name in spec.skill_plan:
+            skill = SkillRegistry.get_skill(skill_name)
+            outside = [op for op in skill.capability_ops if op not in effective_caps]
+            if outside:
+                raise MissionNotAllowedError(
+                    f"mission {spec.id!r} skill {skill_name!r} ops {outside} "
+                    f"outside effective capabilities"
+                )
+            if spec.approval_policy == "read_only" and _skill_can_write(skill_name):
+                raise MissionNotAllowedError(
+                    f"mission {spec.id!r} is read_only but skill "
+                    f"{skill_name!r} is write-capable"
+                )
         plan = [
             PlanStep(
                 pattern=StepPattern.SEQUENTIAL,
