@@ -103,6 +103,7 @@ async def submit_intent(
             intent.operation, dict(intent.requested_parameters or {}),
             {}, authorized.tenant_id, capabilities=capabilities,
             role_caps=role_caps or None,
+            result=result.get("data") if isinstance(result, dict) else result,
         )
         verified = outcome.verified
         result = {**result, **outcome_event(authorized.action_id, outcome)}
