@@ -81,6 +81,7 @@ class CreateIssueRequest(BaseModel):
     summary: str = Field(min_length=1)
     description: str = ""
     issue_type: str = "Task"
+    assignee: str = ""
 
 
 class LinkIssuesRequest(BaseModel):
@@ -190,19 +191,17 @@ class JiraClient:
             summary=str(data.get("summary", "")),
             description=str(data.get("description", "")),
             issue_type=str(data.get("issue_type", "Task")),
+            assignee=str(data.get("assignee", "")),
         )
-        response = self._request(
-            "POST",
-            "/rest/api/3/issue",
-            json={
-                "fields": {
-                    "project": {"key": request.project},
-                    "summary": request.summary,
-                    "description": request.description,
-                    "issuetype": {"name": request.issue_type},
-                }
-            },
-        )
+        fields: dict[str, Any] = {
+            "project": {"key": request.project},
+            "summary": request.summary,
+            "description": request.description,
+            "issuetype": {"name": request.issue_type},
+        }
+        if request.assignee:
+            fields["assignee"] = {"name": request.assignee}
+        response = self._request("POST", "/rest/api/3/issue", json={"fields": fields})
         key = str(response.json().get("key", ""))
         if not key:
             raise JiraClientError("jira create returned no issue key")

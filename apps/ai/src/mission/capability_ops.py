@@ -206,12 +206,15 @@ def _execute_slack_send(params: dict[str, Any], tenant_id: str) -> dict[str, Any
 @governed_write(object_type="Issue", property_name="summary", requested_by="EmployeeRuntime")
 def _execute_jira_create(params: dict[str, Any], tenant_id: str) -> dict[str, Any]:
     cap = _resolve_capability("project", _config_for(tenant_id))
+    # Adapter mapping (integration boundary): the resolved owner arrives as
+    # ``owner``/``assignee`` in intent params; Jira speaks ``assignee``.
     data = cap.create_issue(
         {
             "project": params.get("project", ""),
             "summary": params.get("summary", ""),
             "description": params.get("description", ""),
             "issue_type": params.get("issue_type", "Task"),
+            "assignee": params.get("assignee") or params.get("owner") or "",
         }
     )
     return {"op": "jira.create", "ok": True, "data": data}
