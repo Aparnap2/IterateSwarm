@@ -145,7 +145,7 @@ class TestObjectTypeStrictTyping:
 
 
 # ---------------------------------------------------------------------------
-# OBJECT_TYPES registry contains the 23 canonical types
+# OBJECT_TYPES registry contains the 27 canonical types (23 + Onboarding/Task/Evidence per ADR-010 + Situation per E2)
 # ---------------------------------------------------------------------------
 class TestObjectTypeRegistry:
     def test_exactly_twenty_three_types(self):
@@ -156,6 +156,7 @@ class TestObjectTypeRegistry:
             "SOPVersion", "Employee", "EmployeeRun", "Mission",
             "MissionEvent", "MissionSnapshot", "Action", "ActionResult",
             "Outcome", "Review", "KPI",
+            "Onboarding", "Task", "Evidence", "Situation",
         }
 
 

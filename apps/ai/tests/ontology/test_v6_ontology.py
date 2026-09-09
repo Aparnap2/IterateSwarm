@@ -225,7 +225,7 @@ class TestV6ObjectTypeRegistry:
             assert name in OBJECT_TYPES, name
 
     def test_registry_total_count(self):
-        assert len(OBJECT_TYPES) == 23
+        assert len(OBJECT_TYPES) == 27
 
 
 # ---------------------------------------------------------------------------

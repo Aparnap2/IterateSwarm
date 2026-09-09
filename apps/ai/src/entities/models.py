@@ -516,6 +516,10 @@ class Mission(OntologyBaseModel):
     knowledge_ids: list[str] = Field(default_factory=list)
     decision_ids: list[str] = Field(default_factory=list)
     process_ids: list[str] = Field(default_factory=list)
+    # DEPRECATED: prefer the Situation link (``situation_id``) for new code.
+    # ``onboarding_id`` stays so existing M1-M6 aggregates keep resolving.
+    onboarding_id: str | None = None  # ADR-010: M1-M6 missions belong to an Onboarding aggregate
+    situation_id: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
