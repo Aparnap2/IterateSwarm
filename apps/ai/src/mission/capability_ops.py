@@ -34,23 +34,69 @@ class CapabilityNotAllowedError(CapabilityOpError):
 
 
 def _config_for(tenant_id: str) -> ConnectorConfig:
-    """Build the connector config for a tenant (mock_mode for unconfigured envs)."""
-    return ConnectorConfig(tenant_id=tenant_id, mock_mode=True)
+    """Build the connector config for a tenant.
+
+    ``mock_mode`` stays True under the ``test`` binding (exactly the
+    historical behavior); demo/prod resolve real HTTP and must not claim
+    mock semantics. The binding choice is invisible to mission/agent code:
+    no caller branches on it outside this module.
+    """
+    from src.mission.capability_binding import get_capability_binding
+
+    return ConnectorConfig(tenant_id=tenant_id, mock_mode=(get_capability_binding() == "test"))
+
+
+def _resolve_demo_capability(capability: str, config: ConnectorConfig) -> Any:
+    """Resolve a demo-binding capability (real HTTP to local Mockoon).
+
+    Phase E P0 step 2 lands the Jira hero writes here; until then demo
+    fails closed with :class:`NotConfigured` instead of silently
+    downgrading to in-memory.
+    """
+    from src.mission.capability_binding import NotConfigured
+
+    raise NotConfigured(
+        f"demo binding for capability {capability!r} is not implemented yet "
+        "(Phase E P0 step 2: Jira hero writes against local Mockoon)"
+    )
+
+
+def _resolve_prod_capability(capability: str, config: ConnectorConfig) -> Any:
+    """Resolve a prod-binding capability (real SDK/HTTP where configured).
+
+    Fails closed with :class:`NotConfigured` until credentials exist —
+    never a silent in-memory fallback.
+    """
+    from src.mission.capability_binding import NotConfigured
+
+    raise NotConfigured(
+        f"prod binding for capability {capability!r} has no credentials "
+        "configured (tenant %r): set JIRA_BASE_URL/JIRA_USERNAME/JIRA_API_TOKEN "
+        "or connector credentials before using binding=prod" % config.tenant_id
+    )
 
 
 def _resolve_capability(capability: str, config: ConnectorConfig) -> Any:
     """Resolve a capability instance from the existing capability layer.
 
-    Falls back to an in-memory connector when no real connector is registered
-    for the capability (the connector registry only ships erp/accounting/
-    crm_mock/erp_mock). This keeps every op deterministic in unconfigured
-    environments and in tests; tests monkeypatch this seam to assert the
-    exact connector method each op wraps.
+    The implementation is selected by the runtime binding (see
+    ``src/mission/capability_binding.py``); mission/agent code must not
+    branch on the choice. Under ``test`` (the default) this keeps the
+    historical behavior: the registered connector when one exists, else
+    the deterministic in-memory fallback. Tests monkeypatch this seam to
+    assert the exact connector method each op wraps.
     """
-    try:
-        return CapabilityRegistry.get_capability(capability, config)
-    except KeyError:
-        return _InMemoryCapability(capability, config)
+    from src.mission.capability_binding import get_capability_binding
+
+    binding = get_capability_binding()
+    if binding == "test":
+        try:
+            return CapabilityRegistry.get_capability(capability, config)
+        except KeyError:
+            return _InMemoryCapability(capability, config)
+    if binding == "demo":
+        return _resolve_demo_capability(capability, config)
+    return _resolve_prod_capability(capability, config)
 
 
 class _InMemoryCapability:
